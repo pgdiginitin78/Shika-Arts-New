@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import HrDayIamge from "../assets/homePage/HrDay.png";
+import HrDayIamge from "../assets/homePage/HRDay.png";
 import MothersDayImage from "../assets/homePage/MothersDay.png";
 import ThoughtFullGift from "../assets/homePage/ThoughtfullGift.png";
 import CorporateGift from "../assets/homePage/CorporateGift.png";
@@ -115,7 +115,7 @@ export function HomeCarousel() {
   return (
     <section className="w-full">
       <div className="relative h-[450px] sm:h-[600px] lg:h-[700px] 2xl:h-[1080px] w-full overflow-hidden bg-midnight">
-        <AnimatePresence initial={false} custom={direction} mode="popLayout">     
+        <AnimatePresence initial={false} custom={direction} mode="popLayout">
           <motion.div
             key={index}
             custom={direction}
@@ -185,4 +185,3 @@ export function HomeCarousel() {
     </section>
   );
 }
-
