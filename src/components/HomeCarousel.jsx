@@ -6,7 +6,7 @@ import HrDayIamge from "../assets/homePage/HRDay.png";
 import MothersDayImage from "../assets/homePage/MothersDay.png";
 import ThoughtFullGift from "../assets/homePage/ThoughtfullGift.png";
 import CorporateGift from "../assets/homePage/CorporateGift.png";
-
+  
 const CARDS = [
   {
     id: 1,
