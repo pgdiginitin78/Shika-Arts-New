@@ -29,7 +29,7 @@ const CITIES = [
   "Surat",
   "Pune",
   "Jaipur",
-  "Jalgaon"
+  "Jalgaon",
 ];
 
 export function LocationModal({ isOpen, onOpenChange, onSelect }) {
@@ -84,33 +84,33 @@ export function LocationModal({ isOpen, onOpenChange, onSelect }) {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] rounded-none p-8 gap-6 border-none shadow-luxe bg-background">
-        <DialogHeader className="relative flex-row items-center gap-6 space-y-0 text-left">
-          <div className="flex h-14 w-14 items-center justify-center bg-primary shrink-0">
-            <MapPin className="h-6 w-6 text-accent" />
+    <Dialog open={isOpen} onOpenChange={onOpenChange} className="rounded-xl">
+      <DialogContent className="w-[92vw] sm:max-w-[500px] h-[90%] rounded-xl md:h-auto overflow-y-auto p-5 sm:p-8 gap-4 sm:gap-6 border-none shadow-luxe bg-background">
+        <DialogHeader className="relative flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 space-y-0 text-left">
+          <div className="flex h-11 w-11 rounded-lg sm:h-14 sm:w-14 items-center justify-center bg-primary shrink-0">
+            <MapPin className="h-5 w-5 sm:h-6 sm:w-6 text-accent" />
           </div>
           <div className="flex-1 pr-8">
-            <DialogTitle className="font-serif text-3xl leading-none text-foreground mb-2">
+            <DialogTitle className="font-serif text-2xl sm:text-3xl leading-tight text-foreground mb-1 sm:mb-2">
               Personalize Your Experience
             </DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground uppercase tracking-wider">
+            <DialogDescription className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">
               Find the perfect gifts for your loved ones
             </DialogDescription>
           </div>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="space-y-4 sm:space-y-6 py-2 sm:py-4">
           <div className="space-y-2">
             <Select value={city} onValueChange={setCity}>
-              <SelectTrigger className="h-14 rounded-none border-border bg-white px-5 text-sm uppercase tracking-wider focus:ring-primary/20">
+              <SelectTrigger className="h-12 sm:h-14 rounded border-border bg-white px-4 sm:px-5 text-xs sm:text-sm uppercase tracking-wider focus:ring-primary/20">
                 <div className="flex items-center gap-3">
                   <SelectValue placeholder="Select your city" />
                 </div>
               </SelectTrigger>
-              <SelectContent className="rounded-none">
+              <SelectContent className="rounded">
                 {CITIES.map((c) => (
-                  <SelectItem key={c} value={c} className="rounded-none">
+                  <SelectItem key={c} value={c} className="rounded text-xs sm:text-sm">
                     {c}
                   </SelectItem>
                 ))}
@@ -123,34 +123,34 @@ export function LocationModal({ isOpen, onOpenChange, onSelect }) {
               placeholder="Enter Pincode (e.g. 424101)"
               value={pincode}
               onChange={handlePincodeChange}
-              className="h-14 rounded-none border-border bg-white px-5 pr-12 text-sm uppercase tracking-wider focus:ring-primary/20"
+              className="h-12 sm:h-14 rounded border-border bg-white px-4 sm:px-5 pr-12 text-xs sm:text-sm uppercase tracking-wider focus:ring-primary/20"
             />
             {loading ? (
-              <Loader2 className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 animate-spin text-muted-foreground" />
-            ) : pincode.length === 6 && (
-               <div className="absolute right-4 top-1/2 -translate-y-1/2 text-primary">
-                 <MapPin className="h-5 w-5" />
-               </div>
+              <Loader2 className="absolute right-4 top-1/2 h-4 w-4 sm:h-5 sm:w-5 -translate-y-1/2 animate-spin text-muted-foreground" />
+            ) : (
+              pincode.length === 6 && (
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-primary">
+                  <MapPin className="h-4 w-4 sm:h-5 sm:w-5" />
+                </div>
+              )
             )}
           </div>
 
           {detectedLocation && (
-            <div className="rounded-xl bg-secondary/30 px-4 py-3 text-sm font-medium text-foreground flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-primary" />
+            <div className="rounded-none bg-secondary/30 px-4 py-2.5 text-xs sm:text-sm font-medium text-foreground flex items-center gap-2">
+              <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
               {detectedLocation}
             </div>
           )}
 
           {error && (
-            <div className="text-sm font-medium text-destructive px-1">
-              {error}
-            </div>
+            <div className="text-xs sm:text-sm font-medium text-destructive px-1">{error}</div>
           )}
         </div>
 
         <Button
           onClick={handleContinue}
-          className="h-14 w-full rounded-none bg-primary text-base uppercase tracking-ultra font-bold text-primary-foreground hover:bg-accent hover:text-primary transition-all duration-500"
+          className="h-12 sm:h-14 w-full rounded-lg bg-primary text-xs sm:text-base  tracking-ultra font-semibold text-primary-foreground hover:bg-accent hover:text-primary transition-all duration-500"
         >
           Continue Shopping
         </Button>

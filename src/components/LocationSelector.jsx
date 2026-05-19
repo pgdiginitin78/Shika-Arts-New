@@ -22,7 +22,7 @@ export function LocationSelector() {
   return (
     <>
       <div 
-        className="flex items-center gap-2 cursor-pointer group hover:bg-secondary/20 px-3 py-1.5 2xl:py-[14px] 2xl:px-[16px] transition-colors border border-border" 
+        className="flex items-center gap-2 cursor-pointer group hover:bg-secondary/20 px-3 py-1.5 2xl:py-[14px] 2xl:px-[16px] transition-colors rounded border border-border" 
         onClick={() => setIsModalOpen(true)}
       >
         <MapPin className="h-3.5 w-3.5 2xl:w-[20px] 2xl:h-[20px] text-accent" />
