@@ -87,14 +87,12 @@ export function Header() {
       </AnimatePresence>
 
       <div className="mx-auto flex w-full items-center justify-between px-4 lg:px-6 ">
-        {/* LEFT: LOGO */}
         <Link to="/" className="group flex items-center gap-2">
           <div className="relative">
             <img src={MainLogo} alt="Main Logo" className="w-20 h-20 2xl:w-32 2xl:h-32" />
           </div>
         </Link>
 
-        {/* CENTER: NAVIGATION */}
         <nav className="hidden lg:flex items-center gap-6">
           <NavLink
             to="/products"
@@ -128,7 +126,6 @@ export function Header() {
           ))}
         </nav>
 
-        {/* RIGHT: ACTIONS */}
         <div className="flex items-center gap-4 lg:gap-6">
           <div className="hidden md:block scale-90 origin-right">
             <LocationSelector />
@@ -185,7 +182,6 @@ export function Header() {
         </div>
       </div>
 
-      {/* MEGA MENU */}
       <AnimatePresence>
         {activeMenu && MENU_ITEMS[activeMenu] && (
           <motion.div

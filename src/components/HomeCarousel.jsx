@@ -62,19 +62,20 @@ function CarouselCard({ card }) {
         src={card.image}
         alt={card.title}
         draggable={false}
-        className="absolute inset-0 h-full w-full object-cover object-center"
+        className="absolute inset-0 h-full w-full object-contain md:object-cover object-center"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-midnight/60 via-midnight/20 to-transparent" />
 
-      <div className="absolute inset-0 p-6 md:p-16 flex flex-col justify-end items-center mb-16 md:mb-12">
+      <div className="absolute inset-x-0 bottom-0 p-4 md:p-16 flex flex-col justify-end items-center pb-8 md:pb-12 pointer-events-none z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 1 }}
+          className="pointer-events-auto"
         >
           <Link
             to={card.link}
-            className="inline-block bg-accent text-primary px-10 md:px-16 py-4 md:py-5 text-[10px] md:text-[11px] uppercase tracking-ultra font-bold hover:bg-white transition-all duration-700 shadow-luxe cursor-pointer"
+            className="inline-block bg-accent text-primary px-6 py-2.5 md:px-16 md:py-5 text-[9px] md:text-[11px] uppercase tracking-ultra font-bold hover:bg-white transition-all duration-700 shadow-luxe cursor-pointer"
           >
             Explore Collection
           </Link>
@@ -108,13 +109,12 @@ export function HomeCarousel() {
   const handleManualNav = (dir) => {
     setIsAutoPlaying(false);
     go(dir);
-    // Resume autoplay after 10 seconds of inactivity
     setTimeout(() => setIsAutoPlaying(true), 10000);
   };
 
   return (
     <section className="w-full">
-      <div className="relative h-[450px] sm:h-[600px] lg:h-[700px] 2xl:h-[1080px] w-full overflow-hidden bg-midnight">
+      <div className="relative h-[240px] sm:h-[400px] md:h-[600px] lg:h-[700px] 2xl:h-[1080px] w-full overflow-hidden bg-primary">
         <AnimatePresence initial={false} custom={direction} mode="popLayout">
           <motion.div
             key={index}
@@ -145,12 +145,11 @@ export function HomeCarousel() {
           </motion.div>
         </AnimatePresence>
 
-        {/* NAVIGATION - Hidden on very small screens, refined on tablet */}
-        <div className="absolute bottom-16 right-4 md:right-12 flex gap-2 md:gap-4 z-20">
+        <div className="absolute top-1/2 -translate-y-1/2 w-full flex justify-between px-4 md:px-12 z-20 pointer-events-none">
           <button
             onClick={() => handleManualNav(-1)}
             aria-label="Previous slide"
-            className="group flex h-10 w-10 md:h-14 md:w-14 items-center justify-center border border-white/20 text-white hover:border-accent hover:text-accent transition-all duration-700 cursor-pointer backdrop-blur-md bg-midnight/10"
+            className="group flex h-10 w-10 md:h-14 md:w-14 items-center justify-center border border-white/20 text-white hover:border-accent hover:text-accent transition-all duration-700 cursor-pointer backdrop-blur-md bg-midnight/10 pointer-events-auto"
           >
             <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" strokeWidth={1} />
           </button>
@@ -158,14 +157,13 @@ export function HomeCarousel() {
           <button
             onClick={() => handleManualNav(1)}
             aria-label="Next slide"
-            className="group flex h-10 w-10 md:h-14 md:w-14 items-center justify-center border border-white/20 text-white hover:border-accent hover:text-accent transition-all duration-700 cursor-pointer backdrop-blur-md bg-midnight/10"
+            className="group flex h-10 w-10 md:h-14 md:w-14 items-center justify-center border border-white/20 text-white hover:border-accent hover:text-accent transition-all duration-700 cursor-pointer backdrop-blur-md bg-midnight/10 pointer-events-auto"
           >
             <ChevronRight className="w-5 h-5 md:w-6 md:h-6" strokeWidth={1} />
           </button>
         </div>
 
-        {/* INDICATORS - More compact on mobile */}
-        <div className="absolute bottom-8 md:bottom-12 left-1/2 -translate-x-1/2 flex gap-2 md:gap-4 z-20">
+        <div className="absolute bottom-3 md:bottom-8 left-1/2 -translate-x-1/2 flex gap-2 md:gap-4 z-20">
           {CARDS.map((_, i) => (
             <button
               key={i}

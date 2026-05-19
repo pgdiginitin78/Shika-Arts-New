@@ -59,7 +59,6 @@ export function ProductCard({ product, lightMode = true }) {
           </div>
         )}
 
-        {/* QUICK ADD OVERLAY */}
         <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-10">
           <button
             onClick={handleAdd}
@@ -76,7 +75,6 @@ export function ProductCard({ product, lightMode = true }) {
           </button>
         </div>
 
-        {/* WISHLIST BUTTON */}
         <button
           onClick={handleWishlist}
           className={`absolute top-4 right-4 z-20 p-2 cursor-pointer rounded-full backdrop-blur-md transition-all duration-300 ${
