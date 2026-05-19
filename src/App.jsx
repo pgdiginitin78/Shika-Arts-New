@@ -23,7 +23,7 @@ function App() {
       <BrowserRouter>
         <ScrollToTop />
         <Header />
-        <main className="min-h-[60vh]">
+        <main className="">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/category/:slug" element={<Category />} />
