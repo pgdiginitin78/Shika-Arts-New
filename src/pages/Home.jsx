@@ -38,7 +38,7 @@ function HomePage() {
 
   return (
     <div ref={containerRef} className="bg-background text-foreground overflow-x-hidden">
-      <section className="relative min-h-[60vh] md:min-h-[75vh] lg:min-h-[90vh] flex flex-col justify-end">
+      <section className="relative  md:min-h-[75vh] lg:min-h-[90vh] flex flex-col justify-end">
         <div className="w-full h-full px-0">
           <HomeCarousel />
         </div>
