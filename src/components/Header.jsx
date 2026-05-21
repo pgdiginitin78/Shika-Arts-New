@@ -190,18 +190,22 @@ export function Header() {
         </AnimatePresence>
 
         <div className="mx-auto flex w-full items-center justify-between px-4 lg:px-6 relative h-[58px] md:min-h-[64px] py-2">
-          <Link to="/" className="group flex items-center gap-2">
-            <div className="relative">
-              {/* <img
+          {/* <img
                 src={MainLogo}
                 alt="Main Logo"
                 className="w-16 h-16 sm:w-20 sm:h-20 2xl:w-32 2xl:h-32 object-contain"
               /> */}
+     <Link to="/" className="flex items-center">
+  <div className="relative">
+    <span className="text-3xl md:text-4xl font-serif font-bold text-[#D4AF37]">
+      Shika
+    </span>
 
-              <span className="text-2xl font-serif">Shika </span>
-              <span className="text-2xl font-serif text-destructive">Arts</span>
-            </div>
-          </Link>
+    <span className="absolute -bottom-2 -right-3 text-[11px] uppercase tracking-[0.3em] font-semibold text-[#7A1F3D]">
+      Arts
+    </span>
+  </div>
+</Link>
 
           <nav className="hidden lg:flex items-center gap-6">
             <NavLink
@@ -347,22 +351,24 @@ export function Header() {
                 </div>
 
                 <div className="col-span-2 grid grid-cols-2 gap-8">
-                  {(MENU_ITEMS[activeMenu] || MENU_ITEMS[activeMenu.toLowerCase()]).map((section, idx) => (
-                    <div key={idx} className="flex flex-col gap-4">
-                      <h4 className="text-[16px] 2xl:text-[18px] font-semibold  font-serif italic  text-destructive mb-1">
-                        {section.category}
-                      </h4>
-                      <div className="flex flex-col gap-3">
-                        {section.subCategory.map((item, i) => (
-                          <Link key={i} to={item.link} className="group flex flex-col">
-                            <span className="text-[12px] 2xl:text-[16px]  tracking-wider font-semibold text-foreground group-hover:text-destructive transition-colors">
-                              {item.name}
-                            </span>
-                          </Link>
-                        ))}
+                  {(MENU_ITEMS[activeMenu] || MENU_ITEMS[activeMenu.toLowerCase()]).map(
+                    (section, idx) => (
+                      <div key={idx} className="flex flex-col gap-4">
+                        <h4 className="text-[16px] 2xl:text-[18px] font-semibold  font-serif italic  text-destructive mb-1">
+                          {section.category}
+                        </h4>
+                        <div className="flex flex-col gap-3">
+                          {section.subCategory.map((item, i) => (
+                            <Link key={i} to={item.link} className="group flex flex-col">
+                              <span className="text-[12px] 2xl:text-[16px]  tracking-wider font-semibold text-foreground group-hover:text-destructive transition-colors">
+                                {item.name}
+                              </span>
+                            </Link>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ),
+                  )}
                 </div>
 
                 <div className="col-span-1">
