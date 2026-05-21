@@ -7,36 +7,12 @@ import WeddingGift from "../assets/categories/WeddingGift.png";
 import BabyShowerGift from "../assets/categories/BabyShower.png";
 
 export const CATEGORIES = [
-  // {
-  //   slug: "personalized",
-  //   label: "Personalized",
-  //   productType: "Personalized",
-  //   tagline: "Engraved & made for them",
-  //   icon: "✎",
-  //   image: PersonalizedImage,
-  // },
   {
-    slug: "customization",
-    label: "Customization",
-    productType: "Customized Gifts",
-    tagline: "Personalized thoughtfulness",
+    slug: "Occasions",
+    label: "Occasions",
+    productType: "Occasions",
+    tagline: "Engraved & made for them",
     icon: "✎",
-    image: CustomizedGifts,
-  },
-  {
-    slug: "hampers",
-    label: "Shop By Hampers",
-    productType: "Hampers",
-    tagline: "Curated luxury sets",
-    icon: "✿",
-    image: HampersImage,
-  },
-  {
-    slug: "occasions",
-    label: "Shop By Occasions",
-    productType: "Occasion",
-    tagline: "Festive thoughtfulness",
-    icon: "❈",
     image: OccasionsImage,
   },
   {
@@ -55,6 +31,31 @@ export const CATEGORIES = [
     icon: "⚭",
     image: WeddingGift,
   },
+  {
+    slug: "customization",
+    label: "Customization",
+    productType: "Customized Gifts",
+    tagline: "Personalized thoughtfulness",
+    icon: "✎",
+    image: CustomizedGifts,
+  },
+  {
+    slug: "hampers",
+    label: "Shop By Hampers",
+    productType: "Hampers",
+    tagline: "Curated luxury sets",
+    icon: "✿",
+    image: HampersImage,
+  },
+  // {
+  //   slug: "occasions",
+  //   label: "Shop By Occasions",
+  //   productType: "Occasion",
+  //   tagline: "Festive thoughtfulness",
+  //   icon: "❈",
+  //   image: OccasionsImage,
+  // },
+
   {
     slug: "baby-shower",
     label: "Baby Shower",

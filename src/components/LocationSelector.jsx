@@ -25,7 +25,7 @@ export function LocationSelector() {
         className="flex items-center gap-2 cursor-pointer group hover:bg-secondary/20 px-3 py-1.5 2xl:py-[14px] 2xl:px-[16px] transition-colors rounded border border-border" 
         onClick={() => setIsModalOpen(true)}
       >
-        <MapPin className="h-3.5 w-3.5 2xl:w-[20px] 2xl:h-[20px] text-accent" />
+        <MapPin className="h-3.5 w-3.5 2xl:w-[20px] 2xl:h-[20px] text-destructive" />
 
         <div className="flex flex-col leading-none">
           <span className="text-[10px] 2xl:text-[14px] uppercase tracking-wider font-bold text-foreground/60 whitespace-nowrap">
@@ -35,7 +35,7 @@ export function LocationSelector() {
             <span className={`text-[11px] 2xl:text-[14px] font-semibold whitespace-nowrap ${location ? 'text-foreground' : 'text-[#ff6b6b]'}`}>
               {location ? location.city : "Select Location"}
             </span>
-            <ChevronDown className={`h-3 w-3 transition-transform ${isModalOpen ? 'rotate-180' : ''} text-accent`} />
+            <ChevronDown className={`h-3 w-3 transition-transform ${isModalOpen ? 'rotate-180' : ''} text-destructive`} />
           </div>
         </div>
       </div>
