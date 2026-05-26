@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Star, Truck, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useRef } from "react";
-import PersonalizedImage from "../assets/homePage/Personalized Gift.jpg";
+import PersonalizedImage from "../assets/homePage/Personalized Gift.webp";
 
 function useProducts(query) {
   return useQuery({

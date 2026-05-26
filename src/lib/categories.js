@@ -1,9 +1,9 @@
 // Categories shown in nav + grid. Slug must match Shopify productType (case-insensitive lookup).
-import CorporateImage from "../assets/homePage/CorporateGifts.png";
-import CustomizedGifts from "../assets/homePage/CustomizedGifts.png";
+import CorporateImage from "../assets/homePage/CorporateGifts.webp";
+import CustomizedGifts from "../assets/homePage/CustomizedGifts.webp";
 import HampersImage from "../assets/categories/Hampers.jpg";
-import OccasionsImage from "../assets/homePage/OccasionGift.png";
-import WeddingGift from "../assets/homePage/Wedding.png";
+import OccasionsImage from "../assets/homePage/OccasionGift.webp";
+import WeddingGift from "../assets/homePage/Wedding.webp";
 
 
 export const CATEGORIES = [

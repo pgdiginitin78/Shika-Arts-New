@@ -2,11 +2,10 @@ import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import OccasionGift from "../assets/homePage/OccasionGift.png";
-import CorporateGifts from "../assets/homePage/CorporateGifts.png";
-import CustomizedGifts from "../assets/homePage/CustomizedGifts.png";
-import WeddingGift from "../assets/homePage/Wedding.png";
-
+import OccasionGift from "../assets/homePage/OccasionGift.webp";
+import CorporateGifts from "../assets/homePage/CorporateGifts.webp";
+import CustomizedGifts from "../assets/homePage/CustomizedGifts.webp";
+import WeddingGift from "../assets/homePage/Wedding.webp";
 
 const CARDS = [
   {
@@ -51,19 +50,21 @@ const variants = {
 function CarouselCard({ card }) {
   return (
     <div className="relative h-full w-full overflow-hidden bg-primary">
-      <motion.img
-        src={card.image}
-        alt={card.title}
-        draggable={false}
-        className="absolute inset-0 h-full w-full object-fill object-center"
-      />
+      <div className="relative w-full h-full overflow-hidden">
+        <motion.img
+          src={card.image}
+          alt={card.title}
+          draggable={false}
+          className="absolute inset-0 w-full h-full object-fill"
+        />{" "}
+      </div>
       <div className="absolute inset-0 bg-gradient-to-t from-midnight/60 via-midnight/20 to-transparent" />
 
       <div className="absolute inset-x-0 bottom-0 p-4 md:p-16 flex flex-col justify-end items-center pb-8 md:pb-12 pointer-events-none z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 1 }}  
+          transition={{ delay: 0.5, duration: 1 }}
           className="pointer-events-auto"
         >
           <Link
