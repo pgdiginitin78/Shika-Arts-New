@@ -12,6 +12,9 @@ import Home from "./pages/Home";
 import Category from "./pages/Category";
 import Product from "./pages/Product";
 import Products from "./pages/Products";
+import Occasions from "./pages/Occasions";
+import Corporate from "./pages/Corporate";
+import Wedding from "./pages/Wedding";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +29,9 @@ function App() {
         <main className="">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/category/Occasions" element={<Occasions />} />
+            <Route path="/category/Corporate" element={<Corporate />} />
+            <Route path="/category/Wedding" element={<Wedding />} />
             <Route path="/category/:slug" element={<Category />} />
             <Route path="/product/:handle" element={<Product />} />
             <Route path="/products" element={<Products />} />

@@ -55,8 +55,9 @@ function CarouselCard({ card }) {
           src={card.image}
           alt={card.title}
           draggable={false}
-          className="absolute inset-0 w-full h-full object-fill"
-        />{" "}
+          className="absolute inset-0 w-full  object-cover object-center"
+          transition={{ duration: 0.3 }}
+        />
       </div>
       <div className="absolute inset-0 bg-gradient-to-t from-midnight/60 via-midnight/20 to-transparent" />
 

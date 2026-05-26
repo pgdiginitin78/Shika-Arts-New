@@ -9,35 +9,35 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import MainLogo from "../assets/mainLogos/shikaArtsLogo.png";
 import { LocationSelector } from "./LocationSelector";
 
-const MENU_ITEMS = {
+export const MENU_ITEMS = {
   occasions: [
     {
       category: "Celebrations",
       subCategory: [
-        { name: "Birthdays", link: "/category/birthdays" },
-        { name: "Anniversaries", link: "/category/anniversaries" },
-        { name: "HouseWarming", link: "/category/housewarming" },
-        { name: "Graduation", link: "/category/graduation" },
-        { name: "New Job", link: "/category/new-job" },
-        { name: "Retirement", link: "/category/retirement" },
+        { name: "Birthdays", link: "/category/Occasions?tag=Birthday" },
+        { name: "Anniversaries", link: "/category/Occasions?tag=Anniversary" },
+        { name: "HouseWarming", link: "/category/Occasions?tag=housewarming" },
+        { name: "Graduation", link: "/category/Occasions?tag=graduation" },
+        { name: "New Job", link: "/category/Occasions?tag=new job" },
+        { name: "Retirement", link: "/category/Occasions?tag=retirement" },
       ],
     },
     {
       category: "Baby & Family",
       subCategory: [
-        { name: "Baby Announcement", link: "/category/baby-announcement" },
-        { name: "Baby Shower", link: "/category/baby-shower" },
-        { name: "Naming Ceremony", link: "/category/naming-ceremony" },
-        { name: "New Parent Gifts", link: "/category/new-parent-gifts" },
+        { name: "Baby Announcement", link: "/category/Occasions?tag=baby announcement" },
+        { name: "Baby Shower", link: "/category/Occasions?tag=baby shower" },
+        { name: "Naming Ceremony", link: "/category/Occasions?tag=naming ceremony" },
+        { name: "New Parent Gifts", link: "/category/Occasions?tag=new parent gifts" },
       ],
     },
     {
       category: "Seasonal & Festive",
       subCategory: [
-        { name: "Raksha Bandhan", link: "/category/raksha-bandhan" },
-        { name: "Velentine's", link: "/category/velentine's" },
-        { name: "Diwali", link: "/category/diwali" },
-        { name: "Christmas", link: "/category/christmas" },
+        { name: "Raksha Bandhan", link: "/category/Occasions?tag=raksha bandhan" },
+        { name: "Valentine's", link: "/category/Occasions?tag=velentine's" },
+        { name: "Diwali", link: "/category/Occasions?tag=diwali" },
+        { name: "Christmas", link: "/category/Occasions?tag=christmas" },
       ],
     },
   ],
@@ -46,43 +46,43 @@ const MENU_ITEMS = {
     {
       category: "Employee Gifting",
       subCategory: [
-        { name: "Joining Kits", link: "/category/joining-kits" },
-        { name: "Event Gifting", link: "/category/event-gifting" },
-        { name: "Work Anniversaries", link: "/category/work-anniversaries" },
-        { name: "Rewards", link: "/category/rewards" },
-        { name: "Wellness Box", link: "/category/wellness-box" },
+        { name: "Joining Kits", link: "/category/Corporate?tag=joining kits" },
+        { name: "Event Gifting", link: "/category/Corporate?tag=event gifting" },
+        { name: "Work Anniversaries", link: "/category/Corporate?tag=work anniversaries" },
+        { name: "Rewards", link: "/category/Corporate?tag=rewards" },
+        { name: "Wellness Box", link: "/category/Corporate?tag=wellness box" },
       ],
     },
     {
       category: "Client Gifting",
       subCategory: [
-        { name: "New Year Gifting", link: "/category/new-year-gifting" },
-        { name: "Festive Gifting", link: "/category/festive-gifting" },
-        { name: "Executive Gifts", link: "/category/executive-gifts" },
-        { name: "Premium Collection", link: "/category/premium-collection" },
+        { name: "New Year Gifting", link: "/category/Corporate?tag=new year gifting" },
+        { name: "Festive Gifting", link: "/category/Corporate?tag=festive gifting" },
+        { name: "Executive Gifts", link: "/category/Corporate?tag=executive gifts" },
+        { name: "Premium Collection", link: "/category/Corporate?tag=premium collection" },
       ],
     },
     {
       category: "Annual Gifting Calendar",
-      subCategory: [{ name: "Annual Gifting Calendar", link: "/category/annual-gifting-calendar" }],
+      subCategory: [{ name: "Annual Gifting Calendar", link: "/category/Corporate?tag=annual gifting calendar" }],
     },
   ],
   wedding: [
     {
       category: "Invitations",
       subCategory: [
-        { name: "Physical Invites", link: "/category/physical-invites" },
-        { name: "Digital Invites", link: "/category/digital-invites" },
-        { name: "Luxury Box Invites", link: "/category/luxury-box-invites" },
+        { name: "Physical Invites", link: "/category/Wedding?tag=physical invites" },
+        { name: "Digital Invites", link: "/category/Wedding?tag=digital invites" },
+        { name: "Luxury Box Invites", link: "/category/Wedding?tag=luxury box invites" },
       ],
     },
     {
       category: "Wedding Hampers",
       subCategory: [
-        { name: "Bridesmaid Boxes", link: "/category/bridesmaid-boxes" },
-        { name: "Groomsmen Kits", link: "/category/groomsmen-kits" },
-        { name: "Guest Welcome Kits", link: "/category/guest-welcome-kits" },
-        { name: "Return Gifts", link: "/category/return-gifts" },
+        { name: "Bridesmaid Boxes", link: "/category/Wedding?tag=Wedding" },
+        { name: "Groomsmen Kits", link: "/category/Wedding?tag=Wedding" },
+        { name: "Guest Welcome Kits", link: "/category/Wedding?tag=Wedding" },
+        { name: "Return Gifts", link: "/category/Wedding?tag=Wedding" },
       ],
     },
   ],
@@ -90,26 +90,26 @@ const MENU_ITEMS = {
     {
       category: "Packaging Personalisation",
       subCategory: [
-        { name: "Custom Boxes", link: "/category/custom-boxes" },
-        { name: "Ribbons", link: "/category/ribbons" },
-        { name: "Sleeves", link: "/category/sleeves" },
-        { name: "Colour Themes", link: "/category/colour-themes" },
+        { name: "Custom Boxes", link: "/category/Customization?tag=custom-boxes" },
+        { name: "Ribbons", link: "/category/Customization?tag=ribbons" },
+        { name: "Sleeves", link: "/category/Customization?tag=sleeves" },
+        { name: "Colour Themes", link: "/category/Customization?tag=colour-themes" },
       ],
     },
     {
       category: "Corporate Branding",
       subCategory: [
-        { name: "Logo Placement", link: "/category/logo-placement" },
-        { name: "Welcome Kits", link: "/category/welcome-kits" },
-        { name: "Employee Gifting", link: "/category/employee-gifting" },
+        { name: "Logo Placement", link: "/category/Customization?tag=logo-placement" },
+        { name: "Welcome Kits", link: "/category/Customization?tag=welcome-kits" },
+        { name: "Employee Gifting", link: "/category/Customization?tag=employee-gifting" },
       ],
     },
     {
       category: "Wedding Personalisation",
       subCategory: [
-        { name: "Invitation", link: "/category/invitation" },
-        { name: "Guest Favours", link: "/category/guest-favours" },
-        { name: "Bridesmaid Boxes", link: "/category/bridesmaid-boxes" },
+        { name: "Invitation", link: "/category/Customization?tag=invitation" },
+        { name: "Guest Favours", link: "/category/Customization?tag=guest-favours" },
+        { name: "Bridesmaid Boxes", link: "/category/Customization?tag=bridesmaid-boxes" },
       ],
     },
   ],
@@ -117,34 +117,34 @@ const MENU_ITEMS = {
     {
       category: "Boxes",
       subCategory: [
-        { name: "Luxury Boxes", link: "/category/luxury-boxes" },
-        { name: "Magnetic Boxes", link: "/category/magnetic-boxes" },
-        { name: "Acrylic Boxes", link: "/category/acrylic-boxes" },
+        { name: "Luxury Boxes", link: "/category/Packaging-Studio?tag=luxury-boxes" },
+        { name: "Magnetic Boxes", link: "/category/Packaging-Studio?tag=magnetic-boxes" },
+        { name: "Acrylic Boxes", link: "/category/Packaging-Studio?tag=acrylic-boxes" },
       ],
     },
     {
       category: "Baskets",
       subCategory: [
-        { name: "Wicker", link: "/category/wicker-basket" },
-        { name: "Premium Cane", link: "/category/premium-cane-basket" },
-        { name: "Festive ", link: "/category/festive-basket" },
+        { name: "Wicker", link: "/category/Packaging-Studio?tag=wicker-basket" },
+        { name: "Premium Cane", link: "/category/Packaging-Studio?tag=premium-cane-basket" },
+        { name: "Festive ", link: "/category/Packaging-Studio?tag=festive-basket" },
       ],
     },
     {
       category: "Wraps & Papers",
       subCategory: [
-        { name: "Floral", link: "/category/floral" },
-        { name: "Minimal", link: "/category/minimal" },
-        { name: "Festive", link: "/category/festive" },
+        { name: "Floral", link: "/category/Packaging-Studio?tag=floral" },
+        { name: "Minimal", link: "/category/Packaging-Studio?tag=minimal" },
+        { name: "Festive", link: "/category/Packaging-Studio?tag=festive" },
       ],
     },
     {
       category: "Finishing Touches",
       subCategory: [
-        { name: "Ribbons", link: "/category/ribbons" },
-        { name: "Tags", link: "/category/tags" },
-        { name: "Wax Seals", link: "/category/wax-seals" },
-        { name: "Personalised Notes", link: "/category/personal-notes" },
+        { name: "Ribbons", link: "/category/Packaging-Studio?tag=ribbons" },
+        { name: "Tags", link: "/category/Packaging-Studio?tag=tags" },
+        { name: "Wax Seals", link: "/category/Packaging-Studio?tag=wax-seals" },
+        { name: "Personalised Notes", link: "/category/Packaging-Studio?tag=personal-notes" },
       ],
     },
   ],
@@ -382,6 +382,7 @@ export function Header() {
                   </p>
                   <Link
                     to={`/category/${activeMenu}`}
+                    onClick={() => setActiveMenu(null)}
                     className="inline-block mt-3 text-end text-[10px] 2xl:text-[16px] uppercase tracking-ultra font-bold text-destructive border-b border-destructive pb-1"
                   >
                     View All
@@ -397,7 +398,7 @@ export function Header() {
                         </h4>
                         <div className="flex flex-col gap-3">
                           {section.subCategory.map((item, i) => (
-                            <Link key={i} to={item.link} className="group flex flex-col">
+                            <Link key={i} to={item.link} className="group flex flex-col" onClick={() => setActiveMenu(null)}>
                               <span className="text-[12px] 2xl:text-[16px]  tracking-wider font-semibold text-foreground group-hover:text-destructive transition-colors">
                                 {item.name}
                               </span>

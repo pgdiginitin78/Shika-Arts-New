@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { toast } from "sonner";
 import { storefrontApiRequest } from "@/lib/shopify";
+
 const CART_QUERY = `query cart($id: ID!) { cart(id: $id) { id totalQuantity } }`;
 const CART_CREATE_MUTATION = `
   mutation cartCreate($input: CartInput!) {
