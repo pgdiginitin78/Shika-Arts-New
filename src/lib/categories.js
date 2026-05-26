@@ -1,10 +1,10 @@
 // Categories shown in nav + grid. Slug must match Shopify productType (case-insensitive lookup).
-import CorporateImage from "../assets/categories/premiumGift.png";
-import CustomizedGifts from "../assets/categories/CustomizedGifts.jpg";
+import CorporateImage from "../assets/homePage/CorporateGifts.png";
+import CustomizedGifts from "../assets/homePage/CustomizedGifts.png";
 import HampersImage from "../assets/categories/Hampers.jpg";
-import OccasionsImage from "../assets/categories/OccasionGift.jpg";
-import WeddingGift from "../assets/categories/WeddingGift.png";
-import BabyShowerGift from "../assets/categories/BabyShower.png";
+import OccasionsImage from "../assets/homePage/OccasionGift.png";
+import WeddingGift from "../assets/homePage/Wedding.png";
+
 
 export const CATEGORIES = [
   {
@@ -16,7 +16,7 @@ export const CATEGORIES = [
     image: OccasionsImage,
   },
   {
-    slug: "corporate",
+    slug: "Corporate",
     label: "Shop Corporate Gift",
     productType: "Corporate",
     tagline: "Professional excellence",
@@ -24,7 +24,7 @@ export const CATEGORIES = [
     image: CorporateImage,
   },
   {
-    slug: "wedding",
+    slug: "Wedding",
     label: "Wedding Gifts",
     productType: "Wedding",
     tagline: "Celebrate their big day",
@@ -32,7 +32,7 @@ export const CATEGORIES = [
     image: WeddingGift,
   },
   {
-    slug: "customization",
+    slug: "Customization",
     label: "Customization",
     productType: "Customized Gifts",
     tagline: "Personalized thoughtfulness",
@@ -40,9 +40,9 @@ export const CATEGORIES = [
     image: CustomizedGifts,
   },
   {
-    slug: "hampers",
-    label: "Shop By Hampers",
-    productType: "Hampers",
+    slug: "Packaging Studio",
+    label: "Packaging Studio",
+    productType: "Packaging Studio",
     tagline: "Curated luxury sets",
     icon: "✿",
     image: HampersImage,
@@ -56,14 +56,14 @@ export const CATEGORIES = [
   //   image: OccasionsImage,
   // },
 
-  {
-    slug: "baby-shower",
-    label: "Baby Shower",
-    productType: "Baby Shower",
-    tagline: "Welcome the little one",
-    icon: "👶",
-    image: BabyShowerGift,
-  },
+  // {
+  //   slug: "Baby Shower",
+  //   label: "Baby Shower",
+  //   productType: "Baby Shower",
+  //   tagline: "Welcome the little one",
+  //   icon: "👶",
+  //   image: BabyShowerGift,
+  // },
 ];
 export const getCategoryBySlug = (slug) => CATEGORIES.find((c) => c.slug === slug);
 export const getCategoryByType = (type) =>

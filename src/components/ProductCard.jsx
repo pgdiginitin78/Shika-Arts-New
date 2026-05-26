@@ -108,7 +108,7 @@ export function ProductCard({ product, lightMode = true }) {
             {variant ? formatPrice(variant.price.amount, variant.price.currencyCode) : "—"}
           </span>
           {variant?.availableForSale === false && (
-            <span className="text-[10px] uppercase text-destructive tracking-widest">Sold out</span>
+            <span className="text-[10px] uppercase text-gold tracking-widest">Sold out</span>
           )}
         </div>
       </div>

@@ -2,39 +2,32 @@ import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import HrDayIamge from "../assets/homePage/HRDay.png";
-import MothersDayImage from "../assets/homePage/MothersDay.png";
-import ThoughtFullGift from "../assets/homePage/ThoughtfullGift.png";
-import CorporateGift from "../assets/homePage/CorporateGift.png";
-  
+import OccasionGift from "../assets/homePage/OccasionGift.png";
+import CorporateGifts from "../assets/homePage/CorporateGifts.png";
+import CustomizedGifts from "../assets/homePage/CustomizedGifts.png";
+import WeddingGift from "../assets/homePage/Wedding.png";
+
+
 const CARDS = [
   {
     id: 1,
-    image: MothersDayImage,
+    image: WeddingGift,
     link: "/category/wedding",
-    tagline: "Eternal Bonds",
-    title: "The Wedding Atelier",
   },
   {
     id: 2,
-    image: HrDayIamge,
+    image: CustomizedGifts,
     link: "/category/hampers",
-    tagline: "Curated Joy",
-    title: "Luxury Hampers",
   },
   {
     id: 3,
-    image: CorporateGift,
+    image: CorporateGifts,
     link: "/category/corporate-gifts",
-    tagline: "Professional Poise",
-    title: "Corporate Gifting",
   },
   {
     id: 4,
-    image: ThoughtFullGift,
+    image: OccasionGift,
     link: "/category/thoughtful-gifts",
-    tagline: "Meaningful Gestures",
-    title: "Thoughtful Selection",
   },
 ];
 
@@ -62,7 +55,7 @@ function CarouselCard({ card }) {
         src={card.image}
         alt={card.title}
         draggable={false}
-        className="absolute inset-0 h-full w-full object-contain md:object-cover object-center"
+        className="absolute inset-0 h-full w-full object-fill object-center"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-midnight/60 via-midnight/20 to-transparent" />
 
@@ -70,7 +63,7 @@ function CarouselCard({ card }) {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 1 }}
+          transition={{ delay: 0.5, duration: 1 }}  
           className="pointer-events-auto"
         >
           <Link

@@ -52,7 +52,7 @@ function HomePage() {
             viewport={{ once: true }}
             className="flex flex-col items-center text-center group"
           >
-            <div className="h-12 w-12 md:h-14 md:w-14 lg:h-16 lg:w-16 mb-5 md:mb-6 lg:mb-8 flex items-center justify-center rounded-full border border-accent/20 bg-primary text-primary-foreground transition-all duration-700">
+            <div className="h-12 w-12 md:h-14 md:w-14 lg:h-16 lg:w-16 mb-5 md:mb-6 lg:mb-8 flex items-center justify-center rounded-full border border-accent/20 bg-noir text-primary-foreground transition-all duration-700">
               <Star className="w-5 h-5 md:w-6 md:h-6" strokeWidth={1} />
             </div>
             <h3 className="font-serif text-xl md:text-2xl mb-3 md:mb-4 italic">
@@ -71,7 +71,7 @@ function HomePage() {
             transition={{ delay: 0.2 }}
             className="flex flex-col items-center text-center group"
           >
-            <div className="h-12 w-12 md:h-14 md:w-14 lg:h-16 lg:w-16 mb-5 md:mb-6 lg:mb-8 flex items-center justify-center rounded-full border border-accent/20 bg-primary text-primary-foreground transition-all duration-700">
+            <div className="h-12 w-12 md:h-14 md:w-14 lg:h-16 lg:w-16 mb-5 md:mb-6 lg:mb-8 flex items-center justify-center rounded-full border border-accent/20 bg-noir text-primary-foreground transition-all duration-700">
               <Truck className="w-5 h-5 md:w-6 md:h-6" strokeWidth={1} />
             </div>
             <h3 className="font-serif text-xl md:text-2xl mb-3 md:mb-4 italic">Swift Elegance</h3>
@@ -88,7 +88,7 @@ function HomePage() {
             transition={{ delay: 0.4 }}
             className="flex flex-col items-center text-center group"
           >
-            <div className="h-12 w-12 md:h-14 md:w-14 lg:h-16 lg:w-16 mb-5 md:mb-6 lg:mb-8 flex items-center justify-center rounded-full border border-accent/20 bg-primary text-primary-foreground transition-all duration-700">
+            <div className="h-12 w-12 md:h-14 md:w-14 lg:h-16 lg:w-16 mb-5 md:mb-6 lg:mb-8 flex items-center justify-center rounded-full border border-accent/20 bg-noir text-primary-foreground transition-all duration-700">
               <ShieldCheck className="w-5 h-5 md:w-6 md:h-6" strokeWidth={1} />
             </div>
             <h3 className="font-serif text-xl md:text-2xl mb-3 md:mb-4 italic">The Promise</h3>
@@ -225,11 +225,11 @@ function HomePage() {
       </section>
 
       {filteredProducts.length > 0 && (
-        <section className="py-16 md:py-24 lg:py-32 bg-primary text-primary-foreground overflow-hidden px-4 md:px-8 lg:px-12">
+        <section className="py-16  2xl:py-32 bg-primary text-primary-foreground overflow-hidden px-4 md:px-8 lg:px-12">
           <div className="w-full">
             <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-end mb-10 md:mb-12 lg:mb-16">
               <div>
-                <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl mb-3 md:mb-4">
+                <h2 className="font-serif text-gold text-4xl md:text-5xl lg:text-6xl mb-3 md:mb-4">
                   The Essentials
                 </h2>
                 <p className="text-accent tracking-widest text-xs uppercase">

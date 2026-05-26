@@ -3,61 +3,82 @@ import { useQuery } from "@tanstack/react-query";
 import { storefrontApiRequest, STOREFRONT_QUERY } from "@/lib/shopify";
 import { getCategoryBySlug } from "@/lib/categories";
 import { ProductCard } from "@/components/ProductCard";
+import { motion } from "framer-motion";
 
 function CategoryPage() {
   const { slug } = useParams();
   const cat = getCategoryBySlug(slug);
 
+  const displayTitle = cat
+    ? cat.label
+    : slug
+        .split("-")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+
   const { data: products = [], isLoading } = useQuery({
-    queryKey: ["products", "type", cat?.productType],
+    queryKey: ["products", "category", slug],
     queryFn: async () => {
+      let queryStr = "";
+      if (cat?.productType) {
+        queryStr = `product_type:"${cat.productType}"`;
+      } else {
+        queryStr = `tag:"${slug.replace(/-/g, " ")}"`;
+      }
       const data = await storefrontApiRequest(STOREFRONT_QUERY, {
         first: 60,
-        query: `product_type:"${cat.productType}"`,
+        query: queryStr,
       });
-      console.log("product data",cat, data.data);
 
       return data?.data?.products?.edges ?? [];
     },
-    enabled: !!cat?.productType,
   });
 
-  if (!cat) {
-    return (
-      <div className="mx-auto max-w-7xl px-4 py-24 text-center">
-        <p className="text-muted-foreground">Category not found.</p>
-      </div>
-    );
-  }
-
   return (
-    <div>
-      {/* <section
-        className="bg-noir text-ivory"
-        style={{ background: "var(--gradient-noir)" }}
-      >
-        <div className="mx-auto w-full px-4 py-16 text-center">
-          <span className="font-serif text-7xl text-gold">{cat.icon}</span>
-          <h1 className="mt-3 font-serif text-5xl">{cat.label}</h1>
-          <p className="mt-3 text-sm text-ivory/75">{cat.tagline}</p>
-        </div>
-      </section> */}
+    <div className="min-h-screen bg-[#FAF7F2]">
+      <div className="bg-white py-12 md:py-16 border-b border-border">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mx-auto w-full px-4 md:px-6 lg:px-12 text-center"
+        >
+          <h1 className="font-serif text-4xl md:text-5xl text-[#0f1716] uppercase tracking-wider">
+            {displayTitle}
+          </h1>
+          {cat?.tagline && (
+            <p className="mt-4 text-sm md:text-base text-muted-foreground uppercase tracking-widest">
+              {cat.tagline}
+            </p>
+          )}
+        </motion.div>
+      </div>
 
-      <div className="mx-auto w-full px-4 md:px-6 lg:px-12 py-5">
+      <div className="mx-auto w-full px-4 md:px-6 lg:px-12 py-12">
         {isLoading ? (
-          <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="aspect-[4/5] animate-pulse rounded-sm bg-secondary" />
+          <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-8">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div
+                key={i}
+                className="aspect-[4/5] animate-pulse rounded-sm bg-secondary"
+              />
             ))}
           </div>
         ) : products.length === 0 ? (
-          <p className="text-center text-muted-foreground">No products in this category yet.</p>
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <p className="text-lg text-muted-foreground uppercase tracking-widest">
+              No products found in this collection yet.
+            </p>
+          </div>
         ) : (
-          <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-8"
+          >
             {products.map((p) => (
               <ProductCard key={p.node.id} product={p} />
             ))}
-          </div>
+          </motion.div>
         )}
       </div>
     </div>

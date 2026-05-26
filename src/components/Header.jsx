@@ -1,9 +1,10 @@
 import { CATEGORIES } from "@/lib/categories";
 import { useCartStore } from "@/stores/cartStore";
+import { useCustomerAuthStore } from "@/stores/customerAuthStore";
 import { useWishlistStore } from "@/stores/wishlistStore";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, Heart, Search, ShoppingBag, User, Menu, X, ShoppingCart } from "lucide-react";
-import { useState, useEffect } from "react";
+import { ChevronDown, Heart, Menu, Search, ShoppingCart, User, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import MainLogo from "../assets/mainLogos/shikaArtsLogo.png";
 import { LocationSelector } from "./LocationSelector";
@@ -43,7 +44,7 @@ const MENU_ITEMS = {
 
   corporate: [
     {
-      category: "Employee",
+      category: "Employee Gifting",
       subCategory: [
         { name: "Joining Kits", link: "/category/joining-kits" },
         { name: "Event Gifting", link: "/category/event-gifting" },
@@ -112,6 +113,41 @@ const MENU_ITEMS = {
       ],
     },
   ],
+  "Packaging Studio": [
+    {
+      category: "Boxes",
+      subCategory: [
+        { name: "Luxury Boxes", link: "/category/luxury-boxes" },
+        { name: "Magnetic Boxes", link: "/category/magnetic-boxes" },
+        { name: "Acrylic Boxes", link: "/category/acrylic-boxes" },
+      ],
+    },
+    {
+      category: "Baskets",
+      subCategory: [
+        { name: "Wicker", link: "/category/wicker-basket" },
+        { name: "Premium Cane", link: "/category/premium-cane-basket" },
+        { name: "Festive ", link: "/category/festive-basket" },
+      ],
+    },
+    {
+      category: "Wraps & Papers",
+      subCategory: [
+        { name: "Floral", link: "/category/floral" },
+        { name: "Minimal", link: "/category/minimal" },
+        { name: "Festive", link: "/category/festive" },
+      ],
+    },
+    {
+      category: "Finishing Touches",
+      subCategory: [
+        { name: "Ribbons", link: "/category/ribbons" },
+        { name: "Tags", link: "/category/tags" },
+        { name: "Wax Seals", link: "/category/wax-seals" },
+        { name: "Personalised Notes", link: "/category/personal-notes" },
+      ],
+    },
+  ],
 };
 
 export function Header() {
@@ -124,6 +160,11 @@ export function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState({});
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const token = useCustomerAuthStore((s) => s.token);
+  const customer = useCustomerAuthStore((s) => s.customer);
+  const logout = useCustomerAuthStore((s) => s.logout);
 
   const toggleCategory = (slug, e) => {
     e.preventDefault();
@@ -195,17 +236,17 @@ export function Header() {
                 alt="Main Logo"
                 className="w-16 h-16 sm:w-20 sm:h-20 2xl:w-32 2xl:h-32 object-contain"
               /> */}
-     <Link to="/" className="flex items-center">
-  <div className="relative">
-    <span className="text-3xl md:text-4xl font-serif font-bold text-[#D4AF37]">
-      Shika
-    </span>
+          <Link to="/" className="flex items-center">
+            <div className="relative">
+              <span className="text-3xl md:text-4xl font-serif font-bold text-[#D4AF37]">
+                Shika
+              </span>
 
-    <span className="absolute -bottom-2 -right-3 text-[11px] uppercase tracking-[0.3em] font-semibold text-[#7A1F3D]">
-      Arts
-    </span>
-  </div>
-</Link>
+              <span className="absolute -bottom-2 -right-3 text-[11px] uppercase tracking-[0.3em] font-semibold text-[#7A1F3D]">
+                Arts
+              </span>
+            </div>
+          </Link>
 
           <nav className="hidden lg:flex items-center gap-6">
             <NavLink
@@ -305,16 +346,6 @@ export function Header() {
               )}
             </button>
 
-            <button
-              className="hidden sm:flex items-center p-1 text-foreground hover:text-destructive transition-colors"
-              aria-label="Profile"
-            >
-              <User
-                className="h-5 w-5 sm:h-[18px] sm:w-[18px] 2xl:w-[24px] 2xl:h-[24px]"
-                strokeWidth={2}
-              />
-            </button>
-
             {/* Mobile Hamburger Menu (Right Side) */}
             <button
               onClick={() => setIsMobileMenuOpen(true)}
@@ -337,14 +368,21 @@ export function Header() {
             >
               <div className="w-full px-12 py-12 grid grid-cols-4 gap-12">
                 <div className="col-span-1">
-                  <h3 className="font-serif text-3xl mb-4 italic">The Collection</h3>
-                  <p className="text-xs 2xl:text-[16px] text-muted-foreground uppercase tracking-widest leading-relaxed">
-                    Explore our handcrafted selection of {activeMenu} curated for moments that
-                    matter.
+                  <h3 className="font-serif text-3xl mb-2 italic">The {activeMenu}</h3>
+                  <p className="text-[14px] 2xl:text-[16px] text-muted-foreground  tracking-widest leading-relaxed">
+                    {activeMenu === "Occasions"
+                      ? "Discover thoughtfully curated gifting experiences designed for every occasion."
+                      : activeMenu === "Corporate"
+                        ? "From onboarding kits to festive campaigns, thoughtfully curated gifting that strengthens every connection."
+                        : activeMenu === "Wedding"
+                          ? "Craft a wedding celebration that feels uniquely yours with custom invitations, curated hampers, and thoughtful gifting details."
+                          : activeMenu === "Customization"
+                            ? "From personalised products and custom packaging to curated hampers and branded details, we create gifting experiences designed uniquely around your vision."
+                            : "Elevate every gift with beautifully curated packaging designed to leave a lasting impression."}
                   </p>
                   <Link
                     to={`/category/${activeMenu}`}
-                    className="inline-block mt-6 text-[10px] 2xl:text-[16px] uppercase tracking-ultra font-bold text-destructive border-b border-destructive pb-1"
+                    className="inline-block mt-3 text-end text-[10px] 2xl:text-[16px] uppercase tracking-ultra font-bold text-destructive border-b border-destructive pb-1"
                   >
                     View All
                   </Link>
@@ -372,7 +410,7 @@ export function Header() {
                 </div>
 
                 <div className="col-span-1">
-                  <div className="aspect-[4/3] bg-secondary overflow-hidden">
+                  <div className=" w-full bg-secondary overflow-hidden">
                     <img
                       src={CATEGORIES.find((c) => c.slug === activeMenu)?.image}
                       alt={activeMenu}
@@ -504,13 +542,13 @@ export function Header() {
                   <Heart size={18} className="text-destructive" />
                   <span>Wishlist ({wishlistItems.length})</span>
                 </button>
-
                 <button
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center gap-3 text-[14px] uppercase tracking-wider font-semibold text-[#0f1716] hover:text-destructive py-1.5 transition-colors cursor-pointer"
+                  onClick={() => setMenuOpen((v) => !v)}
+                  onBlur={() => setTimeout(() => setMenuOpen(false), 150)}
+                  className="grid h-10 w-10 place-items-center rounded-full hover:bg-secondary"
+                  aria-label="Account menu"
                 >
-                  <User size={18} className="text-destructive" />
-                  <span>My Account</span>
+                  <User className="h-5 w-5" />
                 </button>
               </div>
             </div>
