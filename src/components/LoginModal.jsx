@@ -1,144 +1,358 @@
+import CloseIcon from "@mui/icons-material/Close";
+import LockIcon from "@mui/icons-material/LockOutlined";
+import EmailIcon from "@mui/icons-material/MailOutlined";
+import PersonIcon from "@mui/icons-material/PersonOutlined";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogContent,
+  Divider,
+  IconButton,
+  Tab,
+  Tabs,
+  TextField,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
+import GoogleIcon from "@mui/icons-material/Google";
+import { useTheme } from "@mui/material/styles";
 import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { Eye, EyeOff, X } from "lucide-react";
-import { loginCustomer, getCustomerProfile } from "@/lib/shopify";
-import { useCustomerAuthStore } from "@/stores/customerAuthStore";
+
+import { customerLogin, getCurrentUser, registerCustomer } from "../services/LoginServices";
 
 export function LoginModal({ isOpen, onClose }) {
+  const [tab, setTab] = useState(0); // 0 = Sign In, 1 = Create Account
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [loading, setLoading] = useState(false);
-  const login = useCustomerAuthStore((s) => s.login);
+  const [error, setError] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
 
-  const handleSubmit = async (e) => {
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const resetForm = () => {
+    setEmail("");
+    setPassword("");
+    setFirstName("");
+    setLastName("");
+    setError("");
+    setSuccessMsg("");
+  };
+
+  const handleClose = () => {
+    setTab(0);
+    resetForm();
+    onClose();
+  };
+
+  const handleTabChange = (_, newValue) => {
+    setTab(newValue);
+    resetForm();
+  };
+
+  // ── Sign In ──────────────────────────────────────────────────────────────
+  const handleEmailLogin = async (e) => {
     e.preventDefault();
+    if (!email || !password) {
+      setError("Please enter both email and password.");
+      return;
+    }
     setError("");
     setLoading(true);
     try {
-      const result = await loginCustomer(email, password);
-      if (result?.customerUserErrors?.length > 0) {
-        setError(result.customerUserErrors[0].message || "Invalid email or password.");
-        return;
-      }
-      const { accessToken } = result.customerAccessToken;
-      const customer = await getCustomerProfile(accessToken);
-      login(accessToken, customer);
-      onClose();
-    } catch {
-      setError("Something went wrong. Please try again.");
+      const res = await customerLogin(email, password);
+      const customerData = await getCurrentUser(res.token);
+      localStorage.setItem("customerData", JSON.stringify(customerData));
+      handleClose();
+    } catch (err) {
+      console.error("[LoginModal] Email login error:", err);
+      setError(
+        err?.response?.data?.message ||
+          err?.message ||
+          "Login failed. Please check your credentials.",
+      );
     } finally {
       setLoading(false);
     }
   };
 
+  // ── Register ─────────────────────────────────────────────────────────────
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    if (!firstName || !lastName || !email || !password) {
+      setError("Please fill in all fields.");
+      return;
+    }
+    setError("");
+    setLoading(true);
+    try {
+      const payload = { firstName, lastName, email, password };
+      await registerCustomer(payload);
+      setSuccessMsg("Account created! You can now sign in.");
+      resetForm();
+      // Switch to Sign In tab after short delay so user sees the message
+      setTimeout(() => {
+        setSuccessMsg("");
+        setTab(0);
+      }, 2000);
+    } catch (err) {
+      console.error("[LoginModal] Register error:", err);
+      setError(
+        err?.response?.data?.message || err?.message || "Registration failed. Please try again.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ── Shared field props ───────────────────────────────────────────────────
+  const fieldSx = { size: "small", fullWidth: true };
+
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9998] bg-black/30 backdrop-blur-sm"
-            onClick={onClose}
-          />
-
-          {/* Modal */}
-          <motion.div
-            initial={{ opacity: 0, y: -12, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -12, scale: 0.97 }}
-            transition={{ duration: 0.2 }}
-            className="fixed top-[70px] right-4 z-[9999] w-[300px] bg-white border border-border shadow-2xl p-6"
+    <Dialog
+      open={isOpen}
+      onClose={handleClose}
+      fullScreen={fullScreen}
+      maxWidth="xs"
+      fullWidth
+      PaperProps={{
+        sx: { borderRadius: fullScreen ? 0 : 2, overflow: "hidden" },
+      }}
+    >
+      <DialogContent sx={{ p: 0 }}>
+        <Box className="relative bg-white p-6 sm:p-8">
+          {/* Close button */}
+          <IconButton
+            onClick={handleClose}
+            aria-label="Close"
+            sx={{ position: "absolute", top: 8, right: 8 }}
           >
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg font-serif font-semibold text-foreground">Sign In</h2>
-              <button
-                onClick={onClose}
-                className="text-muted-foreground hover:text-foreground transition-colors"
-                aria-label="Close"
-              >
-                <X size={16} />
-              </button>
-            </div>
+            <CloseIcon fontSize="small" />
+          </IconButton>
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">
-                  Email
-                </label>
-                <input
-                  data-testid="login-email-input"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  placeholder="you@example.com"
-                  className="w-full border border-border px-3 py-2.5 text-sm outline-none focus:border-destructive transition-colors bg-transparent"
-                />
-              </div>
+          {/* Header */}
+          <Box className="flex flex-col items-center text-center mb-4">
+            <h2 className="font-serif text-2xl font-semibold text-[#7A1F3D] tracking-wider italic">
+              Welcome To Shika-Arts
+            </h2>
+            <Typography variant="body2" sx={{ mt: 1, color: "text.secondary" }}>
+              {tab === 0
+                ? "Sign in to access your orders, wishlist & saved gifts."
+                : "Create an account to get started."}
+            </Typography>
+          </Box>
 
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    data-testid="login-password-input"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    placeholder="••••••••"
-                    className="w-full border border-border px-3 py-2.5 text-sm outline-none focus:border-destructive transition-colors pr-10 bg-transparent"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
-                  </button>
-                </div>
-              </div>
+          {/* Tabs */}
+          <Tabs
+            value={tab}
+            onChange={handleTabChange}
+            variant="fullWidth"
+            sx={{
+              mb: 3,
+              "& .MuiTabs-indicator": { backgroundColor: "#7A1F3D" },
+              "& .MuiTab-root": { textTransform: "none", fontWeight: 600, fontSize: 14 },
+              "& .Mui-selected": { color: "#7A1F3D !important" },
+            }}
+          >
+            <Tab label="Sign In" />
+            <Tab label="Create Account" />
+          </Tabs>
 
-              {error && (
-                <p data-testid="login-error" className="text-[12px] text-destructive">
-                  {error}
-                </p>
-              )}
+          {/* Error banner */}
+          {error && (
+            <Box
+              className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+              role="alert"
+            >
+              {error}
+            </Box>
+          )}
 
-              <button
-                data-testid="login-submit-button"
+          {/* Success banner */}
+          {successMsg && (
+            <Box
+              className="mb-4 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700"
+              role="status"
+            >
+              {successMsg}
+            </Box>
+          )}
+
+          {/* ── Sign In Form ── */}
+          {tab === 0 && (
+            <Box component="form" onSubmit={handleEmailLogin} className="flex flex-col gap-3">
+              <TextField
+                {...fieldSx}
+                label="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoFocus
+                autoComplete="email"
+                InputProps={{
+                  startAdornment: (
+                    <EmailIcon sx={{ mr: 1, fontSize: 18, color: "text.secondary" }} />
+                  ),
+                }}
+              />
+              <TextField
+                {...fieldSx}
+                label="Password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                InputProps={{
+                  startAdornment: (
+                    <LockIcon sx={{ mr: 1, fontSize: 18, color: "text.secondary" }} />
+                  ),
+                }}
+              />
+              <Button
                 type="submit"
+                fullWidth
+                variant="contained"
+                size="large"
                 disabled={loading}
-                className="w-full bg-[#7A1F3D] text-white py-2.5 text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-[#6a1b35] transition-colors disabled:opacity-60 cursor-pointer"
+                startIcon={loading ? <CircularProgress size={18} sx={{ color: "white" }} /> : null}
+                sx={{
+                  mt: 0.5,
+                  py: 1.4,
+                  textTransform: "none",
+                  fontWeight: 600,
+                  backgroundColor: "#7A1F3D",
+                  "&:hover": { backgroundColor: "#5e1730" },
+                }}
               >
-                {loading ? "Signing In..." : "Sign In"}
-              </button>
+                {loading ? "Signing in…" : "Sign In"}
+              </Button>
+            </Box>
+          )}
 
-              <div className="flex items-center gap-3 my-1">
-                <div className="h-px flex-1 bg-border" />
-                <span className="text-[10px] text-muted-foreground uppercase tracking-wider">or</span>
-                <div className="h-px flex-1 bg-border" />
-              </div>
-
-              <a
-                href="https://shika-arts-premium-gifts-jmx4i.myshopify.com/account/login"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-center text-[11px] text-muted-foreground hover:text-destructive transition-colors underline underline-offset-2"
+          {/* ── Register Form ── */}
+          {tab === 1 && (
+            <Box component="form" onSubmit={handleRegister} className="flex flex-col gap-3">
+              <Box className="flex gap-3">
+                <TextField
+                  {...fieldSx}
+                  label="First Name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  autoFocus
+                  autoComplete="given-name"
+                  InputProps={{
+                    startAdornment: (
+                      <PersonIcon sx={{ mr: 1, fontSize: 18, color: "text.secondary" }} />
+                    ),
+                  }}
+                />
+                <TextField
+                  {...fieldSx}
+                  label="Last Name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  autoComplete="family-name"
+                  InputProps={{
+                    startAdornment: (
+                      <PersonIcon sx={{ mr: 1, fontSize: 18, color: "text.secondary" }} />
+                    ),
+                  }}
+                />
+              </Box>
+              <TextField
+                {...fieldSx}
+                label="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                InputProps={{
+                  startAdornment: (
+                    <EmailIcon sx={{ mr: 1, fontSize: 18, color: "text.secondary" }} />
+                  ),
+                }}
+              />
+              <TextField
+                {...fieldSx}
+                label="Password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+                InputProps={{
+                  startAdornment: (
+                    <LockIcon sx={{ mr: 1, fontSize: 18, color: "text.secondary" }} />
+                  ),
+                }}
+              />
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                size="large"
+                disabled={loading}
+                startIcon={loading ? <CircularProgress size={18} sx={{ color: "white" }} /> : null}
+                sx={{
+                  mt: 0.5,
+                  py: 1.4,
+                  textTransform: "none",
+                  fontWeight: 600,
+                  backgroundColor: "#7A1F3D",
+                  "&:hover": { backgroundColor: "#5e1730" },
+                }}
               >
-                Open Shopify account page
-              </a>
-            </form>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+                {loading ? "Creating account…" : "Create Account"}
+              </Button>
+            </Box>
+          )}
+
+          <Box sx={{ mt: 3, mb: 1 }}>
+            <Divider sx={{ mb: 2 }}>
+              <Typography variant="body2" color="text.secondary">
+                OR
+              </Typography>
+            </Divider>
+            <Button
+              fullWidth
+              variant="outlined"
+              size="large"
+              startIcon={<GoogleIcon />}
+              onClick={() => {
+                window.location.href =
+                  "https://tan-cattle-873141.hostingersite.com/wp-login.php?loginSocial=google&redirect_to=http://localhost:5173";
+              }}
+              sx={{
+                py: 1.2,
+                textTransform: "none",
+                fontWeight: 600,
+                color: "text.primary",
+                borderColor: "divider",
+                "&:hover": { backgroundColor: "action.hover", borderColor: "text.secondary" },
+              }}
+            >
+              Continue with Google
+            </Button>
+          </Box>
+
+          <Typography
+            variant="caption"
+            sx={{
+              display: "block",
+              mt: 3,
+              textAlign: "center",
+              color: "text.secondary",
+              lineHeight: 1.5,
+            }}
+          >
+            By continuing you agree to our Terms of Service and acknowledge our Privacy Policy.
+          </Typography>
+        </Box>
+      </DialogContent>
+    </Dialog>
   );
 }
+
+export default LoginModal;

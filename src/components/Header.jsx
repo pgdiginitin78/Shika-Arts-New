@@ -1,15 +1,15 @@
 import { CATEGORIES } from "@/lib/categories";
-import { initiateLogin, initiateLogout, SHOPIFY_CLIENT_ID } from "@/lib/shopifyAuth";
 import { useCartStore } from "@/stores/cartStore";
 import { useCustomerAuthStore } from "@/stores/customerAuthStore";
 import { useWishlistStore } from "@/stores/wishlistStore";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, Heart, LogOut, Menu, Search, ShoppingCart, User, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { ChevronDown, Heart, Menu, Search, ShoppingCart, User, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import MainLogo from "../assets/mainLogos/shikaArtsLogo.png";
+import MainLogo from "../assets/mainLogos/shikaArtsLogo.webp";
 import { LocationSelector } from "./LocationSelector";
 import { LoginModal } from "./LoginModal";
+import { UserMenu, UserMenuInline } from "./UserMenu";
 
 export const MENU_ITEMS = {
   occasions: [
@@ -66,7 +66,12 @@ export const MENU_ITEMS = {
     },
     {
       category: "Annual Gifting Calendar",
-      subCategory: [{ name: "Annual Gifting Calendar", link: "/category/Corporate?tag=annual gifting calendar" }],
+      subCategory: [
+        {
+          name: "Annual Gifting Calendar",
+          link: "/category/Corporate?tag=annual gifting calendar",
+        },
+      ],
     },
   ],
   wedding: [
@@ -162,15 +167,7 @@ export function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState({});
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const userMenuRef = useRef(null);
-
-  const token = useCustomerAuthStore((s) => s.token);
-  const customer = useCustomerAuthStore((s) => s.customer);
-  const idToken = useCustomerAuthStore((s) => s.idToken);
-  const logout = useCustomerAuthStore((s) => s.logout);
+  const [navbarMenus,setNavbarMenus] = useState([])
 
   const toggleCategory = (slug, e) => {
     e.preventDefault();
@@ -194,17 +191,6 @@ export function Header() {
 
   const navigate = useNavigate();
 
-  // Close user dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(e) {
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
-        setIsUserMenuOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -214,15 +200,18 @@ export function Header() {
     }
   };
 
-  const handleLogin = () => {
-    setIsLoginOpen(true);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+
+  const customer = JSON.parse(localStorage.getItem("user"));
+
+  
+  const handleLoginClick = () => {
+    setIsLoginOpen(true)
   };
 
-  const handleLogout = () => {
-    setIsUserMenuOpen(false);
-    logout(); // Clear local auth state
-    navigate("/"); // Redirect to website home page immediately
-  };
+  useEffect(()=>{
+
+  },[])
 
   return (
     <>
@@ -233,7 +222,7 @@ export function Header() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="absolute inset-0 z-50 bg-background/95 backdrop-blur-xl px-4 lg:px-12 flex items-center"
+              className="absolute inset-0 z-50 bg-background/95 backdrop-blur-xl px-4 xl:px-12 flex items-center"
             >
               <form onSubmit={handleSearch} className="w-full flex items-center gap-6">
                 <Search className="text-destructive" size={24} />
@@ -353,69 +342,22 @@ export function Header() {
               )}
             </button>
 
-            {/* User Account Button — desktop */}
-            <div className="relative hidden sm:block" ref={userMenuRef}>
-              {token && customer ? (
-                <button
-                  data-testid="user-account-button"
-                  onClick={() => setIsUserMenuOpen((v) => !v)}
-                  className="group flex items-center gap-2 p-1 cursor-pointer text-foreground hover:text-destructive transition-colors"
-                  aria-label="Account menu"
-                >
-                  {/* Avatar circle with initials */}
-                  <div className="w-7 h-7 rounded-full bg-[#7A1F3D] flex items-center justify-center flex-shrink-0">
-                    <span className="text-[11px] font-bold text-white">
-                      {customer.firstName?.[0]?.toUpperCase()}{customer.lastName?.[0]?.toUpperCase()}
-                    </span>
-                  </div>
-                  {/* First name */}
-                  <span className="text-[12px] font-semibold uppercase tracking-wider hidden lg:block">
-                    {customer.firstName}
-                  </span>
-                </button>
-              ) : (
-                <button
-                  data-testid="login-button"
-                  onClick={handleLogin}
-                  className="group relative flex items-center p-1 cursor-pointer text-foreground hover:text-destructive transition-colors"
-                  aria-label="Login / Account"
-                >
-                  <User
-                    className="h-5 w-5 sm:h-[18px] sm:w-[18px] 2xl:w-[24px] 2xl:h-[24px]"
-                    strokeWidth={2}
-                  />
-                </button>
-              )}
-
-              <AnimatePresence>
-                {isUserMenuOpen && token && customer && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 6, scale: 0.97 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 6, scale: 0.97 }}
-                    transition={{ duration: 0.18 }}
-                    className="absolute right-0 top-full mt-3 w-52 bg-white border border-border shadow-2xl z-50 py-1"
-                  >
-                    <div className="px-4 py-3 border-b border-border">
-                      <p data-testid="user-display-name" className="text-[13px] font-semibold text-foreground truncate">
-                        {customer.firstName} {customer.lastName}
-                      </p>
-                      <p className="text-[11px] text-muted-foreground truncate mt-0.5">
-                        {customer.email}
-                      </p>
-                    </div>
-                    <button
-                      data-testid="sign-out-button"
-                      onClick={handleLogout}
-                      className="flex items-center gap-2 w-full px-4 py-2.5 text-[12px] uppercase tracking-wider font-semibold text-foreground hover:text-destructive hover:bg-destructive/5 transition-colors cursor-pointer"
-                    >
-                      <LogOut size={14} />
-                      Sign Out
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+            {customer ? (
+              <div className="hidden sm:flex items-center">
+                <UserMenu />
+              </div>
+            ) : (
+              <button
+                onClick={handleLoginClick}
+                className="group relative flex items-center p-1 cursor-pointer text-foreground hover:text-destructive transition-colors hidden sm:flex"
+                aria-label="Login / Account"
+              >
+                <User
+                  className="h-5 w-5 sm:h-[18px] sm:w-[18px] 2xl:w-[24px] 2xl:h-[24px]"
+                  strokeWidth={2}
+                />
+              </button>
+            )}
 
             <button
               onClick={() => setOpen(true)}
@@ -489,7 +431,12 @@ export function Header() {
                         </h4>
                         <div className="flex flex-col gap-3">
                           {section.subCategory.map((item, i) => (
-                            <Link key={i} to={item.link} className="group flex flex-col" onClick={() => setActiveMenu(null)}>
+                            <Link
+                              key={i}
+                              to={item.link}
+                              className="group flex flex-col"
+                              onClick={() => setActiveMenu(null)}
+                            >
                               <span className="text-[12px] 2xl:text-[16px]  tracking-wider font-semibold text-foreground group-hover:text-destructive transition-colors">
                                 {item.name}
                               </span>
@@ -634,37 +581,27 @@ export function Header() {
                   <Heart size={18} className="text-destructive" />
                   <span>Wishlist ({wishlistItems.length})</span>
                 </button>
-                <button
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    if (token && customer) {
-                      handleLogout();
-                    } else {
-                      handleLogin();
-                    }
-                  }}
-                  className="flex items-center gap-3 text-[14px] cursor-pointer uppercase tracking-wider font-semibold text-[#0f1716] hover:text-destructive py-1.5 transition-colors cursor-pointer"
-                  aria-label="Login / Account"
-                >
-                  {token && customer ? (
-                    <>
-                      <LogOut size={18} className="text-destructive" />
-                      <span>Sign Out ({customer.firstName})</span>
-                    </>
-                  ) : (
-                    <>
-                      <User size={18} className="text-destructive" />
-                      <span>Login / Account</span>
-                    </>
-                  )}
-                </button>
+                {customer ? (
+                  <UserMenuInline onAfter={() => setIsMobileMenuOpen(false)} />
+                ) : (
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      handleLoginClick();
+                    }}
+                    className="flex items-center gap-3 text-[14px] cursor-pointer uppercase tracking-wider font-semibold text-[#0f1716] hover:text-destructive py-1.5 transition-colors cursor-pointer"
+                    aria-label="Login / Account"
+                  >
+                    <User size={18} className="text-destructive" />
+                    <span>Login / Account</span>
+                  </button>
+                )}
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Login Modal */}
       <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
     </>
   );
