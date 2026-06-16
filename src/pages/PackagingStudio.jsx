@@ -4,32 +4,32 @@ import { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useNavbarMenus } from "../context/NavbarContext";
 import { getProductsByCategory, getProductsByParentCategory } from "../services/LoginServices";
-import WeddingBg from "../assets/corporate/WeddingHerobg.webp";
-
+import PackagingStudioBg from "../assets/corporate/PackagingStudioBg.webp";
 import {
   Grip,
-  Heart,
-  Mail,
-  Package,
-  Gift,
-  Star,
-  Users,
-  Flower2,
-  Ribbon,
-  Gem,
-  Sparkles,
   CircleDot,
-  Camera,
-  Music,
-  Crown,
-  Cake,
-  BookHeart,
-  Boxes,
+  Package,
+  Box,
+  Ribbon,
+  Tag,
+  Layers,
+  Flower2,
+  Sparkles,
+  Gem,
+  Gift,
+  BookOpen,
+  PenTool,
+  Feather,
+  Leaf,
+  Sun,
+  Archive,
+  ScrollText,
+  Stamp,
 } from "lucide-react";
 
-export default function Wedding() {
+export default function PackagingStudio() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [weddingCat, setWeddingCat] = useState(null);
+  const [packagingCat, setPackagingCat] = useState(null);
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const navbarMenus = useNavbarMenus();
@@ -37,25 +37,27 @@ export default function Wedding() {
   const tagParam = searchParams.get("tag");
   const [activeTag, setActiveTag] = useState(tagParam || "");
   const [activeCategory, setActiveCategory] = useState("All");
-  const [selectedSlug, setSelectedSlug] = useState("wedding");
+  const [selectedSlug, setSelectedSlug] = useState("packaging-studio");
   const [selectedId, setSelectedId] = useState(null);
   const [filterMode, setFilterMode] = useState("parent");
 
   useEffect(() => {
     if (navbarMenus?.length > 0) {
       const found = navbarMenus.find(
-        (menu) =>
-          menu?.name?.toLowerCase() === "wedding" || menu?.slug?.toLowerCase() === "wedding",
+        (m) =>
+          m?.slug?.toLowerCase() === "packaging-studio" ||
+          m?.slug?.toLowerCase() === "packagingstudio" ||
+          m?.name?.toLowerCase().includes("packaging"),
       );
-      setWeddingCat(found);
+      setPackagingCat(found);
     }
   }, [navbarMenus]);
 
   useEffect(() => {
-    if (tagParam && weddingCat) {
+    if (tagParam && packagingCat) {
       setActiveTag(tagParam);
       let matched = null;
-      weddingCat?.children?.forEach((menu) => {
+      packagingCat?.children?.forEach((menu) => {
         const found = menu.children?.find((s) => s.slug === tagParam);
         if (found) {
           matched = found;
@@ -70,11 +72,11 @@ export default function Wedding() {
     } else {
       setActiveTag("");
       setActiveCategory("All");
-      setSelectedSlug("wedding");
+      setSelectedSlug(packagingCat?.slug || "packaging-studio");
       setSelectedId(null);
       setFilterMode("parent");
     }
-  }, [tagParam, weddingCat]);
+  }, [tagParam, packagingCat]);
 
   const isFirstRender = useRef(true);
 
@@ -102,7 +104,6 @@ export default function Wedding() {
 
   useEffect(() => {
     setIsLoading(true);
-
     if (filterMode === "exact" && selectedId) {
       getProductsByCategory(selectedId)
         .then((res) => {
@@ -114,11 +115,8 @@ export default function Wedding() {
           setIsLoading(false);
         });
     } else {
-      if (!selectedSlug) {
-        setIsLoading(false);
-        return;
-      }
-      getProductsByParentCategory(selectedSlug)
+      const slug = packagingCat?.slug || "packaging-studio";
+      getProductsByParentCategory(slug)
         .then((res) => {
           setProducts(res.products);
           setIsLoading(false);
@@ -128,12 +126,12 @@ export default function Wedding() {
           setIsLoading(false);
         });
     }
-  }, [selectedSlug, selectedId, filterMode]);
+  }, [selectedSlug, selectedId, filterMode, packagingCat]);
 
   const subCategoriesToShow =
     activeCategory === "All"
-      ? weddingCat?.children?.flatMap((category) => category.children || []) || []
-      : weddingCat?.children?.find((c) => c.name === activeCategory)?.children || [];
+      ? packagingCat?.children?.flatMap((c) => c.children || []) || []
+      : packagingCat?.children?.find((c) => c.name === activeCategory)?.children || [];
 
   const decodeHtml = (text) => {
     const txt = document.createElement("textarea");
@@ -141,63 +139,86 @@ export default function Wedding() {
     return txt.value;
   };
 
-  const getWeddingIcon = (name, active = false) => {
+  const getIcon = (name, active = false) => {
     const n = (name || "").toLowerCase();
-    const cls = `${active ? "text-[#C5A26F]" : "opacity-70 text-[#1e2321]"}`;
-
+    const cls = active ? "text-[#C5A26F]" : "opacity-70 text-[#1e2321]";
     if (n.includes("all")) return <Grip size={15} strokeWidth={1.5} className={cls} />;
 
-    // Invitations
-    if (n.includes("physical invite") || n.includes("physical"))
-      return <Mail size={15} strokeWidth={1.5} className={cls} />;
-    if (n.includes("digital invite") || n.includes("digital"))
+    // Baskets
+    if (n.includes("festive") && n.includes("basket"))
       return <Sparkles size={15} strokeWidth={1.5} className={cls} />;
+    if (n.includes("premium cane") || n.includes("cane"))
+      return <Gem size={15} strokeWidth={1.5} className={cls} />;
+    if (n.includes("wicker")) return <Archive size={15} strokeWidth={1.5} className={cls} />;
+    if (n.includes("basket")) return <Archive size={15} strokeWidth={1.5} className={cls} />;
+
+    // Boxes
+    if (n.includes("acrylic")) return <Box size={15} strokeWidth={1.5} className={cls} />;
     if (n.includes("luxury box") || n.includes("luxury"))
-      return <Crown size={15} strokeWidth={1.5} className={cls} />;
-    if (n.includes("invite") || n.includes("invitation"))
-      return <Mail size={15} strokeWidth={1.5} className={cls} />;
-
-    // Hampers & Kits
-    if (n.includes("bridesmaid")) return <Flower2 size={15} strokeWidth={1.5} className={cls} />;
-    if (n.includes("groomsmen") || n.includes("groom"))
       return <Gem size={15} strokeWidth={1.5} className={cls} />;
-    if (n.includes("welcome kit") || n.includes("guest"))
-      return <Users size={15} strokeWidth={1.5} className={cls} />;
-    if (n.includes("return gift") || n.includes("return"))
-      return <Ribbon size={15} strokeWidth={1.5} className={cls} />;
-    if (n.includes("hamper")) return <Package size={15} strokeWidth={1.5} className={cls} />;
+    if (n.includes("magnetic")) return <Stamp size={15} strokeWidth={1.5} className={cls} />;
+    if (n.includes("box")) return <Box size={15} strokeWidth={1.5} className={cls} />;
 
-    // Wedding categories
-    if (n.includes("bride") || n.includes("bridal"))
-      return <Heart size={15} strokeWidth={1.5} className={cls} />;
-    if (n.includes("cake") || n.includes("dessert"))
-      return <Cake size={15} strokeWidth={1.5} className={cls} />;
-    if (n.includes("photo") || n.includes("memor") || n.includes("album"))
-      return <Camera size={15} strokeWidth={1.5} className={cls} />;
-    if (n.includes("music") || n.includes("entertain"))
-      return <Music size={15} strokeWidth={1.5} className={cls} />;
-    if (n.includes("box") || n.includes("boxes"))
-      return <Boxes size={15} strokeWidth={1.5} className={cls} />;
-    if (n.includes("couple") || n.includes("love") || n.includes("together"))
-      return <BookHeart size={15} strokeWidth={1.5} className={cls} />;
-    if (n.includes("anniversar")) return <Star size={15} strokeWidth={1.5} className={cls} />;
-    if (n.includes("decor") || n.includes("flower") || n.includes("floral"))
+    // Finishing Touches
+    if (n.includes("personalised note") || n.includes("note"))
+      return <ScrollText size={15} strokeWidth={1.5} className={cls} />;
+    if (n.includes("ribbon")) return <Ribbon size={15} strokeWidth={1.5} className={cls} />;
+    if (n.includes("tag") || n.includes("label"))
+      return <Tag size={15} strokeWidth={1.5} className={cls} />;
+    if (n.includes("wax seal") || n.includes("wax"))
+      return <Stamp size={15} strokeWidth={1.5} className={cls} />;
+    if (n.includes("finishing") || n.includes("touch"))
+      return <Sparkles size={15} strokeWidth={1.5} className={cls} />;
+
+    // Wraps & Papers
+    if (n.includes("festive") && (n.includes("wrap") || n.includes("paper")))
+      return <Sparkles size={15} strokeWidth={1.5} className={cls} />;
+    if (n.includes("floral")) return <Flower2 size={15} strokeWidth={1.5} className={cls} />;
+    if (n.includes("minimal") || n.includes("minimal"))
+      return <Feather size={15} strokeWidth={1.5} className={cls} />;
+    if (n.includes("wrap") || n.includes("paper"))
+      return <Layers size={15} strokeWidth={1.5} className={cls} />;
+
+    // General packaging
+    if (n.includes("festive")) return <Sparkles size={15} strokeWidth={1.5} className={cls} />;
+    if (n.includes("floral") || n.includes("flower"))
       return <Flower2 size={15} strokeWidth={1.5} className={cls} />;
-    if (n.includes("gift")) return <Gift size={15} strokeWidth={1.5} className={cls} />;
-    if (n.includes("premium") || n.includes("luxury") || n.includes("collection"))
+    if (n.includes("leaf") || n.includes("eco") || n.includes("natural"))
+      return <Leaf size={15} strokeWidth={1.5} className={cls} />;
+    if (n.includes("summer") || n.includes("bright"))
+      return <Sun size={15} strokeWidth={1.5} className={cls} />;
+    if (n.includes("book") || n.includes("journal"))
+      return <BookOpen size={15} strokeWidth={1.5} className={cls} />;
+    if (n.includes("pen") || n.includes("write"))
+      return <PenTool size={15} strokeWidth={1.5} className={cls} />;
+    if (n.includes("sleeve") || n.includes("layer"))
+      return <Layers size={15} strokeWidth={1.5} className={cls} />;
+    if (n.includes("premium") || n.includes("gem"))
       return <Gem size={15} strokeWidth={1.5} className={cls} />;
+    if (n.includes("gift")) return <Gift size={15} strokeWidth={1.5} className={cls} />;
+    if (n.includes("package") || n.includes("pack"))
+      return <Package size={15} strokeWidth={1.5} className={cls} />;
 
     return <CircleDot size={15} strokeWidth={1.5} className={cls} />;
   };
 
+  const resetToAll = () => {
+    setActiveTag("");
+    setActiveCategory("All");
+    setSelectedSlug(packagingCat?.slug || "packaging-studio");
+    setSelectedId(null);
+    setFilterMode("parent");
+    setSearchParams({});
+  };
+
   return (
     <div className="min-h-screen bg-[#FAF7F2] font-sans text-[#0f1716]">
-      {/* ── Hero ── */}
+      {/* Hero */}
       <div className="relative w-full h-[60vh] md:h-[80vh] lg:h-screen min-h-[400px] flex items-center justify-center md:justify-start overflow-hidden">
         <div className="absolute inset-0 w-full h-full">
           <img
-            src={WeddingBg}
-            alt="Wedding Gifts"
+            src={PackagingStudioBg}
+            alt="Packaging Studio"
             className="w-full h-full object-cover object-top "
             onError={(e) => {
               e.target.style.display = "none";
@@ -205,16 +226,15 @@ export default function Wedding() {
           />
           <div className="absolute inset-0 bg-black/40 md:bg-gradient-to-b md:from-black/30 md:via-black/20 md:to-black/35" />
         </div>
-
         <div className="relative z-10 w-full max-w-[1440px] mx-auto px-4 sm:px-8 md:px-16 lg:px-24 flex flex-col items-center md:items-start mt-16 md:mt-0">
           <div className="max-w-2xl flex flex-col items-center md:items-start text-center md:text-left">
             <span className="text-white uppercase tracking-[0.2em] text-[10px] md:text-xs font-bold mb-4 md:mb-6 block">
-              CELEBRATE LOVE & TOGETHERNESS
+              ELEVATE EVERY UNBOXING
             </span>
             <h1 className="text-4xl md:text-5xl lg:text-[64px] font-serif text-white mb-6 leading-[1.15]">
-              Wedding Gifts
+              Packaging Studio
               <br />
-              Crafted with Love
+              Crafted to Impress
             </h1>
             <div className="flex items-center gap-3 mb-6 max-w-[280px]">
               <div className="h-[1px] bg-[#C5A26F]/60 flex-1"></div>
@@ -233,55 +253,38 @@ export default function Wedding() {
               <div className="h-[1px] bg-[#C5A26F]/60 flex-1"></div>
             </div>
             <p className="text-white/80 text-xs md:text-sm max-w-[480px] leading-relaxed font-medium">
-              From elegant invitations to luxurious hampers — curate the perfect wedding experience
-              with gifts that make every moment unforgettable.
+              Premium baskets, luxury boxes, custom wraps, and bespoke finishing touches — the art
+              of beautiful gifting starts with stunning packaging.
             </p>
           </div>
         </div>
       </div>
 
-      {/* ── Products & Sidebar ── */}
+      {/* Products & Sidebar */}
       <div id="product-grid" className="mx-auto w-full px-4 md:px-6 lg:px-12 py-12">
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
-          {/* ── Sidebar ── */}
+          {/* Sidebar */}
           <aside className="w-full lg:w-[260px] shrink-0">
-            {/* Browse Collections */}
             <div className="mb-10">
               <h3 className="font-bold text-[11px] uppercase tracking-widest mb-6 text-[#1e2321]">
                 Browse Collections
               </h3>
               <div className="space-y-1">
                 <label
-                  className={`flex items-center gap-4 px-4 py-3 cursor-pointer transition-colors rounded-[4px] ${
-                    activeCategory === "All"
-                      ? "bg-[#F0EAE1] text-[#1e2321] font-medium"
-                      : "text-gray-500 hover:bg-[#F3EFE8]/50"
-                  }`}
-                  onClick={() => {
-                    setActiveCategory("All");
-                    setActiveTag("");
-                    setSelectedSlug("wedding");
-                    setSelectedId(null);
-                    setFilterMode("parent");
-                    setSearchParams({});
-                  }}
+                  className={`flex items-center gap-4 px-4 py-3 cursor-pointer transition-colors rounded-[4px] ${activeCategory === "All" ? "bg-[#F0EAE1] text-[#1e2321] font-medium" : "text-gray-500 hover:bg-[#F3EFE8]/50"}`}
+                  onClick={resetToAll}
                 >
                   <div className="flex items-center justify-center w-5 h-5">
-                    {getWeddingIcon("all", activeCategory === "All")}
+                    {getIcon("all", activeCategory === "All")}
                   </div>
                   <span className="text-[13px] tracking-wide">All Categories</span>
                 </label>
-
-                {weddingCat?.children?.map((section, idx) => {
+                {packagingCat?.children?.map((section, idx) => {
                   const isActive = activeCategory === section.name;
                   return (
                     <label
                       key={idx}
-                      className={`flex items-center gap-4 px-4 py-3 cursor-pointer transition-colors rounded-[4px] ${
-                        isActive
-                          ? "bg-[#F0EAE1] text-[#1e2321] font-medium"
-                          : "text-gray-500 hover:bg-[#F3EFE8]/50"
-                      }`}
+                      className={`flex items-center gap-4 px-4 py-3 cursor-pointer transition-colors rounded-[4px] ${isActive ? "bg-[#F0EAE1] text-[#1e2321] font-medium" : "text-gray-500 hover:bg-[#F3EFE8]/50"}`}
                       onClick={() => {
                         setActiveCategory(section.name);
                         setSelectedSlug(section.slug);
@@ -292,125 +295,60 @@ export default function Wedding() {
                       }}
                     >
                       <div className="flex items-center justify-center w-5 h-5">
-                        {getWeddingIcon(section.name, isActive)}
+                        {getIcon(section.name, isActive)}
                       </div>
                       <span className="text-[13px] tracking-wide">{decodeHtml(section.name)}</span>
                     </label>
                   );
                 })}
-
-                {/* Fallback placeholders when API hasn't loaded yet */}
-                {(!weddingCat?.children || weddingCat.children.length === 0) && (
-                  <>
-                    <div className="flex items-center gap-4 px-4 py-3 text-gray-400 cursor-not-allowed">
-                      <div className="flex items-center justify-center w-5 h-5">
-                        {getWeddingIcon("Invitations")}
-                      </div>
-                      <span className="text-[13px] tracking-wide">Invitations</span>
-                    </div>
-                    <div className="flex items-center gap-4 px-4 py-3 text-gray-400 cursor-not-allowed">
-                      <div className="flex items-center justify-center w-5 h-5">
-                        {getWeddingIcon("Wedding Hampers")}
-                      </div>
-                      <span className="text-[13px] tracking-wide">Wedding Hampers</span>
-                    </div>
-                  </>
-                )}
               </div>
             </div>
 
-            {/* Filter By */}
             <div className="mb-10">
               <h3 className="font-bold text-[11px] uppercase tracking-widest mb-6 text-[#1e2321]">
                 Filter By
               </h3>
-
-              <div className="mb-8">
-                <h4 className="text-[10px] uppercase text-gray-500 font-semibold tracking-wider mb-4">
-                  WEDDING CATEGORIES
-                </h4>
-                <div className="space-y-1">
-                  {subCategoriesToShow.map((item) => {
-                    const isActive = activeTag === item.slug;
-                    return (
-                      <label
-                        key={item.id}
-                        className={`flex items-center gap-3 cursor-pointer group px-3 py-2 rounded-[4px] transition-all ${
-                          isActive
-                            ? "bg-[#F5EFE6] border-l-[3px] border-[#C5A26F]"
-                            : "border-l-[3px] border-transparent hover:bg-gray-50"
-                        }`}
-                        onClick={() => {
-                          setActiveTag(item.slug);
-                          setSelectedId(item.id);
-                          setSelectedSlug(item.slug);
-                          setFilterMode("exact");
-                          setSearchParams({ tag: item.slug });
-                        }}
+              <h4 className="text-[10px] uppercase text-gray-500 font-semibold tracking-wider mb-4">
+                PACKAGING TYPES
+              </h4>
+              <div className="space-y-1">
+                {subCategoriesToShow.map((item) => {
+                  const isActive = activeTag === item.slug;
+                  return (
+                    <label
+                      key={item.id}
+                      className={`flex items-center gap-3 cursor-pointer group px-3 py-2 rounded-[4px] transition-all ${isActive ? "bg-[#F5EFE6] border-l-[3px] border-[#C5A26F]" : "border-l-[3px] border-transparent hover:bg-gray-50"}`}
+                      onClick={() => {
+                        setActiveTag(item.slug);
+                        setSelectedId(item.id);
+                        setSelectedSlug(item.slug);
+                        setFilterMode("exact");
+                        setSearchParams({ tag: item.slug });
+                      }}
+                    >
+                      <div className="flex items-center justify-center w-5 h-5">
+                        {getIcon(item.name, isActive)}
+                      </div>
+                      <span
+                        className={`text-[13px] transition-colors flex-1 ${isActive ? "text-[#1e2321] font-semibold" : "text-gray-500 group-hover:text-[#1e2321]"}`}
                       >
-                        <div className="flex items-center justify-center w-5 h-5">
-                          {getWeddingIcon(item.name, isActive)}
-                        </div>
-                        <span
-                          className={`text-[13px] transition-colors flex-1 ${
-                            isActive
-                              ? "text-[#1e2321] font-semibold"
-                              : "text-gray-500 group-hover:text-[#1e2321]"
-                          }`}
-                        >
-                          {decodeHtml(item.name)}
-                        </span>
-                        {isActive && (
-                          <span className="text-[10px] font-bold text-[#C5A26F]">✓</span>
-                        )}
-                      </label>
-                    );
-                  })}
-
-                  {/* Fallback filter items when API hasn't loaded */}
-                  {subCategoriesToShow.length === 0 && (
-                    <>
-                      {[
-                        "Physical Invites",
-                        "Digital Invites",
-                        "Luxury Box Invites",
-                        "Bridesmaid Boxes",
-                        "Groomsmen Kits",
-                        "Guest Welcome Kits",
-                        "Return Gifts",
-                      ].map((name) => (
-                        <div
-                          key={name}
-                          className="flex items-center gap-3 px-3 py-2 text-gray-400 cursor-not-allowed border-l-[3px] border-transparent"
-                        >
-                          <div className="flex items-center justify-center w-5 h-5">
-                            {getWeddingIcon(name)}
-                          </div>
-                          <span className="text-[13px]">{name}</span>
-                        </div>
-                      ))}
-                    </>
-                  )}
-                </div>
+                        {decodeHtml(item.name)}
+                      </span>
+                      {isActive && <span className="text-[10px] font-bold text-[#C5A26F]">✓</span>}
+                    </label>
+                  );
+                })}
               </div>
-
               <button
-                className="w-full py-3 border border-gray-200 text-[11px] font-semibold tracking-widest text-gray-600 uppercase hover:bg-gray-50 transition-colors"
-                onClick={() => {
-                  setActiveTag("");
-                  setActiveCategory("All");
-                  setSelectedSlug("wedding");
-                  setSelectedId(null);
-                  setFilterMode("parent");
-                  setSearchParams({});
-                }}
+                className="w-full mt-6 py-3 border border-gray-200 text-[11px] font-semibold tracking-widest text-gray-600 uppercase hover:bg-gray-50 transition-colors"
+                onClick={resetToAll}
               >
                 CLEAR ALL FILTERS
               </button>
             </div>
           </aside>
 
-          {/* ── Product Grid ── */}
+          {/* Product Grid */}
           <div className="flex-1 min-h-[50vh]">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8">
               <p className="text-[13px] text-gray-500 font-medium">
@@ -427,9 +365,11 @@ export default function Wedding() {
                         setFilterMode("parent");
                         setSelectedSlug(
                           activeCategory !== "All"
-                            ? weddingCat?.children?.find((c) => c.name === activeCategory)?.slug ||
-                                "wedding"
-                            : "wedding",
+                            ? packagingCat?.children?.find((c) => c.name === activeCategory)
+                                ?.slug ||
+                                packagingCat?.slug ||
+                                "packaging-studio"
+                            : packagingCat?.slug || "packaging-studio",
                         );
                         setSearchParams({});
                       }}
@@ -452,14 +392,7 @@ export default function Wedding() {
                   </div>
                 )}
                 <button
-                  onClick={() => {
-                    setActiveCategory("All");
-                    setActiveTag("");
-                    setSelectedSlug("wedding");
-                    setSelectedId(null);
-                    setFilterMode("parent");
-                    setSearchParams({});
-                  }}
+                  onClick={resetToAll}
                   className="text-[13px] cursor-pointer text-destructive underline underline-offset-4 ml-2 hover:text-[#0f1716] transition-colors"
                 >
                   Clear All

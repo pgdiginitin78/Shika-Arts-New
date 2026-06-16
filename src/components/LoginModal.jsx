@@ -321,8 +321,8 @@ export function LoginModal({ isOpen, onClose }) {
               size="large"
               startIcon={<GoogleIcon />}
               onClick={() => {
-                window.location.href =
-                  "https://tan-cattle-873141.hostingersite.com/wp-login.php?loginSocial=google&redirect_to=http://localhost:5173";
+                const returnUrl = window.location.origin; // auto-detects 5173, 5177, vercel, etc.
+                window.location.href = `https://tan-cattle-873141.hostingersite.com/wp-login.php?loginSocial=google&redirect_to=${encodeURIComponent(returnUrl)}`;
               }}
               sx={{
                 py: 1.2,

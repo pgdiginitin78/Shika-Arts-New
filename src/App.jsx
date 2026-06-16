@@ -8,44 +8,50 @@ import { Toaster } from "./components/ui/sonner";
 import { useCartSync } from "./hooks/useCartSync";
 import { useSessionRestore } from "./hooks/useSessionRestore";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { NavbarProvider } from "./context/NavbarContext";
 
 import Home from "./pages/Home";
 import Category from "./pages/Category";
-import Product from "./pages/Product";
+import Product from "./pages/ProductDetailPage";
 import Products from "./pages/Products";
 import Occasions from "./pages/Occasions";
 import Corporate from "./pages/Corporate";
 import Wedding from "./pages/Wedding";
-import AuthCallback from "./pages/AuthCallback";
+import CustomizedGifts from "./pages/CustomizedGifts";
+import PackagingStudio from "./pages/PackagingStudio";
 
 const queryClient = new QueryClient();
 
 function App() {
   useCartSync();
-  useSessionRestore();
-
+  
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <ScrollToTop />
-        <Header />
-        <main className="">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/category/Occasions" element={<Occasions />} />
-            <Route path="/category/Corporate" element={<Corporate />} />
-            <Route path="/category/Wedding" element={<Wedding />} />
-            <Route path="/category/:slug" element={<Category />} />
-            <Route path="/product/:handle" element={<Product />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
-          </Routes>
-        </main>
-        <Footer />
-        <CartDrawer />
-        <WishlistDrawer />
-        <Toaster position="top-center" />
-      </BrowserRouter>
+      <NavbarProvider>
+        <BrowserRouter>
+          <ScrollToTop />
+          <Header />
+          <main className="">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/category/Occasions" element={<Occasions />} />
+              <Route path="/category/Corporate" element={<Corporate />} />
+              <Route path="/category/Wedding" element={<Wedding />} />
+              <Route path="/category/customizedgifts" element={<CustomizedGifts />} />
+              <Route path="/category/customization" element={<CustomizedGifts />} />
+              <Route path="/category/packaging-studio" element={<PackagingStudio />} />
+              <Route path="/category/packagingstudio" element={<PackagingStudio />} />
+              <Route path="/category/:slug" element={<Category />} />
+              <Route path="/product/:handle" element={<Product />} />
+              <Route path="/products" element={<Products />} />
+            </Routes>
+          </main>
+          <Footer />
+          <CartDrawer />
+          <WishlistDrawer />
+          <Toaster position="top-center" />
+        </BrowserRouter>
+      </NavbarProvider>
     </QueryClientProvider>
   );
 }

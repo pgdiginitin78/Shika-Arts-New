@@ -1,31 +1,21 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { HomeCarousel } from "@/components/HomeCarousel";
 import { ProductCard } from "@/components/ProductCard";
-// import { CATEGORIES } from "@/lib/categories";
-import { STOREFRONT_QUERY, storefrontApiRequest } from "@/lib/shopify";
+import { getProducts } from "../services/LoginServices";
+import { normalizeProduct } from "@/lib/woocommerce";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Star, Truck, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useRef } from "react";
 import PersonalizedImage from "../assets/homePage/Personalized Gift.webp";
-
 import CorporateImage from "../assets/homePage/CorporateImage.webp";
 import CustomizedGifts from "../assets/homePage/CustomizedGiftImage.webp";
 import OccasionsImage from "../assets/homePage/OccasionImage.webp";
 import WeddingGift from "../assets/homePage/WeddingGiftImage.webp";
 
-
 export const CATEGORIES = [
   {
-    slug: "Occasions",
-    label: "Occasions",
-    productType: "Occasions",
-    tagline: "Engraved & made for them",
-    icon: "✎",
-    image: OccasionsImage,
-  },
-  {
-    slug: "Corporate",
+    slug: "corporate",
     label: "Shop Corporate Gift",
     productType: "Corporate",
     tagline: "Professional excellence",
@@ -33,7 +23,7 @@ export const CATEGORIES = [
     image: CorporateImage,
   },
   {
-    slug: "Wedding",
+    slug: "wedding",
     label: "Wedding Gifts",
     productType: "Wedding",
     tagline: "Celebrate their big day",
@@ -41,32 +31,32 @@ export const CATEGORIES = [
     image: WeddingGift,
   },
   {
-    slug: "Customization",
+    slug: "customizedgifts",
     label: "Customization",
     productType: "Customized Gifts",
     tagline: "Personalized thoughtfulness",
     icon: "✎",
     image: CustomizedGifts,
   },
-
-
+  {
+    slug: "occasions",
+    label: "Occasions",
+    productType: "Occasions",
+    tagline: "Engraved & made for them",
+    icon: "✎",
+    image: OccasionsImage,
+  },
 ];
 
-function useProducts(query) {
-  return useQuery({
-    queryKey: ["products", query ?? "all"],
+function HomePage() {
+  const { data: products = [], isLoading } = useQuery({
+    queryKey: ["products", "home"],
     queryFn: async () => {
-      const data = await storefrontApiRequest(STOREFRONT_QUERY, {
-        first: 24,
-        query: query ?? null,
-      });
-      return data?.data?.products?.edges ?? [];
+      const data = await getProducts({ per_page: 24 });
+      return data.map(normalizeProduct);
     },
   });
-}
 
-function HomePage() {
-  const { data: products = [], isLoading } = useProducts();
   const containerRef = useRef(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -74,14 +64,13 @@ function HomePage() {
   });
 
   const featured = products.slice(0, 8);
-
   const filteredProducts = products.filter(
     (p) => p.node.tags?.includes("bestseller") || p.node.tags?.includes("wedding"),
   );
 
   return (
     <div ref={containerRef} className="bg-background text-foreground overflow-x-hidden">
-      <section className="relative  md:min-h-[75vh] lg:min-h-[90vh] flex flex-col justify-end">
+      <section className="relative md:min-h-[75vh] lg:min-h-[90vh] flex flex-col justify-end">
         <div className="w-full h-full px-0">
           <HomeCarousel />
         </div>
@@ -183,7 +172,7 @@ function HomePage() {
                   <img
                     src={c.image}
                     alt={c.label}
-                    className="w-full h-full  grayscale brightness-90 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000 ease-out"
+                    className="w-full h-full grayscale brightness-90 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000 ease-out"
                   />
                   <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500" />
                   <div className="absolute bottom-3 left-3 md:bottom-6 md:left-6 text-white pointer-events-none">
@@ -197,6 +186,7 @@ function HomePage() {
           </div>
         </div>
       </section>
+
       <section className="py-16 md:py-24 lg:py-12 px-2 md:px-8 lg:px-12 bg-pearl border-y border-accent/10">
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-5 items-center">
           <motion.div
@@ -206,7 +196,7 @@ function HomePage() {
             transition={{ duration: 1.2 }}
             className="w-full relative shine-effect"
           >
-            <div className=" overflow-hidden">
+            <div className="overflow-hidden">
               <motion.img
                 style={{ scale: useTransform(scrollYProgress, [0.3, 0.6], [1.2, 1]) }}
                 src={PersonalizedImage}
@@ -239,11 +229,10 @@ function HomePage() {
               className="text-muted-foreground text-sm leading-relaxed mb-10 md:mb-12 lg:mb-16 max-w-lg"
             >
               Transform your gesture into a lasting legacy. From bespoke engravings to curated
-              hampers, we craft unique experiences that resonate with the recipient's soul. No
-              generic gifts, only hand-selected artisanal treasures.
+              hampers, we craft unique experiences that resonate with the recipient's soul.
             </motion.p>
 
-            <div className="grid  md:grid-cols-2 2xl:grid-cols-3 gap-3 lg:gap-6 mb-10 md:mb-12 lg:mb-16">
+            <div className="grid md:grid-cols-2 2xl:grid-cols-3 gap-3 lg:gap-6 mb-10 md:mb-12 lg:mb-16">
               {products.slice(8, 12).map((p, idx) => (
                 <motion.div
                   key={p.node.id}
@@ -265,8 +254,9 @@ function HomePage() {
           </div>
         </div>
       </section>
+
       {filteredProducts.length > 0 && (
-        <section className="py-16  2xl:py-32 bg-primary text-primary-foreground overflow-hidden px-4 md:px-8 lg:px-12">
+        <section className="py-16 2xl:py-32 bg-primary text-primary-foreground overflow-hidden px-4 md:px-8 lg:px-12">
           <div className="w-full">
             <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-end mb-10 md:mb-12 lg:mb-16">
               <div>
@@ -285,7 +275,6 @@ function HomePage() {
                 <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
-
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-10">
               {filteredProducts.map((p, idx) => (
                 <motion.div
@@ -364,7 +353,6 @@ function HomePage() {
           />
           <div className="absolute inset-0 bg-midnight/60" />
         </motion.div>
-
         <div className="relative z-10 text-center text-white px-4 md:px-8">
           <motion.h2
             initial={{ opacity: 0 }}

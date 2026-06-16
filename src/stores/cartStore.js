@@ -1,315 +1,226 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
 import { toast } from "sonner";
-import { storefrontApiRequest } from "@/lib/shopify";
+import {
+  addToCart,
+  getCart,
+  getProductBySlug,
+  removeCartItem,
+  searchProducts,
+  updateCartItem,
+} from "../services/LoginServices";
+import { productToNode } from "@/lib/woocommerce";
 
-const CART_QUERY = `query cart($id: ID!) { cart(id: $id) { id totalQuantity } }`;
-const CART_CREATE_MUTATION = `
-  mutation cartCreate($input: CartInput!) {
-    cartCreate(input: $input) {
-      cart { id checkoutUrl lines(first: 100) { edges { node { id merchandise { ... on ProductVariant { id } } } } } }
-      userErrors { field message }
-    }
-  }`;
-const CART_LINES_ADD_MUTATION = `
-  mutation cartLinesAdd($cartId: ID!, $lines: [CartLineInput!]!) {
-    cartLinesAdd(cartId: $cartId, lines: $lines) {
-      cart { id lines(first: 100) { edges { node { id merchandise { ... on ProductVariant { id } } } } } }
-      userErrors { field message }
-    }
-  }`;
-const CART_LINES_UPDATE_MUTATION = `
-  mutation cartLinesUpdate($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
-    cartLinesUpdate(cartId: $cartId, lines: $lines) { cart { id } userErrors { field message } }
-  }`;
-const CART_LINES_REMOVE_MUTATION = `
-  mutation cartLinesRemove($cartId: ID!, $lineIds: [ID!]!) {
-    cartLinesRemove(cartId: $cartId, lineIds: $lineIds) { cart { id } userErrors { field message } }
-  }`;
-function formatCheckoutUrl(checkoutUrl) {
-  try {
-    const url = new URL(checkoutUrl);
-    url.searchParams.set("channel", "online_store");
-    return url.toString();
-  } catch {
-    return checkoutUrl;
+const toNumber = (value) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const getTitle = (item) =>
+  item?.product?.node?.title ||
+  item?.product?.title ||
+  item?.product?.name ||
+  item?.title ||
+  item?.name ||
+  "";
+
+const isUserLoggedIn = () => {
+  return !!localStorage.getItem("token");
+};
+
+const resolveWooProductId = async (item) => {
+  const directId = toNumber(item?.productId ?? item?.product?.id ?? item?.id);
+  if (directId > 0) return directId;
+
+  const node = productToNode(item?.product || item);
+  const handle =
+    item?.handle ||
+    item?.slug ||
+    node?.handle ||
+    item?.product?.handle ||
+    item?.product?.slug;
+
+  if (handle) {
+    const product = await getProductBySlug(handle);
+    const productId = toNumber(product?.id);
+    if (productId > 0) return productId;
   }
-}
-function isCartNotFoundError(userErrors) {
-  return userErrors.some(e => e.message.toLowerCase().includes("cart not found") || e.message.toLowerCase().includes("does not exist"));
-}
-async function createShopifyCart(item) {
-  const data = await storefrontApiRequest(CART_CREATE_MUTATION, {
-    input: {
-      lines: [{
-        quantity: item.quantity,
-        merchandiseId: item.variantId
-      }]
-    }
-  });
-  if (data?.data?.cartCreate?.userErrors?.length > 0) return null;
-  const cart = data?.data?.cartCreate?.cart;
-  if (!cart?.checkoutUrl) return null;
-  const lineId = cart.lines.edges[0]?.node?.id;
-  if (!lineId) return null;
-  return {
-    cartId: cart.id,
-    checkoutUrl: formatCheckoutUrl(cart.checkoutUrl),
-    lineId
-  };
-}
-async function addLineToShopifyCart(cartId, item) {
-  const data = await storefrontApiRequest(CART_LINES_ADD_MUTATION, {
-    cartId,
-    lines: [{
-      quantity: item.quantity,
-      merchandiseId: item.variantId
-    }]
-  });
-  const userErrors = data?.data?.cartLinesAdd?.userErrors || [];
-  if (isCartNotFoundError(userErrors)) return {
-    success: false,
-    cartNotFound: true
-  };
-  if (userErrors.length > 0) return {
-    success: false
-  };
-  const lines = data?.data?.cartLinesAdd?.cart?.lines?.edges || [];
-  const newLine = lines.find(l => l.node.merchandise.id === item.variantId);
-  return {
-    success: true,
-    lineId: newLine?.node?.id
-  };
-}
-async function updateShopifyCartLine(cartId, lineId, quantity) {
-  const data = await storefrontApiRequest(CART_LINES_UPDATE_MUTATION, {
-    cartId,
-    lines: [{
-      id: lineId,
-      quantity
-    }]
-  });
-  const userErrors = data?.data?.cartLinesUpdate?.userErrors || [];
-  if (isCartNotFoundError(userErrors)) return {
-    success: false,
-    cartNotFound: true
-  };
-  if (userErrors.length > 0) return {
-    success: false
-  };
-  return {
-    success: true
-  };
-}
-async function removeLineFromShopifyCart(cartId, lineId) {
-  const data = await storefrontApiRequest(CART_LINES_REMOVE_MUTATION, {
-    cartId,
-    lineIds: [lineId]
-  });
-  const userErrors = data?.data?.cartLinesRemove?.userErrors || [];
-  if (isCartNotFoundError(userErrors)) return {
-    success: false,
-    cartNotFound: true
-  };
-  if (userErrors.length > 0) return {
-    success: false
-  };
-  return {
-    success: true
-  };
-}
-export const useCartStore = create()(persist((set, get) => ({
+
+  const title = getTitle(item) || node?.title || "";
+
+  if (title) {
+    const results = await searchProducts(title);
+
+    const exact =
+      results?.find(
+        (p) =>
+          p?.slug === handle ||
+          p?.name?.toLowerCase() === title.toLowerCase()
+      ) || results?.[0];
+
+    const productId = toNumber(exact?.id);
+
+    if (productId > 0) return productId;
+  }
+
+  return null;
+};
+
+export const useCartStore = create((set, get) => ({
   items: [],
-  cartId: null,
-  checkoutUrl: null,
   isLoading: false,
   isSyncing: false,
   isOpen: false,
-  setOpen: v => set({
-    isOpen: v
-  }),
-  addItem: async item => {
-    const {
-      items,
-      cartId,
-      clearCart
-    } = get();
-    const existingItem = items.find(i => i.variantId === item.variantId);
-    set({
-      isLoading: true
-    });
+
+  setOpen: (v) => set({ isOpen: v }),
+
+  syncCart: async () => {
+    if (!isUserLoggedIn()) {
+      set({ items: [] });
+      return null;
+    }
+
+    set({ isSyncing: true });
+
     try {
-      if (!cartId) {
-        const result = await createShopifyCart({
-          ...item,
-          lineId: null
-        });
-        if (result) {
-          set({
-            cartId: result.cartId,
-            checkoutUrl: result.checkoutUrl,
-            items: [{
-              ...item,
-              lineId: result.lineId
-            }]
-          });
-          toast.success("Added to cart", { description: item.product.node.title });
-        } else {
-          toast.error("Failed to create cart", { description: "Shopify API error. Please try again." });
-        }
-      } else if (existingItem) {
-        const newQuantity = existingItem.quantity + item.quantity;
-        if (!existingItem.lineId) {
-          toast.error("Item sync error", { description: "Please refresh and try again." });
-          return;
-        }
-        const result = await updateShopifyCartLine(cartId, existingItem.lineId, newQuantity);
-        if (result.success) {
-          const currentItems = get().items;
-          set({
-            items: currentItems.map(i => i.variantId === item.variantId ? {
-              ...i,
-              quantity: newQuantity
-            } : i)
-          });
-          toast.success("Updated cart", { description: item.product.node.title });
-        } else if (result.cartNotFound) {
-          clearCart();
-          toast.error("Cart expired", { description: "Refreshing your cart..." });
-        } else {
-          toast.error("Failed to update cart");
-        }
-      } else {
-        const result = await addLineToShopifyCart(cartId, {
-          ...item,
-          lineId: null
-        });
-        if (result.success) {
-          const currentItems = get().items;
-          set({
-            items: [...currentItems, {
-              ...item,
-              lineId: result.lineId ?? null
-            }]
-          });
-          toast.success("Added to cart", { description: item.product.node.title });
-        } else if (result.cartNotFound) {
-          clearCart();
-          toast.error("Cart expired", { description: "Refreshing your cart..." });
-        } else {
-          toast.error("Failed to add to cart");
-        }
-      }
-    } catch (e) {
-      console.error("Failed to add item:", e);
-      toast.error("Connection error", { description: "Could not reach Shopify." });
-    } finally {
+      const data = await getCart();
+
       set({
-        isLoading: false
+        items: Array.isArray(data?.items) ? data.items : [],
       });
+
+      return data;
+    } catch (error) {
+      console.log(error);
+      return null;
+    } finally {
+      set({ isSyncing: false });
     }
   },
-  updateQuantity: async (variantId, quantity) => {
-    if (quantity <= 0) {
-      await get().removeItem(variantId);
+
+  addItem: async (item) => {
+    if (!isUserLoggedIn()) {
+      toast.error("Please login to add products to cart");
+      return null;
+    }
+
+    set({ isLoading: true });
+
+    try {
+      const productId = await resolveWooProductId(item);
+
+      if (!productId) {
+        toast.error("Could not find the product in WooCommerce");
+        return null;
+      }
+
+      const quantity = Math.max(1, toNumber(item?.quantity || 1));
+      const data = await addToCart(productId, quantity);
+
+      if (Array.isArray(data?.items)) {
+        set({ items: data.items });
+      } else {
+        await get().syncCart();
+      }
+
+      toast.success("Added to cart", {
+        description: getTitle(item),
+      });
+
+      return data;
+    } catch (error) {
+      console.log(error);
+      toast.error("Could not add to cart. Please try again.");
+      return null;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  updateQuantity: async (cartItemKey, quantity) => {
+    if (!isUserLoggedIn()) {
+      toast.error("Please login to update cart");
       return;
     }
-    const {
-      items,
-      cartId,
-      clearCart
-    } = get();
-    const item = items.find(i => i.variantId === variantId);
-    if (!item?.lineId || !cartId) return;
-    set({
-      isLoading: true
-    });
+
+    if (!cartItemKey) return;
+
+    if (quantity <= 0) {
+      await get().removeItem(cartItemKey);
+      return;
+    }
+
+    set({ isLoading: true });
+
     try {
-      const result = await updateShopifyCartLine(cartId, item.lineId, quantity);
-      if (result.success) {
-        const currentItems = get().items;
-        set({
-          items: currentItems.map(i => i.variantId === variantId ? {
-            ...i,
-            quantity
-          } : i)
-        });
-      } else if (result.cartNotFound) {
-        clearCart();
+      const data = await updateCartItem(cartItemKey, quantity);
+
+      if (Array.isArray(data?.items)) {
+        set({ items: data.items });
+      } else {
+        await get().syncCart();
       }
+    } catch (error) {
+      console.log(error);
+      toast.error("Could not update cart item.");
     } finally {
-      set({
-        isLoading: false
-      });
+      set({ isLoading: false });
     }
   },
-  removeItem: async variantId => {
-    const {
-      items,
-      cartId,
-      clearCart
-    } = get();
-    const item = items.find(i => i.variantId === variantId);
-    if (!item?.lineId || !cartId) return;
-    set({
-      isLoading: true
-    });
+
+  removeItem: async (cartItemKey) => {
+    if (!isUserLoggedIn()) {
+      toast.error("Please login to manage cart");
+      return;
+    }
+
+    if (!cartItemKey) return;
+
+    set({ isLoading: true });
+
     try {
-      const result = await removeLineFromShopifyCart(cartId, item.lineId);
-      if (result.success) {
-        const currentItems = get().items;
-        const newItems = currentItems.filter(i => i.variantId !== variantId);
-        newItems.length === 0 ? clearCart() : set({
-          items: newItems
-        });
-      } else if (result.cartNotFound) {
-        clearCart();
+      const data = await removeCartItem(cartItemKey);
+
+      if (Array.isArray(data?.items)) {
+        set({ items: data.items });
+      } else {
+        await get().syncCart();
       }
+    } catch (error) {
+      console.log(error);
+      toast.error("Could not remove item from cart.");
     } finally {
-      set({
-        isLoading: false
-      });
+      set({ isLoading: false });
     }
   },
-  clearCart: () => set({
-    items: [],
-    cartId: null,
-    checkoutUrl: null
-  }),
-  getCheckoutUrl: () => get().checkoutUrl,
-  syncCart: async () => {
-    const {
-      cartId,
-      isSyncing,
-      isLoading,
-      clearCart
-    } = get();
-    // Skip sync if cart ID is missing, already syncing, or an addItem is in-flight
-    if (!cartId || isSyncing || isLoading) return;
-    set({
-      isSyncing: true
-    });
-    try {
-      const data = await storefrontApiRequest(CART_QUERY, {
-        id: cartId
-      });
-      if (!data) return;
-      const cart = data?.data?.cart;
-      // Only clear if the cart truly doesn't exist on Shopify (expired/deleted)
-      // Do NOT clear on totalQuantity === 0 — that can be a race condition
-      if (!cart) clearCart();
-    } finally {
-      set({
-        isSyncing: false
-      });
+
+  clearCart: async () => {
+    if (!isUserLoggedIn()) {
+      toast.error("Please login to manage cart");
+      return;
     }
-  }
-}), {
-  name: "shika-cart",
-  storage: createJSONStorage(() => localStorage),
-  partialize: state => ({
-    items: state.items,
-    cartId: state.cartId,
-    checkoutUrl: state.checkoutUrl
-  })
+
+    const currentItems = get().items || [];
+
+    if (!currentItems.length) return;
+
+    set({ isLoading: true });
+
+    try {
+      await Promise.all(
+        currentItems
+          .filter((item) => item?.key)
+          .map((item) => removeCartItem(item.key))
+      );
+
+      await get().syncCart();
+    } catch (error) {
+      console.log(error);
+      toast.error("Could not clear cart.");
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  getCheckoutUrl: () =>
+    "https://tan-cattle-873141.hostingersite.com/checkout",
 }));

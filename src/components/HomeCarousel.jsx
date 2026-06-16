@@ -9,9 +9,9 @@ import WeddingGift from "../assets/homePage/Wedding.webp";
 
 const CARDS = [
   {
-    id: 1,
-    image: WeddingGift,
-    link: "/category/wedding",
+    id: 3,
+    image: CorporateGifts,
+    link: "/category/corporate-gifts",
   },
   {
     id: 2,
@@ -19,14 +19,14 @@ const CARDS = [
     link: "/category/hampers",
   },
   {
-    id: 3,
-    image: CorporateGifts,
-    link: "/category/corporate-gifts",
-  },
-  {
     id: 4,
     image: OccasionGift,
     link: "/category/thoughtful-gifts",
+  },
+  {
+    id: 1,
+    image: WeddingGift,
+    link: "/category/wedding",
   },
 ];
 

@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { storefrontApiRequest, STOREFRONT_QUERY } from "@/lib/shopify";
 import { getCategoryBySlug } from "@/lib/categories";
 import { ProductCard } from "@/components/ProductCard";
 import { motion, AnimatePresence } from "framer-motion";
-import { MENU_ITEMS } from "@/components/Header";
+import { useNavbarMenus } from "../context/NavbarContext";
 
 function CategoryPage() {
   const { slug } = useParams();
   const cat = getCategoryBySlug(slug);
   const [searchParams] = useSearchParams();
   const tagParam = searchParams.get("tag");
+  const navbarMenus = useNavbarMenus();
 
   const [activeTag, setActiveTag] = useState(tagParam || "");
 
@@ -42,44 +42,17 @@ function CategoryPage() {
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(" ");
 
-  const menuData = MENU_ITEMS[slug] || MENU_ITEMS[slug.toLowerCase()];
-
-  const ALL_TAGS_AND_TYPES_QUERY = menuData
-    ? menuData.flatMap((m) =>
-        m.subCategory.flatMap((s) => {
-          const rawTag = s.link.split("tag=")[1];
-          const decodedTag = rawTag ? decodeURIComponent(rawTag) : "";
-          return decodedTag ? [`tag:"${decodedTag}"`, `product_type:"${decodedTag}"`] : [];
-        })
-      ).join(" OR ")
-    : "";
+  // Find this category's data from context; match by slug
+  const activeCategory = navbarMenus.find(
+    (c) => c.slug === slug || c.slug.toLowerCase() === slug.toLowerCase()
+  );
+  // menuData = array of sub-sections (level-2 children), each with their own children (level-3)
+  const menuData = activeCategory?.children?.length ? activeCategory.children : null;
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["products", "category", slug, activeTag],
     queryFn: async () => {
-      let queryStr = "";
-      if (cat?.productType) {
-        queryStr = `product_type:"${cat.productType}"`;
-        if (ALL_TAGS_AND_TYPES_QUERY) {
-           queryStr += ` OR ${ALL_TAGS_AND_TYPES_QUERY}`;
-        }
-      } else {
-        queryStr = `tag:"${slug.replace(/-/g, " ")}"`;
-        if (ALL_TAGS_AND_TYPES_QUERY) {
-           queryStr += ` OR ${ALL_TAGS_AND_TYPES_QUERY}`;
-        }
-      }
-      
-      if (activeTag) {
-        queryStr = `tag:"${activeTag}" OR product_type:"${activeTag}"`;
-      }
-
-      const data = await storefrontApiRequest(STOREFRONT_QUERY, {
-        first: 60,
-        query: queryStr,
-      });
-
-      return data?.data?.products?.edges ?? [];
+      return [];
     },
   });
 
@@ -123,11 +96,11 @@ function CategoryPage() {
                   {menuData.map((section, idx) => (
                     <div key={idx} className="flex flex-col gap-3">
                       <h4 className="text-[14px] uppercase tracking-widest font-bold text-muted-foreground border-b border-border pb-2">
-                        {section.category}
+                        {section.name.replace(/&amp;/g, '&')}
                       </h4>
                       <div className="flex flex-col gap-2">
-                        {section.subCategory.map((item, i) => {
-                          const itemTag = item.link.split("tag=")[1] ? decodeURIComponent(item.link.split("tag=")[1]) : "";
+                        {(section.children ?? []).map((item, i) => {
+                          const itemTag = item.slug.replace(/-/g, " ");
                           return (
                             <button
                               key={i}
@@ -138,7 +111,7 @@ function CategoryPage() {
                                   : "text-foreground hover:text-destructive"
                               }`}
                             >
-                              {item.name}
+                              {item.name.replace(/&amp;/g, '&')}
                             </button>
                           );
                         })}
@@ -168,7 +141,7 @@ function CategoryPage() {
                   No products found in this collection yet.
                 </p>
                 <p className="text-sm text-muted-foreground uppercase tracking-widest">
-                  Connect to Shopify and add category and menu to show products proper.
+                  Connect to WooCommerce and add category and menu to show products proper.
                 </p>
               </motion.div>
             ) : (

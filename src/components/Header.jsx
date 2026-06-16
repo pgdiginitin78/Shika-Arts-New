@@ -1,161 +1,17 @@
 import { CATEGORIES } from "@/lib/categories";
 import { useCartStore } from "@/stores/cartStore";
-import { useCustomerAuthStore } from "@/stores/customerAuthStore";
 import { useWishlistStore } from "@/stores/wishlistStore";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Heart, Menu, Search, ShoppingCart, User, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import MainLogo from "../assets/mainLogos/shikaArtsLogo.webp";
+import { useNavbarMenus } from "../context/NavbarContext";
 import { LocationSelector } from "./LocationSelector";
 import { LoginModal } from "./LoginModal";
 import { UserMenu, UserMenuInline } from "./UserMenu";
 
-export const MENU_ITEMS = {
-  occasions: [
-    {
-      category: "Celebrations",
-      subCategory: [
-        { name: "Birthdays", link: "/category/Occasions?tag=Birthday" },
-        { name: "Anniversaries", link: "/category/Occasions?tag=Anniversary" },
-        { name: "HouseWarming", link: "/category/Occasions?tag=housewarming" },
-        { name: "Graduation", link: "/category/Occasions?tag=graduation" },
-        { name: "New Job", link: "/category/Occasions?tag=new job" },
-        { name: "Retirement", link: "/category/Occasions?tag=retirement" },
-      ],
-    },
-    {
-      category: "Baby & Family",
-      subCategory: [
-        { name: "Baby Announcement", link: "/category/Occasions?tag=baby announcement" },
-        { name: "Baby Shower", link: "/category/Occasions?tag=baby shower" },
-        { name: "Naming Ceremony", link: "/category/Occasions?tag=naming ceremony" },
-        { name: "New Parent Gifts", link: "/category/Occasions?tag=new parent gifts" },
-      ],
-    },
-    {
-      category: "Seasonal & Festive",
-      subCategory: [
-        { name: "Raksha Bandhan", link: "/category/Occasions?tag=raksha bandhan" },
-        { name: "Valentine's", link: "/category/Occasions?tag=velentine's" },
-        { name: "Diwali", link: "/category/Occasions?tag=diwali" },
-        { name: "Christmas", link: "/category/Occasions?tag=christmas" },
-      ],
-    },
-  ],
 
-  corporate: [
-    {
-      category: "Employee Gifting",
-      subCategory: [
-        { name: "Joining Kits", link: "/category/Corporate?tag=joining kits" },
-        { name: "Event Gifting", link: "/category/Corporate?tag=event gifting" },
-        { name: "Work Anniversaries", link: "/category/Corporate?tag=work anniversaries" },
-        { name: "Rewards", link: "/category/Corporate?tag=rewards" },
-        { name: "Wellness Box", link: "/category/Corporate?tag=wellness box" },
-      ],
-    },
-    {
-      category: "Client Gifting",
-      subCategory: [
-        { name: "New Year Gifting", link: "/category/Corporate?tag=new year gifting" },
-        { name: "Festive Gifting", link: "/category/Corporate?tag=festive gifting" },
-        { name: "Executive Gifts", link: "/category/Corporate?tag=executive gifts" },
-        { name: "Premium Collection", link: "/category/Corporate?tag=premium collection" },
-      ],
-    },
-    {
-      category: "Annual Gifting Calendar",
-      subCategory: [
-        {
-          name: "Annual Gifting Calendar",
-          link: "/category/Corporate?tag=annual gifting calendar",
-        },
-      ],
-    },
-  ],
-  wedding: [
-    {
-      category: "Invitations",
-      subCategory: [
-        { name: "Physical Invites", link: "/category/Wedding?tag=physical invites" },
-        { name: "Digital Invites", link: "/category/Wedding?tag=digital invites" },
-        { name: "Luxury Box Invites", link: "/category/Wedding?tag=luxury box invites" },
-      ],
-    },
-    {
-      category: "Wedding Hampers",
-      subCategory: [
-        { name: "Bridesmaid Boxes", link: "/category/Wedding?tag=Wedding" },
-        { name: "Groomsmen Kits", link: "/category/Wedding?tag=Wedding" },
-        { name: "Guest Welcome Kits", link: "/category/Wedding?tag=Wedding" },
-        { name: "Return Gifts", link: "/category/Wedding?tag=Wedding" },
-      ],
-    },
-  ],
-  customization: [
-    {
-      category: "Packaging Personalisation",
-      subCategory: [
-        { name: "Custom Boxes", link: "/category/Customization?tag=custom-boxes" },
-        { name: "Ribbons", link: "/category/Customization?tag=ribbons" },
-        { name: "Sleeves", link: "/category/Customization?tag=sleeves" },
-        { name: "Colour Themes", link: "/category/Customization?tag=colour-themes" },
-      ],
-    },
-    {
-      category: "Corporate Branding",
-      subCategory: [
-        { name: "Logo Placement", link: "/category/Customization?tag=logo-placement" },
-        { name: "Welcome Kits", link: "/category/Customization?tag=welcome-kits" },
-        { name: "Employee Gifting", link: "/category/Customization?tag=employee-gifting" },
-      ],
-    },
-    {
-      category: "Wedding Personalisation",
-      subCategory: [
-        { name: "Invitation", link: "/category/Customization?tag=invitation" },
-        { name: "Guest Favours", link: "/category/Customization?tag=guest-favours" },
-        { name: "Bridesmaid Boxes", link: "/category/Customization?tag=bridesmaid-boxes" },
-      ],
-    },
-  ],
-  "Packaging Studio": [
-    {
-      category: "Boxes",
-      subCategory: [
-        { name: "Luxury Boxes", link: "/category/Packaging-Studio?tag=luxury-boxes" },
-        { name: "Magnetic Boxes", link: "/category/Packaging-Studio?tag=magnetic-boxes" },
-        { name: "Acrylic Boxes", link: "/category/Packaging-Studio?tag=acrylic-boxes" },
-      ],
-    },
-    {
-      category: "Baskets",
-      subCategory: [
-        { name: "Wicker", link: "/category/Packaging-Studio?tag=wicker-basket" },
-        { name: "Premium Cane", link: "/category/Packaging-Studio?tag=premium-cane-basket" },
-        { name: "Festive ", link: "/category/Packaging-Studio?tag=festive-basket" },
-      ],
-    },
-    {
-      category: "Wraps & Papers",
-      subCategory: [
-        { name: "Floral", link: "/category/Packaging-Studio?tag=floral" },
-        { name: "Minimal", link: "/category/Packaging-Studio?tag=minimal" },
-        { name: "Festive", link: "/category/Packaging-Studio?tag=festive" },
-      ],
-    },
-    {
-      category: "Finishing Touches",
-      subCategory: [
-        { name: "Ribbons", link: "/category/Packaging-Studio?tag=ribbons" },
-        { name: "Tags", link: "/category/Packaging-Studio?tag=tags" },
-        { name: "Wax Seals", link: "/category/Packaging-Studio?tag=wax-seals" },
-        { name: "Personalised Notes", link: "/category/Packaging-Studio?tag=personal-notes" },
-      ],
-    },
-  ],
-};
 
 export function Header() {
   const setOpen = useCartStore((s) => s.setOpen);
@@ -167,7 +23,7 @@ export function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState({});
-  const [navbarMenus,setNavbarMenus] = useState([])
+  const navbarMenus = useNavbarMenus();
 
   const toggleCategory = (slug, e) => {
     e.preventDefault();
@@ -204,14 +60,9 @@ export function Header() {
 
   const customer = JSON.parse(localStorage.getItem("user"));
 
-  
   const handleLoginClick = () => {
-    setIsLoginOpen(true)
+    setIsLoginOpen(true);
   };
-
-  useEffect(()=>{
-
-  },[])
 
   return (
     <>
@@ -237,7 +88,7 @@ export function Header() {
                 <button
                   type="button"
                   onClick={() => setIsSearchOpen(false)}
-                  className="text-[10px] uppercase tracking-ultra font-bold hover:text-destructive transition-colors cursor-pointer"
+                  className="text-[10px] uppercase  tracking-ultra font-bold hover:text-destructive transition-colors cursor-pointer"
                 >
                   Close
                 </button>
@@ -246,7 +97,7 @@ export function Header() {
           )}
         </AnimatePresence>
 
-        <div className="mx-auto flex w-full items-center justify-between px-4 lg:px-6 relative h-[58px] md:min-h-[64px] py-2">
+        <div className="mx-auto flex w-full items-center justify-between px-4 lg:px-6 relative h-[58px] md:min-h-[80px] py-2">
           {/* <img
                 src={MainLogo}
                 alt="Main Logo"
@@ -284,7 +135,7 @@ export function Header() {
             All Gifts
           </NavLink> */}
 
-            {CATEGORIES.slice(0, 5).map((c) => (
+            {navbarMenus.map((c) => (
               <div
                 key={c.slug}
                 onMouseEnter={() => setActiveMenu(c.slug)}
@@ -296,11 +147,13 @@ export function Header() {
                     `flex items-center gap-1 text-[12px] 2xl:text-[16px] uppercase tracking-wider font-semibold transition-colors ${isActive || activeMenu === c.slug ? "text-destructive" : "text-foreground hover:text-destructive"}`
                   }
                 >
-                  {c.productType}
-                  <ChevronDown
-                    size={12}
-                    className={`transition-transform duration-300 ${activeMenu === c.slug ? "rotate-180" : ""}`}
-                  />
+                  {c.name.replace(/&amp;/g, '&')}
+                  {c.children && c.children.length > 0 && (
+                    <ChevronDown
+                      size={12}
+                      className={`transition-transform duration-300 ${activeMenu === c.slug ? "rotate-180" : ""}`}
+                    />
+                  )}
                 </NavLink>
               </div>
             ))}
@@ -313,7 +166,7 @@ export function Header() {
 
             <button
               onClick={() => setIsSearchOpen(true)}
-              className="text-foreground hover:text-destructive transition-colors p-1"
+              className="text-foreground hover:text-destructive transition-colors p-1 cursor-pointer"
               aria-label="Search"
             >
               <Search
@@ -324,7 +177,7 @@ export function Header() {
 
             <button
               onClick={() => setWishlistOpen(true)}
-              className="group relative flex items-center p-1 text-foreground hover:text-destructive transition-colors hidden sm:flex"
+              className="group relative cursor-pointer flex items-center p-1 text-foreground hover:text-destructive transition-colors hidden sm:flex"
               aria-label="Open wishlist"
             >
               <Heart
@@ -335,7 +188,7 @@ export function Header() {
                 <motion.span
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="absolute -top-1 -right-1 flex h-3.5 w-3.5 sm:h-4 sm:w-4 items-center justify-center bg-destructive text-[8px] sm:text-[9px] font-bold text-primary"
+                  className="absolute -top-1 -right-1 rounded-full text-white flex h-3.5 w-3.5 sm:h-4 sm:w-4 text-center items-center justify-center bg-destructive text-[8px] sm:text-[9px] font-bold "
                 >
                   {wishlistItems.length}
                 </motion.span>
@@ -349,7 +202,7 @@ export function Header() {
             ) : (
               <button
                 onClick={handleLoginClick}
-                className="group relative flex items-center p-1 cursor-pointer text-foreground hover:text-destructive transition-colors hidden sm:flex"
+                className="group relative  flex items-center p-1 cursor-pointer text-foreground hover:text-destructive transition-colors hidden sm:flex"
                 aria-label="Login / Account"
               >
                 <User
@@ -361,7 +214,7 @@ export function Header() {
 
             <button
               onClick={() => setOpen(true)}
-              className="group relative flex items-center p-1 text-foreground hover:text-destructive transition-colors"
+              className="group relative flex items-center cursor-pointer p-1 text-foreground hover:text-destructive transition-colors"
               aria-label="Open cart"
             >
               <ShoppingCart
@@ -391,75 +244,79 @@ export function Header() {
         </div>
 
         <AnimatePresence>
-          {activeMenu && (MENU_ITEMS[activeMenu] || MENU_ITEMS[activeMenu.toLowerCase()]) && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              className="absolute left-0 w-full bg-white/95 backdrop-blur-xl border-b border-border shadow-luxe overflow-hidden hidden lg:block"
-            >
-              <div className="w-full px-12 py-12 grid grid-cols-4 gap-12">
-                <div className="col-span-1">
-                  <h3 className="font-serif text-3xl mb-2 italic">The {activeMenu}</h3>
-                  <p className="text-[14px] 2xl:text-[16px] text-muted-foreground  tracking-widest leading-relaxed">
-                    {activeMenu === "Occasions"
-                      ? "Discover thoughtfully curated gifting experiences designed for every occasion."
-                      : activeMenu === "Corporate"
-                        ? "From onboarding kits to festive campaigns, thoughtfully curated gifting that strengthens every connection."
-                        : activeMenu === "Wedding"
-                          ? "Craft a wedding celebration that feels uniquely yours with custom invitations, curated hampers, and thoughtful gifting details."
-                          : activeMenu === "Customization"
-                            ? "From personalised products and custom packaging to curated hampers and branded details, we create gifting experiences designed uniquely around your vision."
-                            : "Elevate every gift with beautifully curated packaging designed to leave a lasting impression."}
-                  </p>
-                  <Link
-                    to={`/category/${activeMenu}`}
-                    onClick={() => setActiveMenu(null)}
-                    className="inline-block mt-3 text-end text-[10px] 2xl:text-[16px] uppercase tracking-ultra font-bold text-destructive border-b border-destructive pb-1"
-                  >
-                    View All
-                  </Link>
-                </div>
+          {(() => {
+            const activeData = navbarMenus.find((c) => c.slug === activeMenu);
+            if (!activeMenu || !activeData || !activeData.children || activeData.children.length === 0) return null;
+            return (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="absolute left-0 w-full bg-white/95 backdrop-blur-xl border-b border-border shadow-luxe overflow-hidden hidden lg:block"
+              >
+                <div className="w-full px-12 py-12 grid grid-cols-4 gap-12">
+                  <div className="col-span-1">
+                    <h3 className="font-serif text-3xl mb-2 italic">The {activeData.name.replace(/&amp;/g, '&')}</h3>
+                    <p className="text-[14px] 2xl:text-[16px] text-muted-foreground  tracking-widest leading-relaxed">
+                      {activeData.slug === "occasions"
+                        ? "Discover thoughtfully curated gifting experiences designed for every occasion."
+                        : activeData.slug === "corporate"
+                          ? "From onboarding kits to festive campaigns, thoughtfully curated gifting that strengthens every connection."
+                          : activeData.slug === "wedding"
+                            ? "Craft a wedding celebration that feels uniquely yours with custom invitations, curated hampers, and thoughtful gifting details."
+                            : activeData.slug === "customizedgifts" || activeData.slug === "customization"
+                              ? "From personalised products and custom packaging to curated hampers and branded details, we create gifting experiences designed uniquely around your vision."
+                              : "Elevate every gift with beautifully curated packaging designed to leave a lasting impression."}
+                    </p>
+                    <Link
+                      to={`/category/${activeData.slug}`}
+                      onClick={() => setActiveMenu(null)}
+                      className="inline-block mt-3 text-end text-[10px] 2xl:text-[16px] uppercase tracking-ultra font-bold text-destructive border-b border-destructive pb-1"
+                    >
+                      View All
+                    </Link>
+                  </div>
 
-                <div className="col-span-2 grid grid-cols-2 gap-8">
-                  {(MENU_ITEMS[activeMenu] || MENU_ITEMS[activeMenu.toLowerCase()]).map(
-                    (section, idx) => (
-                      <div key={idx} className="flex flex-col gap-4">
-                        <h4 className="text-[16px] 2xl:text-[18px] font-semibold  font-serif italic  text-destructive mb-1">
-                          {section.category}
-                        </h4>
-                        <div className="flex flex-col gap-3">
-                          {section.subCategory.map((item, i) => (
-                            <Link
-                              key={i}
-                              to={item.link}
-                              className="group flex flex-col"
-                              onClick={() => setActiveMenu(null)}
-                            >
-                              <span className="text-[12px] 2xl:text-[16px]  tracking-wider font-semibold text-foreground group-hover:text-destructive transition-colors">
-                                {item.name}
-                              </span>
-                            </Link>
-                          ))}
+                  <div className="col-span-2 grid grid-cols-2 gap-8">
+                    {activeData.children.map(
+                      (section, idx) => (
+                        <div key={idx} className="flex flex-col gap-4">
+                          <h4 className="text-[16px] 2xl:text-[18px] font-semibold  font-serif italic  text-destructive mb-1">
+                            {section.name.replace(/&amp;/g, '&')}
+                          </h4>
+                          <div className="flex flex-col gap-3">
+                            {section.children && section.children.map((item, i) => (
+                              <Link
+                                key={i}
+                                to={`/category/${activeData.slug}?tag=${item.slug}`}
+                                className="group flex flex-col"
+                                onClick={() => setActiveMenu(null)}
+                              >
+                                <span className="text-[12px] 2xl:text-[16px]  tracking-wider font-semibold text-foreground group-hover:text-destructive transition-colors">
+                                  {item.name.replace(/&amp;/g, '&')}
+                                </span>
+                              </Link>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    ),
-                  )}
-                </div>
+                      ),
+                    )}
+                  </div>
 
-                <div className="col-span-1">
-                  <div className=" w-full bg-secondary overflow-hidden">
-                    <img
-                      src={CATEGORIES.find((c) => c.slug === activeMenu)?.image}
-                      alt={activeMenu}
-                      className="w-full h-full object-cover grayscale-[0.2]"
-                    />
+                  <div className="col-span-1">
+                    <div className=" w-full bg-secondary overflow-hidden">
+                      <img
+                        src={CATEGORIES.find((c) => c.slug.toLowerCase() === activeData.slug.toLowerCase() || c.slug.toLowerCase() === (activeData.slug === 'customizedgifts' ? 'customization' : ''))?.image}
+                        alt={activeData.name.replace(/&amp;/g, '&')}
+                        className="w-full h-full object-cover grayscale-[0.2]"
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </motion.div>
-          )}
+              </motion.div>
+            );
+          })()}
         </AnimatePresence>
       </header>
 
@@ -503,9 +360,8 @@ export function Header() {
                   All Gifts
                 </NavLink>
 
-                {CATEGORIES.slice(0, 5).map((c) => {
-                  const menuData = MENU_ITEMS[c.slug] || MENU_ITEMS[c.slug.toLowerCase()];
-                  const hasSubMenu = !!menuData;
+                {navbarMenus.map((c) => {
+                  const hasSubMenu = c.children && c.children.length > 0;
                   const isExpanded = !!expandedCategories[c.slug];
 
                   return (
@@ -518,13 +374,13 @@ export function Header() {
                             `text-[16px] uppercase tracking-wider font-semibold transition-colors ${isActive ? "text-destructive" : "text-[#0f1716] hover:text-destructive"}`
                           }
                         >
-                          {c.productType}
+                          {c.name.replace(/&amp;/g, '&')}
                         </NavLink>
                         {hasSubMenu && (
                           <button
                             onClick={(e) => toggleCategory(c.slug, e)}
                             className="p-1.5 text-destructive hover:text-[#0f1716] transition-colors cursor-pointer"
-                            aria-label={`Toggle ${c.productType} sub-menu`}
+                            aria-label={`Toggle ${c.name.replace(/&amp;/g, '&')} sub-menu`}
                           >
                             <ChevronDown
                               size={18}
@@ -541,20 +397,20 @@ export function Header() {
                           transition={{ duration: 0.25, ease: "easeInOut" }}
                           className="overflow-hidden flex flex-col gap-4 pl-4 border-l border-destructive/20"
                         >
-                          {menuData.map((section, idx) => (
+                          {c.children.map((section, idx) => (
                             <div key={idx} className="flex flex-col gap-2 mt-2">
                               <span className="text-[12px] font-bold uppercase tracking-wider text-destructive">
-                                {section.category}
+                                {section.name.replace(/&amp;/g, '&')}
                               </span>
                               <div className="flex flex-col gap-2 pl-2">
-                                {section.subCategory.map((item, i) => (
+                                {section.children && section.children.map((item, i) => (
                                   <Link
                                     key={i}
-                                    to={item.link}
+                                    to={`/category/${c.slug}?tag=${item.slug}`}
                                     onClick={() => setIsMobileMenuOpen(false)}
                                     className="text-[14px] uppercase tracking-wider text-[#0f1716]/80 hover:text-destructive py-1 transition-colors"
                                   >
-                                    {item.name}
+                                    {item.name.replace(/&amp;/g, '&')}
                                   </Link>
                                 ))}
                               </div>

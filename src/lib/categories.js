@@ -1,4 +1,4 @@
-// Categories shown in nav + grid. Slug must match Shopify productType (case-insensitive lookup).
+// Categories shown in nav + grid.
 import CorporateImage from "../assets/homePage/CorporateGifts.webp";
 import CustomizedGifts from "../assets/homePage/CustomizedGifts.webp";
 import HampersImage from "../assets/categories/Hampers.webp";
