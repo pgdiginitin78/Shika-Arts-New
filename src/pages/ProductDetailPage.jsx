@@ -441,9 +441,16 @@ function ProductDetailPage() {
               {displayPrice > 0 && (
                 <>
                   <div className="mb-3">
-                    <span className="text-[9px] font-bold uppercase tracking-[0.1em] text-gray-500 block mb-1.5">
-                      Quantity
-                    </span>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-[9px] font-bold uppercase tracking-[0.1em] text-gray-500 block">
+                        Quantity
+                      </span>
+                      {qty > 1 && (
+                        <span className="text-[11px] font-semibold text-[#C5A26F] tracking-wide">
+                          Total: {formatPrice(displayPrice * qty, displayCurrency)}
+                        </span>
+                      )}
+                    </div>
                     <div className="flex flex-row gap-2">
                       <div className="flex items-center border border-gray-200 rounded-md overflow-hidden w-fit">
                         <button
@@ -472,7 +479,9 @@ function ProductDetailPage() {
                         ) : (
                           <>
                             <ShoppingBag size={14} />
-                            {isVariable && !selectedPack ? "Select a Pack" : "Add to Cart"}
+                            {isVariable && !selectedPack
+                              ? "Select an Option"
+                              : "Add to Cart"}
                           </>
                         )}
                       </button>
