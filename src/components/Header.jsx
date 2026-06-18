@@ -66,7 +66,7 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 glass" onMouseLeave={() => setActiveMenu(null)}>
+      <header className="sticky top-0 z-50 glass 2xl:px-6" onMouseLeave={() => setActiveMenu(null)}>
         <AnimatePresence>
           {isSearchOpen && (
             <motion.div

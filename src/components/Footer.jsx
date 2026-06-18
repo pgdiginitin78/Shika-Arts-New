@@ -8,7 +8,7 @@ import {
 export function Footer() {
   return (
     <footer className="bg-primary text-primary-foreground pt-24 pb-12">
-      <div className="mx-auto max-w-screen-2xl px-4 lg:px-12">
+      <div className="mx-auto max-w-screen-2xl px-4 lg:px-12 2xl:px-0">
    
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-16 lg:gap-24">
