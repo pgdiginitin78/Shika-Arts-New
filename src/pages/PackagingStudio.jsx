@@ -226,7 +226,7 @@ export default function PackagingStudio() {
           />
           <div className="absolute inset-0 bg-black/40 md:bg-gradient-to-b md:from-black/30 md:via-black/20 md:to-black/35" />
         </div>
-        <div className="relative z-10 w-full max-w-[1440px] mx-auto px-4 sm:px-8 md:px-16 lg:px-24 flex flex-col items-center md:items-start mt-16 md:mt-0">
+        <div className="relative z-10 w-full max-w-[1440px] mx-auto px-4 sm:px-8 md:px-16 lg:px-24 2xl:px-0 flex flex-col items-center md:items-start mt-16 md:mt-0">
           <div className="max-w-2xl flex flex-col items-center md:items-start text-center md:text-left">
             <span className="text-white uppercase tracking-[0.2em] text-[10px] md:text-xs font-bold mb-4 md:mb-6 block">
               ELEVATE EVERY UNBOXING
