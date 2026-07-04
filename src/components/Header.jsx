@@ -15,7 +15,7 @@ import { UserMenu, UserMenuInline } from "./UserMenu";
 
 export function Header() {
   const setOpen = useCartStore((s) => s.setOpen);
-  const totalItems = useCartStore((s) => s.items.reduce((sum, i) => sum + i.quantity, 0));
+  const totalItems = useCartStore((s) => s.items?.length);
   const wishlistItems = useWishlistStore((s) => s.items);
   const setWishlistOpen = useWishlistStore((s) => s.setOpen);
   const [activeMenu, setActiveMenu] = useState(null);
@@ -194,24 +194,6 @@ export function Header() {
                 </motion.span>
               )}
             </button>
-
-            {customer ? (
-              <div className="hidden sm:flex items-center">
-                <UserMenu />
-              </div>
-            ) : (
-              <button
-                onClick={handleLoginClick}
-                className="group relative  flex items-center p-1 cursor-pointer text-foreground hover:text-destructive transition-colors hidden sm:flex"
-                aria-label="Login / Account"
-              >
-                <User
-                  className="h-5 w-5 sm:h-[18px] sm:w-[18px] 2xl:w-[24px] 2xl:h-[24px]"
-                  strokeWidth={2}
-                />
-              </button>
-            )}
-
             <button
               onClick={() => setOpen(true)}
               className="group relative flex items-center cursor-pointer p-1 text-foreground hover:text-destructive transition-colors"
@@ -231,6 +213,24 @@ export function Header() {
                 </motion.span>
               )}
             </button>
+            {customer ? (
+              <div className="hidden sm:flex items-center">
+                <UserMenu />
+              </div>
+            ) : (
+              <button
+                onClick={handleLoginClick}
+                className="group relative  flex items-center p-1 cursor-pointer text-foreground hover:text-destructive transition-colors hidden sm:flex"
+                aria-label="Login / Account"
+              >
+                <User
+                  className="h-5 w-5 sm:h-[18px] sm:w-[18px] 2xl:w-[24px] 2xl:h-[24px]"
+                  strokeWidth={2}
+                />
+              </button>
+            )}
+
+
 
             {/* Mobile Hamburger Menu (Right Side) */}
             <button

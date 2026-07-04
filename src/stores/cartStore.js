@@ -107,7 +107,12 @@ export const useCartStore = create((set, get) => ({
       }
 
       const quantity = Math.max(1, toNumber(item?.quantity || 1));
-      const data = await addToCart(productId, quantity);
+
+      const variationAttributes = Array.isArray(item?.variationAttributes)
+        ? item.variationAttributes
+        : [];
+
+      const data = await addToCart(productId, quantity, variationAttributes);
 
       if (Array.isArray(data?.items)) {
         set({ items: data.items });
@@ -122,8 +127,15 @@ export const useCartStore = create((set, get) => ({
       return data;
     } catch (error) {
       console.log(error);
-      toast.error("Could not add to cart. Please try again.");
-      return null;
+      const errCode = error?.response?.data?.code;
+      if (errCode === "woocommerce_rest_missing_attributes") {
+        toast.error("This product has options", {
+          description: "Redirecting to the product page so you can choose your options...",
+        });
+      } else {
+        toast.error("Could not add to cart. Please try again.");
+      }
+      return { error: errCode || "unknown_error" };
     } finally {
       set({ isLoading: false });
     }
@@ -199,17 +211,24 @@ export const useCartStore = create((set, get) => ({
     set({ isLoading: true });
 
     try {
-      await Promise.all(
-        currentItems.filter((item) => item?.key).map((item) => removeCartItem(item.key)),
-      );
+      for (const item of currentItems) {
+        console.log("Removing:", item.key);
+
+        const response = await removeCartItem(item.key);
+
+        console.log(response);
+      }
 
       await get().syncCart();
-    } catch (error) {
-      console.log(error);
-      toast.error("Could not clear cart.");
+    } catch (err) {
+      console.log(err.response?.data || err);
     } finally {
       set({ isLoading: false });
     }
+  },
+
+  resetCart: () => {
+    set({ items: [] });
   },
 
   getCheckoutUrl: () => "https://lawngreen-marten-717862.hostingersite.com/checkout",

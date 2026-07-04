@@ -446,7 +446,7 @@ export default function Occasions() {
 
       <div
         id="product-grid"
-        className="mx-auto w-full px-4 md:px-6 lg:px-8 py-12 flex flex-col lg:flex-row gap-8 lg:gap-10"
+        className="mx-auto w-full px-4 md:px-6 lg:px-8 2xl:px-12 py-12 flex flex-col lg:flex-row gap-8 lg:gap-10"
       >
         <aside className="w-full lg:w-[260px] shrink-0">
           {/* ── Browse Collections ── */}

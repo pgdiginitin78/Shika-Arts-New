@@ -19,6 +19,10 @@ import Corporate from "./pages/Corporate";
 import Wedding from "./pages/Wedding";
 import CustomizedGifts from "./pages/CustomizedGifts";
 import PackagingStudio from "./pages/PackagingStudio";
+import CheckoutPage from "./pages/CheckoutPage";
+import OrderSuccessPage from "./pages/OrderSuccessPage";
+import MyOrdersPage from "./pages/MyOrdersPage";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +48,10 @@ function App() {
               <Route path="/category/:slug" element={<Category />} />
               <Route path="/product/:handle" element={<Product />} />
               <Route path="/products" element={<Products />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
+              <Route path="/my-orders" element={<MyOrdersPage />} />
+              <Route path="/admin" element={<AdminDashboard />} />
             </Routes>
           </main>
           <Footer />

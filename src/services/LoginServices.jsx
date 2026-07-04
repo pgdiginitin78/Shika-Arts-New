@@ -88,66 +88,44 @@ export const getCart = async () => {
   const cartToken = response.headers["cart-token"];
 
   if (cartToken) {
-    localStorage.setItem("wc_cart_token", cartToken);
+    localStorage.setItem("cart_token", cartToken);
   }
 
   return response.data;
 };
 
-export const addToCart = async (productId, quantity = 1) => {
-  const cartToken = localStorage.getItem("wc_cart_token");
+export const addToCart = async (productId, quantity = 1, variationAttributes = []) => {
+  const body =
+    variationAttributes.length > 0
+      ? { id: productId, quantity, variation: variationAttributes }
+      : { id: productId, quantity };
 
-  const { data } = await api.post(
-    "/wp-json/wc/store/v1/cart/add-item",
-    {
-      id: productId,
-      quantity,
-    },
-    {
-      headers: {
-        "Cart-Token": cartToken,
-      },
-    },
-  );
+  const response = await api.post("/wp-json/wc/store/v1/cart/add-item", body);
 
-  return data;
+  const cartToken = response.headers["cart-token"];
+
+  if (cartToken) {
+    localStorage.setItem("cart_token", cartToken);
+  }
+
+  return response.data;
 };
 
 export const updateCartItem = async (cartItemKey, quantity) => {
-  const cartToken = localStorage.getItem("wc_cart_token");
+  const response = await api.post("/wp-json/wc/store/v1/cart/update-item", {
+    key: cartItemKey,
+    quantity,
+  });
 
-  const { data } = await api.post(
-    "/wp-json/wc/store/v1/cart/update-item",
-    {
-      key: cartItemKey,
-      quantity,
-    },
-    {
-      headers: {
-        "Cart-Token": cartToken,
-      },
-    },
-  );
-
-  return data;
+  return response.data;
 };
 
 export const removeCartItem = async (cartItemKey) => {
-  const cartToken = localStorage.getItem("wc_cart_token");
+  const response = await api.post("/wp-json/wc/store/v1/cart/remove-item", {
+    key: cartItemKey,
+  });
 
-  const { data } = await api.post(
-    "/wp-json/wc/store/v1/cart/remove-item",
-    {
-      key: cartItemKey,
-    },
-    {
-      headers: {
-        "Cart-Token": cartToken,
-      },
-    },
-  );
-
-  return data;
+  return response.data;
 };
 
 export const getVariationPrice = async (productId, variationId) => {
@@ -179,7 +157,15 @@ export const getProductBySlug = async (slug) => {
   // For variable products, eagerly fetch all variation prices in parallel
   if (product && product.type === "variable" && product.variations?.length > 0) {
     const variationDetails = await Promise.all(
-      product.variations.map((v) => getVariationPrice(product.id, v.id))
+      product.variations.map(async (v) => {
+        const vd = await getVariationPrice(product.id, v.id);
+        if (vd) {
+          // The single variation API sometimes returns an empty attributes array.
+          // Preserve the attributes from the parent product's variations array.
+          vd.attributes = v.attributes && v.attributes.length > 0 ? v.attributes : vd.attributes;
+        }
+        return vd;
+      })
     );
     product._variationDetails = variationDetails.filter(Boolean);
   }

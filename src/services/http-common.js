@@ -10,13 +10,16 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
+  const cartToken = localStorage.getItem("cart_token");
 
-  const protectedUrls = ["/wp-json/wp/v2/users/me"];
-
-  const needsAuth = protectedUrls.some((url) => config.url?.includes(url));
-
-  if (token && needsAuth) {
+  // Send JWT for all custom/WooCommerce requests
+  if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  // Send Cart Token for Store API
+  if (cartToken) {
+    config.headers["Cart-Token"] = cartToken;
   }
 
   return config;

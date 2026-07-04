@@ -1,14 +1,90 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { Loader2, Plus, Heart } from "lucide-react";
+import { toast } from "sonner";
 import { useCartStore } from "@/stores/cartStore";
 import { useWishlistStore } from "@/stores/wishlistStore";
 import { formatPrice, productToNode } from "@/lib/woocommerce";
+import { getProductBySlug } from "@/services/LoginServices";
 import { motion } from "framer-motion";
+import { addToWishlistApi } from "@/services/orderService";
+
+const buildWishlistPayload = (node, variant, image, product, quantity = 1, productId) => {
+  const minorUnit = 2;
+  const multiplier = 10 ** minorUnit;
+  const rawMultiplier = 10 ** 6;
+
+  const amount = Number(variant?.price?.amount || 0);
+  const regularAmount =
+    Number(variant?.regularPrice || 0) > 0 ? Number(variant.regularPrice) : amount;
+  const saleAmount = amount;
+
+  const toMinor = (val) => Math.round(val * multiplier).toString();
+  const toRaw = (val) => Math.round(val * rawMultiplier).toString();
+
+  const variationIdMatch = String(variant?.id || "").match(/\d+/);
+  const variationId =
+    node?.productVariationType === "variable" && variationIdMatch ? Number(variationIdMatch[0]) : 0;
+
+  return {
+    product_id: productId,
+    variation_id: variationId,
+    quantity,
+    name: node?.title || "",
+    sku: variant?.sku || "",
+    permalink: product?.permalink || `${window.location.origin}/product/${node?.handle}/`,
+    images: image?.url
+      ? [
+          {
+            id: 0,
+            src: image.url,
+            thumbnail: image.url,
+            srcset: "",
+            sizes: "",
+            thumbnail_srcset: "",
+            thumbnail_sizes: "",
+            name: node?.title || "",
+            alt: image?.altText || "",
+          },
+        ]
+      : [],
+    variation: [],
+    prices: {
+      price: toMinor(amount),
+      regular_price: toMinor(regularAmount),
+      sale_price: toMinor(saleAmount),
+      price_range: null,
+      currency_code: variant?.price?.currencyCode || "INR",
+      currency_symbol: "₹",
+      currency_minor_unit: minorUnit,
+      currency_decimal_separator: ".",
+      currency_thousand_separator: ",",
+      currency_prefix: "₹",
+      currency_suffix: "",
+      raw_prices: {
+        precision: 6,
+        price: toRaw(amount),
+        regular_price: toRaw(regularAmount),
+        sale_price: toRaw(saleAmount),
+      },
+    },
+    quantity_limits: {
+      minimum: 1,
+      maximum: 9999,
+      multiple_of: 1,
+      editable: true,
+    },
+  };
+};
 
 export function ProductCard({ product, lightMode = true }) {
   const addItem = useCartStore((s) => s.addItem);
   const setOpen = useCartStore((s) => s.setOpen);
-  const isLoading = useCartStore((s) => s.isLoading);
+  const [isAdding, setIsAdding] = useState(false);
+  const [isWishlisting, setIsWishlisting] = useState(false);
+  const isGlobalLoading = useCartStore((s) => s.isLoading);
+  const isLoading = isAdding || isGlobalLoading;
+  const navigate = useNavigate();
 
   const node = productToNode(product) || {
     id: "",
@@ -20,24 +96,54 @@ export function ProductCard({ product, lightMode = true }) {
     images: { edges: [] },
     variants: { edges: [] },
   };
-  console.log("node1212", node);
 
-  console.log("product raw", product);
-  console.log("node after transform", node);
-  console.log("image", node?.images?.edges?.[0]?.node);
-  const productId = node?.id || "";
+  const rawId = product?.node?.id;
+  const productId = Number(node?.id || rawId || 0);
   const variant = node?.variants?.edges?.[0]?.node;
   const image = node?.images?.edges?.[0]?.node;
-
-  console.log("variant", variant);
 
   const toggleWishlist = useWishlistStore((s) => s.toggleItem);
   const isInWishlist = useWishlistStore((s) => s.isInWishlist(productId));
 
-  const handleWishlist = (e) => {
+  const handleWishlist = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    toggleWishlist(product);
+
+    if (isWishlisting) return;
+
+    setIsWishlisting(true);
+
+    try {
+      if (isInWishlist) {
+        toggleWishlist(product);
+        toast.success("Removed from wishlist");
+      } else {
+        const handle = node.handle || node.id;
+        const fullProduct = handle ? await getProductBySlug(handle) : null;
+
+        const resolvedId = Number(
+          fullProduct?.id || node?.id || product?.node?.id || product?.id || 0,
+        );
+
+        if (!resolvedId) {
+          toast.error("Couldn't add to wishlist — missing product info.");
+          return;
+        }
+
+        const payload = fullProduct
+          ? { ...fullProduct, quantity: 1, product_id: resolvedId }
+          : buildWishlistPayload(node, variant, image, product, 1, resolvedId);
+
+        await addToWishlistApi(payload);
+        await useWishlistStore.getState().fetchWishlist();
+        toggleWishlist(product);
+        toast.success("Added to wishlist");
+      }
+    } catch (error) {
+      toast.error("Couldn't update wishlist. Please try again.");
+    } finally {
+      setIsWishlisting(false);
+    }
   };
 
   const handleAdd = async (e) => {
@@ -46,25 +152,65 @@ export function ProductCard({ product, lightMode = true }) {
 
     if (!variant) return;
 
-    await addItem({
-      productId: node.id,
-      handle: node.handle,
-      product: node,
-      quantity: 1,
-    });
+    setIsAdding(true);
+    try {
+      const handle = node.handle || node.id;
+      if (handle) {
+        const fullProduct = await getProductBySlug(handle);
+        if (fullProduct && fullProduct.type === "variable") {
+          navigate(`/product/${handle}`);
+          return;
+        }
+      }
 
-    setOpen(true);
+      const data = await addItem({
+        productId: node.id,
+        handle: node.handle,
+        product: node,
+        quantity: 1,
+      });
+
+      if (data && !data.error) {
+        setOpen(true);
+      }
+    } finally {
+      setIsAdding(false);
+    }
   };
-const getPriceSuffix = (title) => {
-  if (!title) return "";
-  const t = title.toLowerCase();
-  if (t.includes("candle") || t.includes("diya") || t.includes("charm") || t.includes("tealight") || t.includes("peony") || t.includes("seashell") || t.includes("trio") || t.includes("quarter") || t.includes("mini-cake") || t.includes("medley") || t.includes("bar") || t.includes("sachet")) return "/ piece";
-  
-  if (t.includes("hamper") || t.includes("gift box") || t.includes("gift set") || t.includes("celebration") || t.includes("keepsake") || t.includes("box print")) return "";
 
-  if (t.includes("set") || t.includes("box") || t.includes("trough") || t.includes("kit")) return "/ set";
-  return "";
-};
+  const getPriceSuffix = (title) => {
+    if (!title) return "";
+    const t = title.toLowerCase();
+    if (
+      t.includes("candle") ||
+      t.includes("diya") ||
+      t.includes("charm") ||
+      t.includes("tealight") ||
+      t.includes("peony") ||
+      t.includes("seashell") ||
+      t.includes("trio") ||
+      t.includes("quarter") ||
+      t.includes("mini-cake") ||
+      t.includes("medley") ||
+      t.includes("bar") ||
+      t.includes("sachet")
+    )
+      return "/ piece";
+
+    if (
+      t.includes("hamper") ||
+      t.includes("gift box") ||
+      t.includes("gift set") ||
+      t.includes("celebration") ||
+      t.includes("keepsake") ||
+      t.includes("box print")
+    )
+      return "";
+
+    if (t.includes("set") || t.includes("box") || t.includes("trough") || t.includes("kit"))
+      return "/ set";
+    return "";
+  };
 
   return (
     <Link
@@ -113,12 +259,17 @@ const getPriceSuffix = (title) => {
         </div>
         <button
           onClick={handleWishlist}
+          disabled={isWishlisting}
           className={`absolute top-1 right-2 z-20 p-2 cursor-pointer rounded-full backdrop-blur-md transition-all duration-300 ${
             isInWishlist ? "bg-accent text-primary" : "bg-white/20 text-white hover:bg-white/40"
           }`}
           aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
         >
-          <Heart size={14} className={isInWishlist ? "text-red-600 fill-current" : ""} />
+          {isWishlisting ? (
+            <Loader2 size={14} className="animate-spin" />
+          ) : (
+            <Heart size={14} className={isInWishlist ? "text-red-600 fill-current" : ""} />
+          )}
         </button>
         {node.tags?.includes("bestseller") && (
           <div className="absolute top-4 left-4">
@@ -130,14 +281,6 @@ const getPriceSuffix = (title) => {
       </div>
 
       <div className="mt-2 flex flex-col items-start gap-0.5 px-2 pb-2">
-        {/* <span
-          className={`text-[8px] 2xl:text-sm uppercase tracking-ultra ${
-            lightMode ? "text-muted-foreground" : "text-accent/60"
-          }`}
-        >
-          {node.productType || ""}
-        </span> */}
-
         <h3
           className={`font-serif text-sm 2xl:text-xl leading-tight transition-all duration-500 group-hover:italic ${
             lightMode ? "text-foreground" : "text-primary-foreground"
@@ -150,11 +293,12 @@ const getPriceSuffix = (title) => {
           <div className="flex space-x-2 items-center">
             {Number(variant?.price?.amount || 0) > 0 ? (
               <>
-                {Number(variant?.regularPrice) > 0 && Number(variant?.regularPrice) !== Number(variant?.price?.amount) && (
-                  <span className="line-through font-medium text-[11px] text-muted-foreground">
-                    {formatPrice(Number(variant?.regularPrice))}
-                  </span>
-                )}
+                {Number(variant?.regularPrice) > 0 &&
+                  Number(variant?.regularPrice) !== Number(variant?.price?.amount) && (
+                    <span className="line-through font-medium text-[11px] text-muted-foreground">
+                      {formatPrice(Number(variant?.regularPrice))}
+                    </span>
+                  )}
                 <span
                   className={`font-medium text-[11px] ${lightMode ? "text-foreground" : "text-accent"}`}
                 >

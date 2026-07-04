@@ -1,5 +1,6 @@
 import LogoutIcon from "@mui/icons-material/Logout";
 import PersonIcon from "@mui/icons-material/Person";
+import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import {
   Avatar,
   Box,
@@ -14,18 +15,26 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../services/LoginServices";
+import { useCartStore } from "@/stores/cartStore";
+import { useWishlistStore } from "@/stores/wishlistStore";
 
 export function UserMenu() {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const customer = JSON.parse(localStorage.getItem("user"));
+  const resetCart = useCartStore((s) => s.resetCart);
+  const clearWishlist = useWishlistStore((s) => s.clearWishlist);
 
   const email = customer?.user_email || "";
   const displayName = customer?.user_display_name || customer?.user_nicename || "";
   const initials = (displayName?.[0] || email?.[0] || "U").toUpperCase();
-  
+
   const handleLogout = async () => {
+    setAnchorEl(null);
     logout();
+    resetCart();
+    clearWishlist();
+    localStorage.clear();
     navigate("/");
   };
 
@@ -74,6 +83,17 @@ export function UserMenu() {
           )}
         </Box>
         <Divider />
+        <MenuItem
+          onClick={() => {
+            setAnchorEl(null);
+            navigate("/my-orders");
+          }}
+        >
+          <ListItemIcon>
+            <ShoppingBagIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText primary="My Orders" />
+        </MenuItem>
         <MenuItem disabled>
           <ListItemIcon>
             <PersonIcon fontSize="small" />
@@ -94,6 +114,8 @@ export function UserMenu() {
 export function UserMenuInline({ onAfter }) {
   const navigate = useNavigate();
   const customer = JSON.parse(localStorage.getItem("user"));
+  const resetCart = useCartStore((s) => s.resetCart);
+  const clearWishlist = useWishlistStore((s) => s.clearWishlist);
 
   if (!customer) return null;
 
@@ -102,9 +124,12 @@ export function UserMenuInline({ onAfter }) {
   const initials = (displayName?.[0] || email?.[0] || "U").toUpperCase();
 
   const handleLogout = async () => {
+    onAfter?.();
     logout();
+    resetCart();
+    clearWishlist();
+    localStorage.clear();
     navigate("/");
-    window.location.reload();
   };
 
   return (
@@ -128,6 +153,16 @@ export function UserMenuInline({ onAfter }) {
           {email && <span className="text-[11px] text-muted-foreground truncate">{email}</span>}
         </Box>
       </Box>
+      <button
+        onClick={() => {
+          onAfter?.();
+          navigate("/my-orders");
+        }}
+        className="flex items-center gap-3 text-[13px] uppercase tracking-wider font-semibold text-[#0f1716] hover:text-destructive py-1.5 cursor-pointer transition-colors"
+      >
+        <ShoppingBagIcon sx={{ fontSize: 18 }} />
+        <span>My Orders</span>
+      </button>
       <button
         onClick={handleLogout}
         className="flex items-center gap-3 text-[13px] uppercase tracking-wider font-semibold text-destructive py-1.5 cursor-pointer"
