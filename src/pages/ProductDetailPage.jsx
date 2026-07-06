@@ -435,7 +435,7 @@ function ProductDetailPage() {
         <div className="overflow-hidden bg-white rounded-[10px] shadow-sm border border-gray-100">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
             <div className="flex flex-col sm:flex-row gap-2 p-3 sm:p-4 self-start">
-              <div className="flex sm:flex-col gap-2 order-2 sm:order-1 sm:w-[50px] shrink-0 overflow-x-auto sm:overflow-y-auto h-[350px] pb-1 sm:pb-0 pr-0 sm:pr-1">
+              <div className="flex sm:flex-col gap-2 order-2 sm:order-1 sm:w-[50px] shrink-0 overflow-x-auto sm:overflow-y-auto md:h-[400px] pb-1 sm:pb-0 pr-0 sm:pr-1">
                 {allImages.length > 0
                   ? allImages.map((img, i) => (
                       <button
@@ -463,7 +463,7 @@ function ProductDetailPage() {
                       />
                     ))}
               </div>
-              <div className="relative flex-1 order-1 sm:order-2 aspect-square sm:aspect-auto h-[430px] overflow-hidden rounded-lg bg-gray-50">
+              <div className="relative flex-1 order-1 sm:order-2 aspect-square sm:aspect-auto h-[490px] overflow-hidden rounded-lg bg-gray-50">
                 {currentImage ? (
                   <img
                     src={currentImage.url}
