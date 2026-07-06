@@ -2,6 +2,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import LockIcon from "@mui/icons-material/LockOutlined";
 import EmailIcon from "@mui/icons-material/MailOutlined";
 import PersonIcon from "@mui/icons-material/PersonOutlined";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import {
   Box,
   Button,
@@ -10,6 +12,7 @@ import {
   DialogContent,
   Divider,
   IconButton,
+  InputAdornment,
   Tab,
   Tabs,
   TextField,
@@ -20,10 +23,11 @@ import GoogleIcon from "@mui/icons-material/Google";
 import { useTheme } from "@mui/material/styles";
 import { useState } from "react";
 
+import { useCustomerAuthStore } from "@/stores/customerAuthStore";
 import { customerLogin, getCurrentUser, registerCustomer } from "../services/LoginServices";
 
 export function LoginModal({ isOpen, onClose }) {
-  const [tab, setTab] = useState(0); // 0 = Sign In, 1 = Create Account
+  const [tab, setTab] = useState(0);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -31,6 +35,7 @@ export function LoginModal({ isOpen, onClose }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
@@ -42,6 +47,7 @@ export function LoginModal({ isOpen, onClose }) {
     setLastName("");
     setError("");
     setSuccessMsg("");
+    setShowPassword(false);
   };
 
   const handleClose = () => {
@@ -55,7 +61,6 @@ export function LoginModal({ isOpen, onClose }) {
     resetForm();
   };
 
-  // ── Sign In ──────────────────────────────────────────────────────────────
   const handleEmailLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) {
@@ -67,21 +72,22 @@ export function LoginModal({ isOpen, onClose }) {
     try {
       const res = await customerLogin(email, password);
       const customerData = await getCurrentUser(res.token);
+      console.log("LoginData", res);
+      useCustomerAuthStore.getState().setCustomer(customerData);
       localStorage.setItem("customerData", JSON.stringify(customerData));
       handleClose();
     } catch (err) {
       console.error("[LoginModal] Email login error:", err);
       setError(
         err?.response?.data?.message ||
-        err?.message ||
-        "Login failed. Please check your credentials.",
+          err?.message ||
+          "Login failed. Please check your credentials.",
       );
     } finally {
       setLoading(false);
     }
   };
 
-  // ── Register ─────────────────────────────────────────────────────────────
   const handleRegister = async (e) => {
     e.preventDefault();
     if (!firstName || !lastName || !email || !password) {
@@ -193,23 +199,47 @@ export function LoginModal({ isOpen, onClose }) {
                 onChange={(e) => setEmail(e.target.value)}
                 autoFocus
                 autoComplete="email"
-                InputProps={{
-                  startAdornment: (
-                    <EmailIcon sx={{ mr: 1, fontSize: 18, color: "text.secondary" }} />
-                  ),
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <EmailIcon sx={{ mr: 1, fontSize: 18, color: "text.secondary" }} />
+                    ),
+                  },
                 }}
               />
               <TextField
                 {...fieldSx}
                 label="Password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
-                InputProps={{
-                  startAdornment: (
-                    <LockIcon sx={{ mr: 1, fontSize: 18, color: "text.secondary" }} />
-                  ),
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <LockIcon sx={{ mr: 1, fontSize: 18, color: "text.secondary" }} />
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label={showPassword ? "Hide password" : "Show password"}
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          edge="end"
+                          size="small"
+                          tabIndex={-1}
+                        >
+                          {showPassword ? (
+                            <VisibilityOffIcon fontSize="small" sx={{ color: "text.secondary" }} />
+                          ) : (
+                            <VisibilityIcon fontSize="small" sx={{ color: "text.secondary" }} />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+                sx={{
+                  "& input::-ms-reveal, & input::-ms-clear": { display: "none" },
                 }}
               />
               <Button
@@ -244,10 +274,12 @@ export function LoginModal({ isOpen, onClose }) {
                   onChange={(e) => setFirstName(e.target.value)}
                   autoFocus
                   autoComplete="given-name"
-                  InputProps={{
-                    startAdornment: (
-                      <PersonIcon sx={{ mr: 1, fontSize: 18, color: "text.secondary" }} />
-                    ),
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <PersonIcon sx={{ mr: 1, fontSize: 18, color: "text.secondary" }} />
+                      ),
+                    },
                   }}
                 />
                 <TextField
@@ -256,10 +288,12 @@ export function LoginModal({ isOpen, onClose }) {
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   autoComplete="family-name"
-                  InputProps={{
-                    startAdornment: (
-                      <PersonIcon sx={{ mr: 1, fontSize: 18, color: "text.secondary" }} />
-                    ),
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <PersonIcon sx={{ mr: 1, fontSize: 18, color: "text.secondary" }} />
+                      ),
+                    },
                   }}
                 />
               </Box>
@@ -269,23 +303,47 @@ export function LoginModal({ isOpen, onClose }) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
-                InputProps={{
-                  startAdornment: (
-                    <EmailIcon sx={{ mr: 1, fontSize: 18, color: "text.secondary" }} />
-                  ),
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <EmailIcon sx={{ mr: 1, fontSize: 18, color: "text.secondary" }} />
+                    ),
+                  },
                 }}
               />
               <TextField
                 {...fieldSx}
                 label="Password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="new-password"
-                InputProps={{
-                  startAdornment: (
-                    <LockIcon sx={{ mr: 1, fontSize: 18, color: "text.secondary" }} />
-                  ),
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <LockIcon sx={{ mr: 1, fontSize: 18, color: "text.secondary" }} />
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label={showPassword ? "Hide password" : "Show password"}
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          edge="end"
+                          size="small"
+                          tabIndex={-1}
+                        >
+                          {showPassword ? (
+                            <VisibilityOffIcon fontSize="small" sx={{ color: "text.secondary" }} />
+                          ) : (
+                            <VisibilityIcon fontSize="small" sx={{ color: "text.secondary" }} />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+                sx={{
+                  "& input::-ms-reveal, & input::-ms-clear": { display: "none" },
                 }}
               />
               <Button

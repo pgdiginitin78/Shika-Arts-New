@@ -206,6 +206,9 @@ export default function ProfilePage() {
 
   /* ── fetch orders ── */
   const fetchOrders = useCallback(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
     const userDetailsObj = (() => {
       try { return JSON.parse(localStorage.getItem("customerData")); } catch { return null; }
     })();

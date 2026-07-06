@@ -1,36 +1,37 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Header } from "./components/Header";
-import { Footer } from "./components/Footer";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { CartDrawer } from "./components/CartDrawer";
-import { WishlistDrawer } from "./components/WishlistDrawer";
+import { Footer } from "./components/Footer";
+import { Header } from "./components/Header";
 import ScrollToTop from "./components/ScrollToTop";
 import { Toaster } from "./components/ui/sonner";
+import { WishlistDrawer } from "./components/WishlistDrawer";
+import { NavbarProvider } from "./context/NavbarContext";
 import { useCartSync } from "./hooks/useCartSync";
 import { useWishlistSync } from "./hooks/useWishlistSync";
-import { useSessionRestore } from "./hooks/useSessionRestore";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { NavbarProvider } from "./context/NavbarContext";
 
-import Home from "./pages/Home";
+import AdminDashboard from "./pages/AdminDashboard";
 import Category from "./pages/Category";
+import CheckoutPage from "./pages/CheckoutPage";
+import Corporate from "./pages/Corporate";
+import CustomizedGifts from "./pages/CustomizedGifts";
+import Home from "./pages/Home";
+import MyOrdersPage from "./pages/MyOrdersPage";
+import Occasions from "./pages/Occasions";
+import OrderSuccessPage from "./pages/OrderSuccessPage";
+import PackagingStudio from "./pages/PackagingStudio";
 import Product from "./pages/ProductDetailPage";
 import Products from "./pages/Products";
-import Occasions from "./pages/Occasions";
-import Corporate from "./pages/Corporate";
-import Wedding from "./pages/Wedding";
-import CustomizedGifts from "./pages/CustomizedGifts";
-import PackagingStudio from "./pages/PackagingStudio";
-import CheckoutPage from "./pages/CheckoutPage";
-import OrderSuccessPage from "./pages/OrderSuccessPage";
-import MyOrdersPage from "./pages/MyOrdersPage";
-import AdminDashboard from "./pages/AdminDashboard";
 import ProfilePage from "./pages/ProfilePage";
+import Wedding from "./pages/Wedding";
 
 const queryClient = new QueryClient();
 
 function App() {
   useCartSync();
   useWishlistSync();
+  const customerData = JSON.parse(localStorage.getItem("user") || "{}");
+  console.log("rolesAre", customerData);
   
   return (
     <QueryClientProvider client={queryClient}>
@@ -54,7 +55,9 @@ function App() {
               <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
               <Route path="/my-orders" element={<MyOrdersPage />} />
-              <Route path="/admin" element={<AdminDashboard />} />
+              {customerData?.role === "administrator" && (
+                <Route path="/admin" element={<AdminDashboard />} />
+              )}
               <Route path="/profilePage" element={<ProfilePage />} />
             </Routes>
           </main>

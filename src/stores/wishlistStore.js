@@ -56,6 +56,12 @@ export const useWishlistStore = create()(
       clearWishlist: () => set({ items: [] }),
 
       fetchWishlist: async () => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          set({ items: [], isLoading: false });
+          return;
+        }
+
         set({ isLoading: true });
         try {
           const data = await getWishlistItems();

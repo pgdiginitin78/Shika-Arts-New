@@ -1,3 +1,4 @@
+import { useCustomerAuthStore } from "@/stores/customerAuthStore";
 import api from "./http-common";
 
 export const customerLogin = async (username, password) => {
@@ -9,6 +10,7 @@ export const customerLogin = async (username, password) => {
   localStorage.setItem("token", data.token);
   localStorage.setItem("user", JSON.stringify(data));
   localStorage.setItem("customerData", JSON.stringify(data));
+  useCustomerAuthStore.getState().login(data.token, data.customer || data.user || data, null);
   return data;
 };
 
@@ -21,6 +23,7 @@ export const logout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
   localStorage.removeItem("customerData");
+  useCustomerAuthStore.getState().logout();
 };
 
 export const getCurrentUser = async () => {
