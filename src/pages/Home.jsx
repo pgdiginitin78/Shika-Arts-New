@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { HomeCarousel } from "@/components/HomeCarousel";
-import { ProductCard } from "@/components/ProductCard";
+import { ProductCard, ProductSkeleton } from "@/components/ProductCard";
 import { getProducts } from "../services/LoginServices";
 import { normalizeProduct } from "@/lib/woocommerce";
 import { useQuery } from "@tanstack/react-query";
@@ -311,7 +311,7 @@ function HomePage() {
           {isLoading ? (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
               {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="aspect-[3/4] bg-secondary animate-pulse" />
+                <ProductSkeleton key={i} />
               ))}
             </div>
           ) : (

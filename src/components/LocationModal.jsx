@@ -88,7 +88,7 @@ export function LocationModal({ isOpen, onOpenChange, onSelect }) {
       <DialogContent className="w-[92vw] sm:max-w-[500px] h-[90%] rounded-xl md:h-auto overflow-y-auto p-5 sm:p-8 gap-4 sm:gap-6 border-none shadow-luxe bg-background">
         <DialogHeader className="relative flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 space-y-0 text-left">
           <div className="flex h-11 w-11 rounded-lg sm:h-14 sm:w-14 items-center justify-center bg-primary shrink-0">
-            <MapPin className="h-5 w-5 sm:h-6 sm:w-6 text-destructive" />
+            <MapPin className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
           </div>
           <div className="flex-1 pr-8">
             <DialogTitle className="font-serif text-2xl sm:text-3xl leading-tight text-foreground mb-1 sm:mb-2">

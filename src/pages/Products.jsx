@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getProducts } from "../services/LoginServices";
 import { normalizeProduct } from "@/lib/woocommerce";
-import { ProductCard } from "@/components/ProductCard";
+import { ProductCard, ProductSkeleton } from "@/components/ProductCard";
 
 function ProductsPage() {
   const { data: products = [], isLoading } = useQuery({
@@ -22,7 +22,7 @@ function ProductsPage() {
       {isLoading ? (
         <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {Array.from({ length: 10 }).map((_, i) => (
-            <div key={i} className="aspect-[3/4] animate-pulse rounded-sm bg-gray-200" />
+            <ProductSkeleton key={i} />
           ))}
         </div>
       ) : products.length === 0 ? (

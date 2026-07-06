@@ -2,16 +2,16 @@ import { CATEGORIES } from "@/lib/categories";
 import { useCartStore } from "@/stores/cartStore";
 import { useWishlistStore } from "@/stores/wishlistStore";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, Heart, Menu, Search, ShoppingCart, User, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ChevronDown, Heart, Loader2, Menu, Search, ShoppingCart, User, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import MainLogo from "../assets/mainLogos/shikaArtsLogo.webp";
 import { useNavbarMenus } from "../context/NavbarContext";
 import { LocationSelector } from "./LocationSelector";
 import { LoginModal } from "./LoginModal";
 import { UserMenu, UserMenuInline } from "./UserMenu";
-
-
+import { searchProducts } from "@/services/orderService";
 
 export function Header() {
   const setOpen = useCartStore((s) => s.setOpen);
@@ -24,6 +24,42 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState({});
   const navbarMenus = useNavbarMenus();
+
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState(null);
+  const debounceTimer = useRef(null);
+
+  useEffect(() => {
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      setIsSearching(false);
+      setSearchError(null);
+      return;
+    }
+
+    setIsSearching(true);
+    setSearchError(null);
+
+    debounceTimer.current = setTimeout(async () => {
+      try {
+        const data = await searchProducts(searchQuery, 1, 6);
+        setSearchResults(data.products || []);
+      } catch (err) {
+        console.error("Search error:", err);
+        setSearchError("Something went wrong. Try again.");
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 400);
+
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    };
+  }, [searchQuery]);
 
   const toggleCategory = (slug, e) => {
     e.preventDefault();
@@ -51,9 +87,20 @@ export function Header() {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/products?q=${encodeURIComponent(searchQuery)}`);
-      setIsSearchOpen(false);
-      setSearchQuery("");
+      closeSearch();
     }
+  };
+
+  const closeSearch = () => {
+    setIsSearchOpen(false);
+    setSearchQuery("");
+    setSearchResults([]);
+    setSearchError(null);
+  };
+
+  const handleResultClick = (product) => {
+    navigate(`/product/${product.slug}`);
+    closeSearch();
   };
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -67,48 +114,12 @@ export function Header() {
   return (
     <>
       <header className="sticky top-0 z-50 glass 2xl:px-6" onMouseLeave={() => setActiveMenu(null)}>
-        <AnimatePresence>
-          {isSearchOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="absolute inset-0 z-50 bg-background/95 backdrop-blur-xl px-4 xl:px-12 flex items-center"
-            >
-              <form onSubmit={handleSearch} className="w-full flex items-center gap-6">
-                <Search className="text-destructive" size={24} />
-                <input
-                  autoFocus
-                  type="text"
-                  placeholder="Search for luxury gifts..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 bg-transparent border-none text-xl md:text-3xl font-serif outline-none placeholder:text-muted-foreground/30"
-                />
-                <button
-                  type="button"
-                  onClick={() => setIsSearchOpen(false)}
-                  className="text-[10px] uppercase  tracking-ultra font-bold hover:text-destructive transition-colors cursor-pointer"
-                >
-                  Close
-                </button>
-              </form>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         <div className="mx-auto flex w-full items-center justify-between px-4 lg:px-6 relative h-[58px] md:min-h-[80px] py-2">
-          {/* <img
-                src={MainLogo}
-                alt="Main Logo"
-                className="w-16 h-16 sm:w-20 sm:h-20 2xl:w-32 2xl:h-32 object-contain"
-              /> */}
           <Link to="/" className="flex items-center">
             <div className="relative">
               <span className="text-3xl md:text-4xl font-serif font-bold text-[#D4AF37]">
                 Shika
               </span>
-
               <span className="absolute -bottom-2 -right-3 text-[11px] uppercase tracking-[0.3em] font-semibold text-[#7A1F3D]">
                 Arts
               </span>
@@ -125,15 +136,6 @@ export function Header() {
             >
               Home
             </NavLink>
-            {/* <NavLink
-            to="/products"
-            onMouseEnter={() => setActiveMenu(null)}
-            className={({ isActive }) =>
-              `text-[12px] 2xl:text-[16px] uppercase tracking-wider font-semibold transition-colors ${isActive ? "text-destructive" : "text-foreground hover:text-destructive"}`
-            }
-          >
-            All Gifts
-          </NavLink> */}
 
             {navbarMenus.map((c) => (
               <div
@@ -165,6 +167,7 @@ export function Header() {
             </div>
 
             <button
+              type="button"
               onClick={() => setIsSearchOpen(true)}
               className="text-foreground hover:text-destructive transition-colors p-1 cursor-pointer"
               aria-label="Search"
@@ -230,9 +233,6 @@ export function Header() {
               </button>
             )}
 
-
-
-            {/* Mobile Hamburger Menu (Right Side) */}
             <button
               onClick={() => setIsMobileMenuOpen(true)}
               className="lg:hidden text-foreground hover:text-destructive p-1 transition-colors ml-1"
@@ -319,6 +319,88 @@ export function Header() {
           })()}
         </AnimatePresence>
       </header>
+
+      {isSearchOpen && createPortal(
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed inset-0 z-[9999] bg-background/95 backdrop-blur-xl px-4 xl:px-12 flex flex-col"
+          >
+            <form onSubmit={handleSearch} className="w-full flex items-center gap-6 min-h-[80px] shrink-0">
+              <Search className="text-destructive shrink-0" size={24} />
+              <input
+                autoFocus
+                type="text"
+                autoComplete="off"
+                placeholder="Search for luxury gifts..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-1 bg-transparent border-none text-xl md:text-3xl font-serif outline-none placeholder:text-muted-foreground/30"
+              />
+              {isSearching && (
+                <Loader2 className="animate-spin text-muted-foreground shrink-0" size={20} />
+              )}
+              <button
+                type="button"
+                onClick={closeSearch}
+                className="text-[10px] uppercase tracking-ultra font-bold hover:text-destructive transition-colors cursor-pointer shrink-0"
+              >
+                Close
+              </button>
+            </form>
+
+            {searchQuery.trim() && (
+              <div className="flex-1 overflow-y-auto pb-8 max-w-3xl w-full">
+                {searchError && (
+                  <p className="text-sm text-destructive mt-4">{searchError}</p>
+                )}
+
+                {!isSearching && !searchError && searchResults.length === 0 && (
+                  <p className="text-sm text-muted-foreground mt-4">
+                    No products found for "{searchQuery}"
+                  </p>
+                )}
+
+                <div className="flex flex-col divide-y divide-border mt-2">
+                  {searchResults.map((product) => (
+                    <button
+                      key={product.id}
+                      type="button"
+                      onClick={() => handleResultClick(product)}
+                      className="flex items-center gap-4 py-3 text-left hover:bg-secondary/50 transition-colors px-2 rounded-md cursor-pointer"
+                    >
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-12 h-12 object-cover rounded-md shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold truncate">{product.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          ₹ {(product.price)}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                {searchResults.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleSearch}
+                    className="mt-4 text-[11px] uppercase tracking-ultra font-bold text-destructive border-b border-destructive pb-1 cursor-pointer"
+                  >
+                    View all results for "{searchQuery}"
+                  </button>
+                )}
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>,
+        document.body
+      )}
 
       <AnimatePresence>
         {isMobileMenuOpen && (
@@ -424,8 +506,6 @@ export function Header() {
               </div>
 
               <div className="h-px bg-destructive/15 w-full mt-auto" />
-
-              {/* Wishlist & Account */}
               <div className="flex flex-col gap-4 pb-4">
                 <button
                   onClick={() => {

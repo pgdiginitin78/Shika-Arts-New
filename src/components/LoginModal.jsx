@@ -73,8 +73,8 @@ export function LoginModal({ isOpen, onClose }) {
       console.error("[LoginModal] Email login error:", err);
       setError(
         err?.response?.data?.message ||
-          err?.message ||
-          "Login failed. Please check your credentials.",
+        err?.message ||
+        "Login failed. Please check your credentials.",
       );
     } finally {
       setLoading(false);
@@ -321,7 +321,7 @@ export function LoginModal({ isOpen, onClose }) {
               size="large"
               startIcon={<GoogleIcon />}
               onClick={() => {
-                const returnUrl = window.location.origin; // auto-detects 5173, 5177, vercel, etc.
+                const returnUrl = "https://shikaarts.com/";
                 window.location.href = `https://lawngreen-marten-717862.hostingersite.com/wp-login.php?loginSocial=google&redirect_to=${encodeURIComponent(returnUrl)}`;
               }}
               sx={{

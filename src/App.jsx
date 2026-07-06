@@ -6,6 +6,7 @@ import { WishlistDrawer } from "./components/WishlistDrawer";
 import ScrollToTop from "./components/ScrollToTop";
 import { Toaster } from "./components/ui/sonner";
 import { useCartSync } from "./hooks/useCartSync";
+import { useWishlistSync } from "./hooks/useWishlistSync";
 import { useSessionRestore } from "./hooks/useSessionRestore";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NavbarProvider } from "./context/NavbarContext";
@@ -23,11 +24,13 @@ import CheckoutPage from "./pages/CheckoutPage";
 import OrderSuccessPage from "./pages/OrderSuccessPage";
 import MyOrdersPage from "./pages/MyOrdersPage";
 import AdminDashboard from "./pages/AdminDashboard";
+import ProfilePage from "./pages/ProfilePage";
 
 const queryClient = new QueryClient();
 
 function App() {
   useCartSync();
+  useWishlistSync();
   
   return (
     <QueryClientProvider client={queryClient}>
@@ -52,6 +55,7 @@ function App() {
               <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
               <Route path="/my-orders" element={<MyOrdersPage />} />
               <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/profilePage" element={<ProfilePage />} />
             </Routes>
           </main>
           <Footer />

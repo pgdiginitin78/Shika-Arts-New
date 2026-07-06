@@ -154,14 +154,11 @@ export const getProductBySlug = async (slug) => {
     data?.find((p) => p.name?.toLowerCase() === cleaned) ||
     null;
 
-  // For variable products, eagerly fetch all variation prices in parallel
   if (product && product.type === "variable" && product.variations?.length > 0) {
     const variationDetails = await Promise.all(
       product.variations.map(async (v) => {
         const vd = await getVariationPrice(product.id, v.id);
         if (vd) {
-          // The single variation API sometimes returns an empty attributes array.
-          // Preserve the attributes from the parent product's variations array.
           vd.attributes = v.attributes && v.attributes.length > 0 ? v.attributes : vd.attributes;
         }
         return vd;
@@ -172,3 +169,14 @@ export const getProductBySlug = async (slug) => {
 
   return product;
 };
+
+
+export async function updateAddress(payload) {
+  const token = localStorage.getItem("token");
+  const { data } = await api.post(
+    "/wp-json/custom/v1/update-address",
+    payload,
+    { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+  );
+  return data;
+}

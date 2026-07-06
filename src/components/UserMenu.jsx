@@ -94,7 +94,12 @@ export function UserMenu() {
           </ListItemIcon>
           <ListItemText primary="My Orders" />
         </MenuItem>
-        <MenuItem disabled>
+        <MenuItem
+          onClick={() => {
+            setAnchorEl(null);
+            navigate("/profilePage");
+          }}
+        >
           <ListItemIcon>
             <PersonIcon fontSize="small" />
           </ListItemIcon>

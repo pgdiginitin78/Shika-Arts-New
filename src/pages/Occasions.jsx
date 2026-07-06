@@ -446,10 +446,9 @@ export default function Occasions() {
 
       <div
         id="product-grid"
-        className="mx-auto w-full px-4 md:px-6 lg:px-8 2xl:px-12 py-12 flex flex-col lg:flex-row gap-8 lg:gap-10"
+        className="mx-auto w-full px-4 md:px-6 lg:px-8 2xl:px-7 py-12 flex flex-col lg:flex-row gap-8 lg:gap-10"
       >
-        <aside className="w-full lg:w-[260px] shrink-0">
-          {/* ── Browse Collections ── */}
+        <aside className="w-full lg:w-[220px] shrink-0">
           <div className="mb-10">
             <h3 className="font-bold text-[11px] uppercase tracking-widest mb-6 text-[#1e2321]">
               Browse Collections

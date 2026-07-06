@@ -8,6 +8,7 @@ import { formatPrice, productToNode } from "@/lib/woocommerce";
 import { getProductBySlug } from "@/services/LoginServices";
 import { motion } from "framer-motion";
 import { addToWishlistApi } from "@/services/orderService";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const buildWishlistPayload = (node, variant, image, product, quantity = 1, productId) => {
   const minorUnit = 2;
@@ -193,9 +194,10 @@ export function ProductCard({ product, lightMode = true }) {
       t.includes("mini-cake") ||
       t.includes("medley") ||
       t.includes("bar") ||
-      t.includes("sachet")
+      t.includes("sachet") ||
+      t.includes("pouch")
     )
-      return "/ piece";
+      return "/ pcs";
 
     if (
       t.includes("hamper") ||
@@ -321,5 +323,19 @@ export function ProductCard({ product, lightMode = true }) {
         </div>
       </div>
     </Link>
+  );
+}
+
+export function ProductSkeleton() {
+  return (
+    <div className="group block relative w-full border rounded">
+      <div className="relative h-[370px] flex-shrink-0 overflow-hidden bg-secondary">
+        <Skeleton className="h-full w-full rounded" />
+      </div>
+      <div className="mt-2 flex flex-col items-start gap-2 px-2 pb-2">
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-3 w-1/4 mt-1" />
+      </div>
+    </div>
   );
 }

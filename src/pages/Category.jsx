@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getCategoryBySlug } from "@/lib/categories";
-import { ProductCard } from "@/components/ProductCard";
+import { ProductCard, ProductSkeleton } from "@/components/ProductCard";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavbarMenus } from "../context/NavbarContext";
 
@@ -128,7 +128,7 @@ function CategoryPage() {
             {isLoading ? (
               <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-8">
                 {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="aspect-[4/5] animate-pulse rounded-sm bg-secondary" />
+                  <ProductSkeleton key={i} />
                 ))}
               </div>
             ) : products.length === 0 ? (

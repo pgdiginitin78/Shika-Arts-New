@@ -215,9 +215,9 @@ export default function Corporate() {
         </div>
       </div>
 
-      <div id="product-grid" className="mx-auto w-full px-4 md:px-6 lg:px-12 py-12">
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
-          <aside className="w-full lg:w-[260px] shrink-0">
+      <div id="product-grid" className="mx-auto w-full px-4 md:px-6 lg:px-7 py-12">
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-5">
+          <aside className="w-full lg:w-[220px] shrink-0">
             <div className="mb-10">
               <h3 className="font-bold text-[11px] uppercase tracking-widest mb-6 text-[#1e2321]">
                 Browse Collections
@@ -352,8 +352,6 @@ export default function Corporate() {
               </button>
             </div>
           </aside>
-
-          {/* Product Grid */}
           <div className="flex-1 min-h-[50vh]">
             <div className="flex flex-col sm:flex-row sm:items-center  gap-4 mb-8">
               <p className="text-[13px] text-gray-500 font-medium">
@@ -434,7 +432,7 @@ export default function Corporate() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  gap-x-6 gap-y-10"
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  gap-3 gap-y-10"
                 >
                   {products.map((p, index) => (
                     <ProductCard key={index} product={p} />

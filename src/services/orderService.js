@@ -230,3 +230,26 @@ export async function getAdminOrdersSummary(filters = {}) {
   });
   return data;
 }
+
+/**
+ * Search products by name using the custom search endpoint.
+ */
+export async function searchProducts(name, page = 1, perPage = 20) {
+  if (!name || !name.trim()) {
+    return { products: [], total: 0, pages: 0 };
+  }
+
+  const { data } = await api.get("/wp-json/custom/v1/search-products", {
+    params: { name: name.trim(), page, per_page: perPage },
+  });
+
+  return data;
+}
+
+export async function getUserProfile() {
+  const token = localStorage.getItem("token");
+  const { data } = await api.get("/wp-json/custom/v1/user-profile", {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  return data;
+}

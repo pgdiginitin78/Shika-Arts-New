@@ -4,6 +4,7 @@ import { addToWishlistApi } from "@/services/orderService";
 import { useCartStore } from "@/stores/cartStore";
 import { useWishlistStore } from "@/stores/wishlistStore";
 import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   ArrowLeft,
   ChevronDown,
@@ -111,8 +112,8 @@ function VariationPicker({ variationDetails, node, selectedPack, setSelectedPack
             {activeGroup.items.map((vd) => {
               const isSelected = selectedPack?.id === vd.id;
               const isOnSale = vd.regularPrice > 0 && vd.regularPrice !== vd.price;
-              const packLabel = vd.attributes?.[1]?.value || vd.attributes?.[1]?.option || "";
-
+              const packLabel = vd.attributes?.[1]?.value || vd.attributes?.[1]?.option ||vd.attributes[0]?.value || "";
+              console.log("112334334",vd.attributes[0]?.value)
               return (
                 <button
                   key={vd.id}
@@ -211,24 +212,24 @@ function ProductDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#FAF7F2] px-3 md:px-6 lg:px-10 py-6">
-        <div className="max-w-[1000px] mx-auto animate-pulse">
-          <div className="h-3 w-24 bg-gray-200 rounded mb-6" />
+        <div className="max-w-[1000px] mx-auto">
+          <Skeleton className="h-3 w-24 mb-6" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10">
             <div className="flex gap-3">
               <div className="hidden sm:flex flex-col gap-2 w-16 shrink-0">
                 {[...Array(5)].map((_, i) => (
-                  <div key={i} className="aspect-square bg-gray-200 rounded" />
+                  <Skeleton key={i} className="aspect-square" />
                 ))}
               </div>
-              <div className="flex-1 aspect-square bg-gray-200 rounded-lg" />
+              <Skeleton className="flex-1 aspect-square" />
             </div>
             <div className="space-y-3">
-              <div className="h-2 w-32 bg-gray-200 rounded" />
-              <div className="h-8 w-3/4 bg-gray-200 rounded" />
-              <div className="h-6 w-24 bg-gray-200 rounded" />
-              <div className="h-3 w-20 bg-gray-200 rounded" />
-              <div className="h-20 bg-gray-200 rounded" />
-              <div className="h-10 bg-gray-200 rounded" />
+              <Skeleton className="h-2 w-32" />
+              <Skeleton className="h-8 w-3/4" />
+              <Skeleton className="h-6 w-24" />
+              <Skeleton className="h-3 w-20" />
+              <Skeleton className="h-20 w-full" />
+              <Skeleton className="h-10 w-full" />
             </div>
           </div>
         </div>
