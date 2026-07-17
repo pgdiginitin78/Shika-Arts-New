@@ -231,5 +231,5 @@ export const useCartStore = create((set, get) => ({
     set({ items: [] });
   },
 
-  getCheckoutUrl: () => "https://lawngreen-marten-717862.hostingersite.com/checkout",
+  getCheckoutUrl: () => "https://api.shikaarts.com/checkout",
 }));

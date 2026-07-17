@@ -5,7 +5,7 @@
   "parent": 0,
   "type": "variable",
   "variation": "",
-  "permalink": "https://lawngreen-marten-717862.hostingersite.com/product/bougainvillea-watercolour/",
+  "permalink": "https://api.shikaarts.com/product/bougainvillea-watercolour/",
   "sku": "",
   "short_description": "",
   "description": "<h2>Exquisite Watercolour Design</h2>\n<p>Adorned with a delicate magenta bougainvillea branch, this card captures the charm of nature through soft watercolour artistry. The subtle design adds a touch of refinement perfect for any occasion.</p>\n<h2>Handmade-Texture Finish</h2>\n<p>The card is crafted on a textured handmade-paper finish, elevating its appeal and offering a luxurious tactile experience. Its unique quality is bound to capture attention.</p>\n<h2>Thoughtful Details</h2>\n<p>Featuring a magenta-edged flap, this card is a testament to thoughtful craftsmanship. Whether used for personal messages or special events, it adds an elegant statement to your sentiments.</p>",
@@ -32,11 +32,11 @@
   "images": [
     {
       "id": 269,
-      "src": "https://lawngreen-marten-717862.hostingersite.com/wp-content/uploads/2026/06/Bougainvillea-Watercolour.png",
-      "thumbnail": "https://lawngreen-marten-717862.hostingersite.com/wp-content/uploads/2026/06/Bougainvillea-Watercolour-300x300.png",
-      "srcset": "https://lawngreen-marten-717862.hostingersite.com/wp-content/uploads/2026/06/Bougainvillea-Watercolour.png 1086w, https://lawngreen-marten-717862.hostingersite.com/wp-content/uploads/2026/06/Bougainvillea-Watercolour-225x300.png 225w, https://lawngreen-marten-717862.hostingersite.com/wp-content/uploads/2026/06/Bougainvillea-Watercolour-768x1024.png 768w, https://lawngreen-marten-717862.hostingersite.com/wp-content/uploads/2026/06/Bougainvillea-Watercolour-600x800.png 600w",
+      "src": "https://api.shikaarts.com/wp-content/uploads/2026/06/Bougainvillea-Watercolour.png",
+      "thumbnail": "https://api.shikaarts.com/wp-content/uploads/2026/06/Bougainvillea-Watercolour-300x300.png",
+      "srcset": "https://api.shikaarts.com/wp-content/uploads/2026/06/Bougainvillea-Watercolour.png 1086w, https://api.shikaarts.com/wp-content/uploads/2026/06/Bougainvillea-Watercolour-225x300.png 225w, https://api.shikaarts.com/wp-content/uploads/2026/06/Bougainvillea-Watercolour-768x1024.png 768w, https://api.shikaarts.com/wp-content/uploads/2026/06/Bougainvillea-Watercolour-600x800.png 600w",
       "sizes": "(max-width: 1086px) 100vw, 1086px",
-      "thumbnail_srcset": "https://lawngreen-marten-717862.hostingersite.com/wp-content/uploads/2026/06/Bougainvillea-Watercolour-300x300.png 300w, https://lawngreen-marten-717862.hostingersite.com/wp-content/uploads/2026/06/Bougainvillea-Watercolour-150x150.png 150w, https://lawngreen-marten-717862.hostingersite.com/wp-content/uploads/2026/06/Bougainvillea-Watercolour-100x100.png 100w",
+      "thumbnail_srcset": "https://api.shikaarts.com/wp-content/uploads/2026/06/Bougainvillea-Watercolour-300x300.png 300w, https://api.shikaarts.com/wp-content/uploads/2026/06/Bougainvillea-Watercolour-150x150.png 150w, https://api.shikaarts.com/wp-content/uploads/2026/06/Bougainvillea-Watercolour-100x100.png 100w",
       "thumbnail_sizes": "(max-width: 300px) 100vw, 300px",
       "name": "Bougainvillea Watercolour",
       "alt": ""
@@ -47,19 +47,19 @@
       "id": 51,
       "name": "Invitations",
       "slug": "invitations",
-      "link": "https://lawngreen-marten-717862.hostingersite.com/product-category/wedding/invitations/"
+      "link": "https://api.shikaarts.com/product-category/wedding/invitations/"
     },
     {
       "id": 52,
       "name": "Physical Invites",
       "slug": "physicalinvites",
-      "link": "https://lawngreen-marten-717862.hostingersite.com/product-category/wedding/invitations/physicalinvites/"
+      "link": "https://api.shikaarts.com/product-category/wedding/invitations/physicalinvites/"
     },
     {
       "id": 50,
       "name": "Wedding",
       "slug": "wedding",
-      "link": "https://lawngreen-marten-717862.hostingersite.com/product-category/wedding/"
+      "link": "https://api.shikaarts.com/product-category/wedding/"
     }
   ],
   "tags": [],
@@ -140,7 +140,7 @@
   "add_to_cart": {
     "text": "Select options",
     "description": "Select options for &ldquo;Bougainvillea Watercolour&rdquo;",
-    "url": "https://lawngreen-marten-717862.hostingersite.com/product/bougainvillea-watercolour/",
+    "url": "https://api.shikaarts.com/product/bougainvillea-watercolour/",
     "single_text": "Add to cart",
     "minimum": 1,
     "maximum": 9999,
@@ -151,7 +151,7 @@
   "_links": {
     "self": [
       {
-        "href": "https://lawngreen-marten-717862.hostingersite.com/wp-json/wc/store/v1/products/268",
+        "href": "https://api.shikaarts.com/wp-json/wc/store/v1/products/268",
         "targetHints": {
           "allow": [
             "GET"
@@ -161,13 +161,13 @@
     ],
     "collection": [
       {
-        "href": "https://lawngreen-marten-717862.hostingersite.com/wp-json/wc/store/v1/products"
+        "href": "https://api.shikaarts.com/wp-json/wc/store/v1/products"
       }
     ],
     "related": [
       {
         "embeddable": true,
-        "href": "https://lawngreen-marten-717862.hostingersite.com/wp-json/wc/store/v1/products?related=268&per_page=10"
+        "href": "https://api.shikaarts.com/wp-json/wc/store/v1/products?related=268&per_page=10"
       }
     ]
   }

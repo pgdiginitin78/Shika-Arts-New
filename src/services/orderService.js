@@ -137,7 +137,7 @@ export async function cancelOrder(orderId) {
 
 export async function downloadInvoice(orderId) {
   window.open(
-    `https://lawngreen-marten-717862.hostingersite.com/wp-json/custom/v1/download-invoice/${orderId}`,
+    `https://api.shikaarts.com/wp-json/custom/v1/download-invoice/${orderId}`,
     "_blank"
   );
 }

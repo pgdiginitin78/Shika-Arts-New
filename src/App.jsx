@@ -25,6 +25,7 @@ import Products from "./pages/Products";
 import ProfilePage from "./pages/ProfilePage";
 import Wedding from "./pages/Wedding";
 import EarthWorth from "./pages/EarthWorth";
+import GoogleAuthCallback from "./pages/GoogleAuthCallback";
 
 const queryClient = new QueryClient();
 
@@ -33,7 +34,7 @@ function App() {
   useWishlistSync();
   const customerData = JSON.parse(localStorage.getItem("user") || "{}");
   console.log("rolesAre", customerData);
-  
+
   return (
     <QueryClientProvider client={queryClient}>
       <NavbarProvider>
@@ -61,6 +62,7 @@ function App() {
                 <Route path="/admin" element={<AdminDashboard />} />
               )}
               <Route path="/profilePage" element={<ProfilePage />} />
+              <Route path="/auth/callback" element={<GoogleAuthCallback />} />
             </Routes>
           </main>
           <Footer />

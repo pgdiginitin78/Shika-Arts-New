@@ -19,12 +19,14 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
-import GoogleIcon from "@mui/icons-material/Google";
 import { useTheme } from "@mui/material/styles";
 import { useState } from "react";
 
 import { useCustomerAuthStore } from "@/stores/customerAuthStore";
 import { customerLogin, getCurrentUser, registerCustomer } from "../services/LoginServices";
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
+
+const clientId = "548183815340-krdtfufu7sevl4019h8i7170q3934iba.apps.googleusercontent.com";
 
 export function LoginModal({ isOpen, onClose }) {
   const [tab, setTab] = useState(0);
@@ -117,8 +119,38 @@ export function LoginModal({ isOpen, onClose }) {
     }
   };
 
-  // ── Shared field props ───────────────────────────────────────────────────
   const fieldSx = { size: "small", fullWidth: true };
+
+  const handleSuccess = async (credentialResponse) => {
+    const idToken = credentialResponse.credential;
+    setLoading(true);
+    setError("");
+    try {
+      const response = await fetch(
+        "https://api.shikaarts.com/wp-json/custom-auth/v1/google-login",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: idToken }),
+        }
+      );
+      const data = await response.json();
+      if (!response.ok || !data.token) {
+        throw new Error(data.message || "Google login failed.");
+      }
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("customerData", JSON.stringify(data.user));
+      useCustomerAuthStore.getState().login(data.token, data.user, null);
+      console.log("Google login successful!", data.user);
+      handleClose();
+    } catch (error) {
+      console.error("WordPress Google authentication failed", error);
+      setError(error.message || "Google sign-in failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Dialog
@@ -371,25 +403,13 @@ export function LoginModal({ isOpen, onClose }) {
                 OR
               </Typography>
             </Divider>
-            <Button
-              fullWidth
-              variant="outlined"
-              size="large"
-              startIcon={<GoogleIcon />}
-              onClick={() => {
-                window.location.href = `https://api.shikaarts.com/wp-login.php?loginSocial=google`;
-              }}
-              sx={{
-                py: 1.2,
-                textTransform: "none",
-                fontWeight: 600,
-                color: "text.primary",
-                borderColor: "divider",
-                "&:hover": { backgroundColor: "action.hover", borderColor: "text.secondary" },
-              }}
-            >
-              Continue with Google
-            </Button>
+            <GoogleOAuthProvider clientId={clientId}>
+              <h2>Login to Our App</h2>
+              <GoogleLogin
+                onSuccess={handleSuccess}
+                onError={() => console.log("Google Login Failed")}
+              />
+            </GoogleOAuthProvider>
           </Box>
 
           <Typography
