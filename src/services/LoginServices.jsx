@@ -145,17 +145,11 @@ export const getVariationPrice = async (productId, variationId) => {
 export const getProductBySlug = async (slug) => {
   const { data } = await api.get("/wp-json/wc/store/v1/products", {
     params: {
-      per_page: 100,
+      slug: slug,
     },
   });
 
-  const cleaned = slug?.replace(/-/g, " ").toLowerCase();
-
-  const product =
-    data?.find((p) => p.slug === slug) ||
-    data?.find((p) => p.slug === cleaned) ||
-    data?.find((p) => p.name?.toLowerCase() === cleaned) ||
-    null;
+  const product = data?.[0] || null;
 
   if (product && product.type === "variable" && product.variations?.length > 0) {
     const variationDetails = await Promise.all(
