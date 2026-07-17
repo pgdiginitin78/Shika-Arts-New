@@ -131,7 +131,7 @@ export function Header() {
               to="/"
               onMouseEnter={() => setActiveMenu(null)}
               className={({ isActive }) =>
-                `text-[12px] 2xl:text-[16px] uppercase tracking-wider font-semibold transition-colors ${isActive ? "text-destructive" : "text-foreground hover:text-destructive"}`
+                `text-[10px] 2xl:text-[16px] uppercase tracking-wider font-semibold transition-colors ${isActive ? "text-destructive" : "text-foreground hover:text-destructive"}`
               }
             >
               Home
@@ -146,7 +146,7 @@ export function Header() {
                 <NavLink
                   to={`/category/${c.slug}`}
                   className={({ isActive }) =>
-                    `flex items-center gap-1 text-[12px] 2xl:text-[16px] uppercase tracking-wider font-semibold transition-colors ${isActive || activeMenu === c.slug ? "text-destructive" : "text-foreground hover:text-destructive"}`
+                    `flex items-center gap-1 text-[10px] 2xl:text-[16px] uppercase tracking-wider font-semibold transition-colors ${isActive || activeMenu === c.slug ? "text-destructive" : "text-foreground hover:text-destructive"}`
                   }
                 >
                   {c.name.replace(/&amp;/g, '&')}

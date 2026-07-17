@@ -24,6 +24,7 @@ import Product from "./pages/ProductDetailPage";
 import Products from "./pages/Products";
 import ProfilePage from "./pages/ProfilePage";
 import Wedding from "./pages/Wedding";
+import EarthWorth from "./pages/EarthWorth";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ function App() {
               <Route path="/category/customization" element={<CustomizedGifts />} />
               <Route path="/category/packaging-studio" element={<PackagingStudio />} />
               <Route path="/category/packagingstudio" element={<PackagingStudio />} />
+              <Route path="/category/earthworth" element={<EarthWorth />} />
               <Route path="/category/:slug" element={<Category />} />
               <Route path="/product/:handle" element={<Product />} />
               <Route path="/products" element={<Products />} />

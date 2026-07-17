@@ -112,8 +112,12 @@ function VariationPicker({ variationDetails, node, selectedPack, setSelectedPack
             {activeGroup.items.map((vd) => {
               const isSelected = selectedPack?.id === vd.id;
               const isOnSale = vd.regularPrice > 0 && vd.regularPrice !== vd.price;
-              const packLabel = vd.attributes?.[1]?.value || vd.attributes?.[1]?.option ||vd.attributes[0]?.value || "";
-              console.log("112334334",vd.attributes[0]?.value)
+              const packLabel =
+                vd.attributes?.[1]?.value ||
+                vd.attributes?.[1]?.option ||
+                vd.attributes[0]?.value ||
+                "";
+              console.log("112334334", vd.attributes[0]?.value);
               return (
                 <button
                   key={vd.id}
@@ -402,9 +406,12 @@ function ProductDetailPage() {
       t.includes("mini-cake") ||
       t.includes("medley") ||
       t.includes("bar") ||
-      t.includes("sachet")
+      t.includes("sachet") ||
+      t.includes("bags") ||
+      t.includes("bag")||
+       t.includes("badges")
     )
-      return "/ piece";
+      return "/ pp";
 
     if (
       t.includes("hamper") ||

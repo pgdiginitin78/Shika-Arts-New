@@ -195,9 +195,12 @@ export function ProductCard({ product, lightMode = true }) {
       t.includes("medley") ||
       t.includes("bar") ||
       t.includes("sachet") ||
-      t.includes("pouch")
+      t.includes("pouch")||
+      t.includes("bags")||
+      t.includes("bag")||
+       t.includes("badges")
     )
-      return "/ pcs";
+      return "/ pp";
 
     if (
       t.includes("hamper") ||
@@ -219,7 +222,7 @@ export function ProductCard({ product, lightMode = true }) {
       to={`/product/${node.handle || node.id}`}
       className="group block relative w-full border rounded"
     >
-      <div className="relative h-[370px] flex-shrink-0 overflow-hidden bg-secondary shine-effect">
+      <div className="relative h-[300px] flex-shrink-0 overflow-hidden bg-secondary shine-effect">
         {product?.image || image?.url ? (
           <motion.img
             whileHover={{ scale: 1.05 }}
@@ -284,7 +287,7 @@ export function ProductCard({ product, lightMode = true }) {
 
       <div className="mt-2 flex flex-col items-start gap-0.5 px-2 pb-2">
         <h3
-          className={`font-serif text-sm 2xl:text-xl leading-tight transition-all duration-500 group-hover:italic ${
+          className={`font-serif font-semibold text-sm 2xl:text-xl  transition-all duration-500  ${
             lightMode ? "text-foreground" : "text-primary-foreground"
           }`}
         >
@@ -292,9 +295,9 @@ export function ProductCard({ product, lightMode = true }) {
         </h3>
 
         <div className="mt-1 flex items-center justify-between w-full">
-          <div className="flex space-x-2 items-center">
+          <div className="flex space-x-2 items-center w-full">
             {Number(variant?.price?.amount || 0) > 0 ? (
-              <>
+              <div className="flex justify-between w-full items-center gap-1">
                 {Number(variant?.regularPrice) > 0 &&
                   Number(variant?.regularPrice) !== Number(variant?.price?.amount) && (
                     <span className="line-through font-medium text-[11px] text-muted-foreground">
@@ -302,14 +305,14 @@ export function ProductCard({ product, lightMode = true }) {
                     </span>
                   )}
                 <span
-                  className={`font-medium text-[11px] ${lightMode ? "text-foreground" : "text-accent"}`}
+                  className={`font-medium text-[14px] flex justify-end items-center text-end ${lightMode ? "text-foreground" : "text-accent"}`}
                 >
                   {variant
                     ? formatPrice(Number(variant.price.amount), variant.price.currencyCode)
                     : "—"}
                   <span className="text-[10px] normal-case">{getPriceSuffix(node.title)}</span>
                 </span>
-              </>
+              </div>
             ) : (
               <span className="text-[10px] font-semibold text-[#1e2321] italic">
                 Contact Us for Pricing & Customization

@@ -77,12 +77,14 @@ export function LoginModal({ isOpen, onClose }) {
       localStorage.setItem("customerData", JSON.stringify(customerData));
       handleClose();
     } catch (err) {
-      console.error("[LoginModal] Email login error:", err);
-      setError(
-        err?.response?.data?.message ||
-          err?.message ||
-          "Login failed. Please check your credentials.",
-      );
+      const errorCode = err?.response?.data?.code;
+
+      const errorMessage = errorCode
+        ?.replace("[jwt_auth]", "")
+        ?.replace(/_/g, " ")
+        ?.replace(/\b\w/g, (c) => c.toUpperCase());
+
+      setError(errorMessage || "Login failed.");
     } finally {
       setLoading(false);
     }
@@ -101,7 +103,6 @@ export function LoginModal({ isOpen, onClose }) {
       await registerCustomer(payload);
       setSuccessMsg("Account created! You can now sign in.");
       resetForm();
-      // Switch to Sign In tab after short delay so user sees the message
       setTimeout(() => {
         setSuccessMsg("");
         setTab(0);
@@ -169,7 +170,6 @@ export function LoginModal({ isOpen, onClose }) {
             <Tab label="Create Account" />
           </Tabs>
 
-          {/* Error banner */}
           {error && (
             <Box
               className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
@@ -179,7 +179,6 @@ export function LoginModal({ isOpen, onClose }) {
             </Box>
           )}
 
-          {/* Success banner */}
           {successMsg && (
             <Box
               className="mb-4 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700"
@@ -189,7 +188,6 @@ export function LoginModal({ isOpen, onClose }) {
             </Box>
           )}
 
-          {/* ── Sign In Form ── */}
           {tab === 0 && (
             <Box component="form" onSubmit={handleEmailLogin} className="flex flex-col gap-3">
               <TextField
@@ -379,8 +377,7 @@ export function LoginModal({ isOpen, onClose }) {
               size="large"
               startIcon={<GoogleIcon />}
               onClick={() => {
-                const returnUrl = "https://shikaarts.com/";
-                window.location.href = `https://lawngreen-marten-717862.hostingersite.com/wp-login.php?loginSocial=google&redirect_to=${encodeURIComponent(returnUrl)}`;
+                window.location.href = `https://api.shikaarts.com/wp-login.php?loginSocial=google`;
               }}
               sx={{
                 py: 1.2,

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://lawngreen-marten-717862.hostingersite.com",
+  baseURL: "https://api.shikaarts.com",
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
