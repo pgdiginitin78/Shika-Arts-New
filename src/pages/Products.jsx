@@ -7,8 +7,24 @@ function ProductsPage() {
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["products", "all"],
     queryFn: async () => {
-      const data = await getProducts({ per_page: 100 });
-      return data.map(normalizeProduct);
+      let allData = [];
+      let page = 1;
+      let hasMore = true;
+
+      while (hasMore) {
+        const data = await getProducts({ per_page: 100, page });
+        if (data && data.length > 0) {
+          allData = [...allData, ...data];
+          if (data.length < 100) {
+            hasMore = false;
+          } else {
+            page++;
+          }
+        } else {
+          hasMore = false;
+        }
+      }
+      return allData.map(normalizeProduct);
     },
   });
 
