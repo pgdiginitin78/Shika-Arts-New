@@ -23,6 +23,7 @@ export const logout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
   localStorage.removeItem("customerData");
+  localStorage.removeItem("cart_token");
   useCustomerAuthStore.getState().logout();
 };
 
@@ -85,17 +86,29 @@ export const getProductsByCategory = async (categorySlug, page = 1, perPage = 10
   return data.products;
 };
 
+
 export const getCart = async () => {
   const response = await api.get("/wp-json/wc/store/v1/cart");
 
-  const cartToken = response.headers["cart-token"];
+  const incomingToken = response.headers["cart-token"];
+  const existingToken = localStorage.getItem("cart_token");
 
-  if (cartToken) {
-    localStorage.setItem("cart_token", cartToken);
+  console.log("[Cart] GET /cart → Cart-Token from server:", incomingToken);
+  console.log("[Cart] GET /cart → Existing token in localStorage:", existingToken);
+
+  if (incomingToken) {
+    // Only overwrite existing token if we don't have one yet
+    // (prevents an empty new session from replacing a valid cart session)
+    if (!existingToken || existingToken === incomingToken) {
+      localStorage.setItem("cart_token", incomingToken);
+    } else {
+      console.warn("[Cart] Server returned a DIFFERENT token — keeping existing token to preserve cart session.");
+    }
   }
 
   return response.data;
 };
+
 
 export const addToCart = async (productId, quantity = 1, variationAttributes = []) => {
   const body =
@@ -120,6 +133,11 @@ export const updateCartItem = async (cartItemKey, quantity) => {
     quantity,
   });
 
+  const cartToken = response.headers["cart-token"];
+  if (cartToken) {
+    localStorage.setItem("cart_token", cartToken);
+  }
+
   return response.data;
 };
 
@@ -127,6 +145,11 @@ export const removeCartItem = async (cartItemKey) => {
   const response = await api.post("/wp-json/wc/store/v1/cart/remove-item", {
     key: cartItemKey,
   });
+
+  const cartToken = response.headers["cart-token"];
+  if (cartToken) {
+    localStorage.setItem("cart_token", cartToken);
+  }
 
   return response.data;
 };

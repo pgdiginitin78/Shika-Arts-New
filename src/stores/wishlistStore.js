@@ -65,7 +65,18 @@ export const useWishlistStore = create()(
         set({ isLoading: true });
         try {
           const data = await getWishlistItems();
-          set({ items: Array.isArray(data?.items) ? data.items : [] });
+          const fetchedItems = Array.isArray(data?.items) ? data.items : [];
+          
+          // Deduplicate items based on getProductKey to show exact count
+          const uniqueItemsMap = new Map();
+          fetchedItems.forEach(item => {
+            const key = getProductKey(item);
+            if (key) {
+              uniqueItemsMap.set(key, item);
+            }
+          });
+          
+          set({ items: Array.from(uniqueItemsMap.values()) });
         } catch (error) {
           console.error("Failed to fetch wishlist:", error);
         } finally {

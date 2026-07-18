@@ -6,8 +6,9 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Heart, Trash2, Plus, Loader2 } from "lucide-react";
+import { Heart, Trash2, Plus, Loader2, Eye } from "lucide-react";
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useWishlistStore, getProductKey } from "@/stores/wishlistStore";
 import { useCartStore } from "@/stores/cartStore";
 import { formatPrice, productToNode } from "@/lib/woocommerce";
@@ -56,6 +57,10 @@ function getWishlistPrice(product, node) {
     return formatPrice(amount, product.prices.currency_code || "INR");
   }
   return "—";
+}
+
+function getWishlistHandle(product, node) {
+  return node?.handle || node?.slug || product?.handle || product?.slug || "";
 }
 
 export function WishlistDrawer() {
@@ -160,6 +165,7 @@ export function WishlistDrawer() {
                   const productType = getWishlistType(product, node);
                   const variationLabel = getWishlistVariationLabel(product);
                   const price = getWishlistPrice(product, node);
+                  const handle = getWishlistHandle(product, node);
                   const isBusy = busyId === itemKey;
 
                   return (
@@ -209,6 +215,19 @@ export function WishlistDrawer() {
                             )}
                             Add to Cart
                           </Button>
+                          
+                          {handle && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-8 px-2"
+                              asChild
+                            >
+                              <Link to={`/product/${handle}`} onClick={() => setOpen(false)} title="View Details">
+                                <Eye size={14} className="text-muted-foreground hover:text-foreground" />
+                              </Link>
+                            </Button>
+                          )}
 
                           <Button
                             variant="ghost"

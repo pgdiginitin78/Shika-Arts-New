@@ -7,7 +7,7 @@ import { useWishlistStore } from "@/stores/wishlistStore";
 import { formatPrice, productToNode } from "@/lib/woocommerce";
 import { getProductBySlug } from "@/services/LoginServices";
 import { motion } from "framer-motion";
-import { addToWishlistApi } from "@/services/orderService";
+import { addToWishlistApi, removeFromWishlistApi } from "@/services/orderService";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const buildWishlistPayload = (node, variant, image, product, quantity = 1, productId) => {
@@ -115,29 +115,34 @@ export function ProductCard({ product, lightMode = true }) {
     setIsWishlisting(true);
 
     try {
+      const resolvedId = Number(
+        product?.id || node?.id || product?.node?.id || 0,
+      );
+      const variationId = product?.variation_id ?? product?.variationId ?? 0;
+      
       if (isInWishlist) {
-        toggleWishlist(product);
+        await removeFromWishlistApi(resolvedId, variationId);
+        await useWishlistStore.getState().fetchWishlist();
         toast.success("Removed from wishlist");
       } else {
         const handle = node.handle || node.id;
         const fullProduct = handle ? await getProductBySlug(handle) : null;
 
-        const resolvedId = Number(
-          fullProduct?.id || node?.id || product?.node?.id || product?.id || 0,
+        const fetchResolvedId = Number(
+          fullProduct?.id || resolvedId,
         );
 
-        if (!resolvedId) {
+        if (!fetchResolvedId) {
           toast.error("Couldn't add to wishlist — missing product info.");
           return;
         }
 
         const payload = fullProduct
-          ? { ...fullProduct, quantity: 1, product_id: resolvedId }
-          : buildWishlistPayload(node, variant, image, product, 1, resolvedId);
+          ? { ...fullProduct, quantity: 1, product_id: fetchResolvedId }
+          : buildWishlistPayload(node, variant, image, product, 1, fetchResolvedId);
 
         await addToWishlistApi(payload);
         await useWishlistStore.getState().fetchWishlist();
-        toggleWishlist(product);
         toast.success("Added to wishlist");
       }
     } catch (error) {

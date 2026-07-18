@@ -1,6 +1,6 @@
 import { formatPrice, productToNode } from "@/lib/woocommerce";
 import { getProductBySlug } from "@/services/LoginServices";
-import { addToWishlistApi } from "@/services/orderService";
+import { addToWishlistApi, removeFromWishlistApi } from "@/services/orderService";
 import { useCartStore } from "@/stores/cartStore";
 import { useWishlistStore } from "@/stores/wishlistStore";
 import { useQuery } from "@tanstack/react-query";
@@ -322,7 +322,12 @@ function ProductDetailPage() {
     setIsWishlisting(true);
     try {
       if (isInWishlist) {
-        toggleWishlist(data);
+        const resolvedId = Number(
+          isVariable && selectedPack ? selectedPack.id : rawProduct?.id || node?.id || 0,
+        );
+        const variationId = isVariable && selectedPack ? selectedPack.id : 0;
+        await removeFromWishlistApi(resolvedId, variationId);
+        await useWishlistStore.getState().fetchWishlist();
         toast.success("Removed from wishlist");
       } else {
         if (isVariable && !selectedPack) {
@@ -377,7 +382,6 @@ function ProductDetailPage() {
 
         await addToWishlistApi(payload);
         await useWishlistStore.getState().fetchWishlist();
-        toggleWishlist(data);
         toast.success("Added to wishlist");
       }
     } catch (error) {
