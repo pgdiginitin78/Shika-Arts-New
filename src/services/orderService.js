@@ -101,21 +101,6 @@ export async function cancelWooOrder(orderId) {
     // Non-fatal: don't block the UI on cancellation failure
   }
 }
-/**
- * Fetch the list of all past orders for the currently logged-in customer.
- * Calls the custom /custom/v1/my-orders endpoint (defined in functions.php).
- *
- * @param {number} page  - Page number (default 1)
- * @param {number} perPage - Orders per page (default 20)
- */
-export async function getMyOrders(page = 1, perPage = 20) {
-  const token = localStorage.getItem("token");
-  const { data } = await api.get("/wp-json/custom/v1/my-orders", {
-    params: { page, per_page: perPage },
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
-  return data;
-}
 
 export async function getGuestOrders(customerId) {
   const { data } = await api.get("/wp-json/custom/v1/guest-orders", {

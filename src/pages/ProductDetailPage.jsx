@@ -24,30 +24,6 @@ import {
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-function AccordionItem({ icon, label, children }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="border-t border-gray-100">
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex w-full items-center justify-between py-3 text-left"
-      >
-        <div className="flex items-center gap-2">
-          <span className="text-gray-400">{icon}</span>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-[#1e2321]">
-            {label}
-          </span>
-        </div>
-        {open ? (
-          <ChevronUp size={14} className="text-gray-400 shrink-0" />
-        ) : (
-          <ChevronDown size={14} className="text-gray-400 shrink-0" />
-        )}
-      </button>
-      {open && <div className="pb-3 text-xs text-gray-500 leading-relaxed">{children}</div>}
-    </div>
-  );
-}
 
 function VariationPicker({ variationDetails, node, selectedPack, setSelectedPack }) {
   const attr0Name = node.attributes?.[0]?.name || "Option";

@@ -127,14 +127,16 @@ export function Header() {
           </Link>
 
           <nav className="hidden lg:flex items-center gap-6">
+       
+
             <NavLink
-              to="/"
+              to="/about-us"
               onMouseEnter={() => setActiveMenu(null)}
               className={({ isActive }) =>
-                `text-[10px] 2xl:text-[16px] uppercase tracking-wider font-semibold transition-colors ${isActive ? "text-destructive" : "text-foreground hover:text-destructive"}`
+                `text-[10px] 2xl:text-[14px] uppercase tracking-wider font-semibold whitespace-nowrap transition-colors ${isActive ? "text-destructive" : "text-foreground hover:text-destructive"}`
               }
             >
-              Home
+              About Us
             </NavLink>
 
             {navbarMenus.map((c) => (
@@ -146,7 +148,7 @@ export function Header() {
                 <NavLink
                   to={`/category/${c.slug}`}
                   className={({ isActive }) =>
-                    `flex items-center gap-1 text-[10px] 2xl:text-[16px] uppercase tracking-wider font-semibold transition-colors ${isActive || activeMenu === c.slug ? "text-destructive" : "text-foreground hover:text-destructive"}`
+                    `flex items-center gap-1 text-[10px] 2xl:text-[14px] uppercase tracking-wider font-semibold whitespace-nowrap transition-colors ${isActive || activeMenu === c.slug ? "text-destructive" : "text-foreground hover:text-destructive"}`
                   }
                 >
                   {c.name.replace(/&amp;/g, '&')}
@@ -258,7 +260,7 @@ export function Header() {
                 <div className="w-full px-12 py-12 grid grid-cols-4 gap-12">
                   <div className="col-span-1">
                     <h3 className="font-serif text-3xl mb-2 italic">The {activeData.name.replace(/&amp;/g, '&')}</h3>
-                    <p className="text-[14px] 2xl:text-[16px] text-muted-foreground  tracking-widest leading-relaxed">
+                    <p className="text-[14px] 2xl:text-[14px] text-muted-foreground  tracking-widest leading-relaxed">
                       {activeData.slug === "occasions"
                         ? "Discover thoughtfully curated gifting experiences designed for every occasion."
                         : activeData.slug === "corporate"
@@ -272,7 +274,7 @@ export function Header() {
                     <Link
                       to={`/category/${activeData.slug}`}
                       onClick={() => setActiveMenu(null)}
-                      className="inline-block mt-3 text-end text-[10px] 2xl:text-[16px] uppercase tracking-ultra font-bold text-destructive border-b border-destructive pb-1"
+                      className="inline-block mt-3 text-end text-[10px] 2xl:text-[14px] uppercase tracking-ultra font-bold text-destructive border-b border-destructive pb-1"
                     >
                       View All
                     </Link>
@@ -293,7 +295,7 @@ export function Header() {
                                 className="group flex flex-col"
                                 onClick={() => setActiveMenu(null)}
                               >
-                                <span className="text-[12px] 2xl:text-[16px]  tracking-wider font-semibold text-foreground group-hover:text-destructive transition-colors">
+                                <span className="text-[12px] 2xl:text-[14px]  tracking-wider font-semibold text-foreground group-hover:text-destructive transition-colors">
                                   {item.name.replace(/&amp;/g, '&')}
                                 </span>
                               </Link>
@@ -440,6 +442,16 @@ export function Header() {
                   }
                 >
                   All Gifts
+                </NavLink>
+
+                <NavLink
+                  to="/about-us"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `text-[16px] uppercase tracking-wider font-semibold transition-colors ${isActive ? "text-destructive" : "text-[#0f1716] hover:text-destructive"}`
+                  }
+                >
+                  About Us
                 </NavLink>
 
                 {navbarMenus.map((c) => {

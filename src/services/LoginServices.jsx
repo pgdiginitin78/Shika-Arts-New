@@ -39,10 +39,6 @@ export const getProducts = async (params = {}) => {
   return data.products;
 };
 
-export const getProductById = async (id) => {
-  const { data } = await api.get(`/wp-json/wc/store/v1/products/${id}`);
-  return data;
-};
 
 export const searchProducts = async (search) => {
   const { data } = await api.get("/wp-json/custom/v1/all-products", {
@@ -154,16 +150,6 @@ export const removeCartItem = async (cartItemKey) => {
   return response.data;
 };
 
-export const getVariationPrice = async (productId, variationId) => {
-  try {
-    const { data } = await api.get(
-      `/wp-json/wc/store/v1/products/${variationId}`
-    );
-    return data;
-  } catch {
-    return null;
-  }
-};
 
 export const getProductBySlug = async (slug) => {
   const { data } = await api.get("/wp-json/wc/store/v1/products", {

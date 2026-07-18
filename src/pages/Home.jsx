@@ -13,7 +13,7 @@ import CustomizedGifts from "../assets/homePage/CustomizedGiftImage.webp";
 import OccasionsImage from "../assets/homePage/OccasionImage.webp";
 import WeddingGift from "../assets/homePage/WeddingGiftImage.webp";
 
-export const CATEGORIES = [
+const CATEGORIES = [
   {
     slug: "corporate",
     label: "Shop Corporate Gift",
@@ -47,7 +47,6 @@ export const CATEGORIES = [
     image: OccasionsImage,
   },
 ];
-
 function HomePage() {
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["products", "home"],

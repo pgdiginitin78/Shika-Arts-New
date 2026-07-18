@@ -2,7 +2,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import GanpatiImage from "../assets/categories/ganpati.jpg";
+import GanpatiImage from "../assets/categories/ganpati.webp";
 import OccasionHero from "../assets/corporate/OccasionHeroBg.webp";
 import { useNavbarMenus } from "../context/NavbarContext";
 import { getProductsByCategory, getProductsByParentCategory } from "../services/LoginServices";

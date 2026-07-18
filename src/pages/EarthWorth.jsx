@@ -1,29 +1,10 @@
 import { ProductCard } from "@/components/ProductCard";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import EarthWorthBanner from "../assets/EarthWorthBanner.webp";
 import { useNavbarMenus } from "../context/NavbarContext";
 import { getProductsByCategory, getProductsByParentCategory } from "../services/LoginServices";
-import EarthWorthBanner from "../assets/EarthWorthBanner.png";
-
-import {
-  Grip,
-  Briefcase,
-  Trophy,
-  Gem,
-  Tent,
-  Sun,
-  Heart,
-  Bell,
-  Award,
-  CircleDot,
-  Star,
-  Gift,
-  CalendarDays,
-  Sparkles,
-  Users,
-  Handshake,
-} from "lucide-react";
 
 export default function EarthWorth() {
   const [searchParams, setSearchParams] = useSearchParams();

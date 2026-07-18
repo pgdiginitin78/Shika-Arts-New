@@ -66,5 +66,3 @@ export const CATEGORIES = [
   // },
 ];
 export const getCategoryBySlug = (slug) => CATEGORIES.find((c) => c.slug === slug);
-export const getCategoryByType = (type) =>
-  CATEGORIES.find((c) => c.productType.toLowerCase() === type.toLowerCase());

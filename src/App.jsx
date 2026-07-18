@@ -26,7 +26,7 @@ import ProfilePage from "./pages/ProfilePage";
 import Wedding from "./pages/Wedding";
 import EarthWorth from "./pages/EarthWorth";
 import GoogleAuthCallback from "./pages/GoogleAuthCallback";
-
+import AboutUs from "./pages/AboutUs";
 const queryClient = new QueryClient();
 
 function App() {
@@ -63,6 +63,7 @@ function App() {
               )}
               <Route path="/profilePage" element={<ProfilePage />} />
               <Route path="/auth/callback" element={<GoogleAuthCallback />} />
+              <Route path="/about-us" element={<AboutUs />} />
             </Routes>
           </main>
           <Footer />
