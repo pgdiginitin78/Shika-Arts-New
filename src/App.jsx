@@ -27,6 +27,9 @@ import Wedding from "./pages/Wedding";
 import EarthWorth from "./pages/EarthWorth";
 import GoogleAuthCallback from "./pages/GoogleAuthCallback";
 import AboutUs from "./pages/AboutUs";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsAndConditions from "./pages/TermsAndConditions";
+import ShippingPolicy from "./pages/ShippingPolicy";
 const queryClient = new QueryClient();
 
 function App() {
@@ -64,6 +67,9 @@ function App() {
               <Route path="/profilePage" element={<ProfilePage />} />
               <Route path="/auth/callback" element={<GoogleAuthCallback />} />
               <Route path="/about-us" element={<AboutUs />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<TermsAndConditions />} />
+              <Route path="/shipping-policy" element={<ShippingPolicy />} />
             </Routes>
           </main>
           <Footer />
