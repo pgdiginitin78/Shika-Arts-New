@@ -1,6 +1,5 @@
 import api from "./http-common";
 
-
 /**
  * Creates a WooCommerce order via the REST v3 API.
  * Requires a logged-in customer (JWT token in localStorage).
@@ -63,7 +62,12 @@ export async function createWooOrder(cartItems = [], customer = {}) {
  * @param {number} orderId
  * @param {string} razorpayPaymentId
  */
-export async function markOrderPaid(orderId, razorpayPaymentId, razorpayOrderId, razorpaySignature) {
+export async function markOrderPaid(
+  orderId,
+  razorpayPaymentId,
+  razorpayOrderId,
+  razorpaySignature,
+) {
   try {
     const response = await api.post("/wp-json/custom/v1/verify-payment", {
       order_id: orderId,
@@ -119,12 +123,8 @@ export async function cancelOrder(orderId) {
   return data;
 }
 
-
 export async function downloadInvoice(orderId) {
-  window.open(
-    `https://api.shikaarts.com/wp-json/custom/v1/download-invoice/${orderId}`,
-    "_blank"
-  );
+  window.open(`https://api.shikaarts.com/wp-json/custom/v1/download-invoice/${orderId}`, "_blank");
 }
 
 /**
@@ -139,8 +139,6 @@ export async function getOrderDetails(orderId) {
 
   return data;
 }
-
-
 
 export async function addToWishlistApi(item) {
   const token = localStorage.getItem("token");
@@ -158,26 +156,20 @@ export async function addToWishlistApi(item) {
     quantity_limits: item.quantity_limits,
   };
 
-  const { data } = await api.post(
-    "/wp-json/custom/v1/wishlist",
-    payload,
-    { headers: token ? { Authorization: `Bearer ${token}` } : {} }
-  );
+  const { data } = await api.post("/wp-json/custom/v1/wishlist", payload, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
   return data;
 }
 
 export async function removeFromWishlistApi(productId, variationId = 0) {
   const token = localStorage.getItem("token");
-  const { data } = await api.delete(
-    `/wp-json/custom/v1/wishlist/${productId}`,
-    {
-      params: { variation_id: variationId, _t: Date.now() },
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    }
-  );
+  const { data } = await api.delete(`/wp-json/custom/v1/wishlist/${productId}`, {
+    params: { variation_id: variationId, _t: Date.now() },
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
   return data;
 }
-
 
 export async function getWishlistItems() {
   const token = localStorage.getItem("token");
@@ -236,5 +228,10 @@ export async function getUserProfile() {
   const { data } = await api.get("/wp-json/custom/v1/user-profile", {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   });
+  return data;
+}
+
+export async function getHomeProducts() {
+  const { data } = await api.get("/wp-json/custom/v1/home-products");
   return data;
 }

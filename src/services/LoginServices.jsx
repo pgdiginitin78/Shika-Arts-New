@@ -39,7 +39,6 @@ export const getProducts = async (params = {}) => {
   return data.products;
 };
 
-
 export const searchProducts = async (search) => {
   const { data } = await api.get("/wp-json/custom/v1/all-products", {
     params: { search, per_page: 100 },
@@ -56,32 +55,42 @@ export const getCategories = async () => {
 };
 
 // api/products.js
-export const getProductsByParentCategory = async (
-  categorySlug,
-  page = 1,
-  perPage = 100
-) => {
-  const { data } = await api.get(
-    `/wp-json/custom/v1/products-by-parent/${categorySlug}`,
-    {
-      params: {
-        page,
-        per_page: perPage,
-      },
-    }
-  );
-
+export const getProductsByParentCategory = async (categorySlug, perPage = -1) => {
+  const { data } = await api.get(`/wp-json/custom/v1/products-by-parent/${categorySlug}`, {
+    params: {
+      per_page: perPage,
+    },
+  });
   return data;
 };
 
 // Get products by exact single category (for subcategory pages)
 export const getProductsByCategory = async (categorySlug, page = 1, perPage = 100) => {
+  const effectivePerPage = perPage === 100 ? -1 : perPage;
   const { data } = await api.get("/wp-json/custom/v1/all-products", {
-    params: { category: categorySlug, page, per_page: perPage },
+    params: { category: categorySlug, page, per_page: effectivePerPage },
   });
-  return data.products;
-};
 
+  let allProducts = Array.isArray(data?.products) ? [...data.products] : [];
+  const totalPages = Number(data?.pages || 1);
+
+  if (totalPages > 1 && page === 1 && (perPage === 100 || perPage === -1)) {
+    for (let p = 2; p <= totalPages; p++) {
+      try {
+        const { data: pageData } = await api.get("/wp-json/custom/v1/all-products", {
+          params: { category: categorySlug, page: p, per_page: 100 },
+        });
+        if (Array.isArray(pageData?.products) && pageData.products.length > 0) {
+          allProducts.push(...pageData.products);
+        }
+      } catch (e) {
+        console.error(`[getProductsByCategory] Error fetching page ${p}:`, e);
+      }
+    }
+  }
+
+  return allProducts;
+};
 
 export const getCart = async () => {
   const response = await api.get("/wp-json/wc/store/v1/cart");
@@ -98,13 +107,14 @@ export const getCart = async () => {
     if (!existingToken || existingToken === incomingToken) {
       localStorage.setItem("cart_token", incomingToken);
     } else {
-      console.warn("[Cart] Server returned a DIFFERENT token — keeping existing token to preserve cart session.");
+      console.warn(
+        "[Cart] Server returned a DIFFERENT token — keeping existing token to preserve cart session.",
+      );
     }
   }
 
   return response.data;
 };
-
 
 export const addToCart = async (productId, quantity = 1, variationAttributes = []) => {
   const body =
@@ -150,7 +160,6 @@ export const removeCartItem = async (cartItemKey) => {
   return response.data;
 };
 
-
 export const getProductBySlug = async (slug) => {
   const { data } = await api.get("/wp-json/wc/store/v1/products", {
     params: {
@@ -168,7 +177,7 @@ export const getProductBySlug = async (slug) => {
           vd.attributes = v.attributes && v.attributes.length > 0 ? v.attributes : vd.attributes;
         }
         return vd;
-      })
+      }),
     );
     product._variationDetails = variationDetails.filter(Boolean);
   }
@@ -176,13 +185,10 @@ export const getProductBySlug = async (slug) => {
   return product;
 };
 
-
 export async function updateAddress(payload) {
   const token = localStorage.getItem("token");
-  const { data } = await api.post(
-    "/wp-json/custom/v1/update-address",
-    payload,
-    { headers: token ? { Authorization: `Bearer ${token}` } : {} }
-  );
+  const { data } = await api.post("/wp-json/custom/v1/update-address", payload, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
   return data;
 }

@@ -1,17 +1,15 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { HomeCarousel } from "@/components/HomeCarousel";
 import { ProductCard, ProductSkeleton } from "@/components/ProductCard";
-import { getProducts } from "../services/LoginServices";
-import { normalizeProduct } from "@/lib/woocommerce";
-import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Star, Truck, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import PersonalizedImage from "../assets/homePage/Personalized Gift.webp";
 import CorporateImage from "../assets/homePage/CorporateImage.webp";
 import CustomizedGifts from "../assets/homePage/CustomizedGiftImage.webp";
 import OccasionsImage from "../assets/homePage/OccasionImage.webp";
 import WeddingGift from "../assets/homePage/WeddingGiftImage.webp";
+import { getHomeProducts } from "@/services/orderService";
 
 const CATEGORIES = [
   {
@@ -47,14 +45,10 @@ const CATEGORIES = [
     image: OccasionsImage,
   },
 ];
+
 function HomePage() {
-  const { data: products = [], isLoading } = useQuery({
-    queryKey: ["products", "home"],
-    queryFn: async () => {
-      const data = await getProducts({ per_page: 24 });
-      return data.map(normalizeProduct);
-    },
-  });
+  const [homeProducts, setHomeProducts] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const containerRef = useRef(null);
   const { scrollYProgress } = useScroll({
@@ -62,10 +56,21 @@ function HomePage() {
     offset: ["start start", "end end"],
   });
 
-  const featured = products.slice(0, 8);
-  const filteredProducts = products.filter(
-    (p) => p.node.tags?.includes("bestseller") || p.node.tags?.includes("wedding"),
-  );
+  useEffect(() => {
+    setLoading(true);
+    getHomeProducts()
+      .then((res) => {
+        setHomeProducts(res);
+      })
+      .catch((err) => {
+        console.error("Error fetching home products:", err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  const isLoading = loading || !homeProducts;
 
   return (
     <div ref={containerRef} className="bg-background text-foreground overflow-x-hidden">
@@ -186,6 +191,7 @@ function HomePage() {
         </div>
       </section>
 
+      {/* 1. CUSTOMIZED GIFTS SECTION */}
       <section className="py-16 md:py-24 lg:py-12 px-2 md:px-8 lg:px-12 bg-pearl border-y border-accent/10">
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-5 items-center">
           <motion.div
@@ -231,18 +237,22 @@ function HomePage() {
               hampers, we craft unique experiences that resonate with the recipient's soul.
             </motion.p>
 
-            <div className="grid md:grid-cols-2 2xl:grid-cols-3 gap-3 lg:gap-6 mb-10 md:mb-12 lg:mb-16">
-              {products.slice(8, 12).map((p, idx) => (
-                <motion.div
-                  key={p.node.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: idx * 0.1 }}
-                >
-                  <ProductCard product={p} />
-                </motion.div>
-              ))}
+            <div className="grid grid-cols-2 gap-3 md:gap-4 lg:gap-6 mb-10 md:mb-12 lg:mb-16">
+              {isLoading ? (
+                Array.from({ length: 4 }).map((_, i) => <ProductSkeleton key={i} />)
+              ) : (
+                homeProducts?.customized?.map((p, idx) => (
+                  <motion.div
+                    key={p?.node?.id || p?.id || idx}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: idx * 0.1 }}
+                  >
+                    <ProductCard product={p} />
+                  </motion.div>
+                ))
+              )}
             </div>
 
             <Link to="/products" className="cursor-pointer flex justify-end">
@@ -254,30 +264,37 @@ function HomePage() {
         </div>
       </section>
 
-      {filteredProducts.length > 0 && (
-        <section className="py-16 2xl:py-32 bg-primary text-primary-foreground overflow-hidden px-4 md:px-8 lg:px-12">
-          <div className="w-full">
-            <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-end mb-10 md:mb-12 lg:mb-16">
-              <div>
-                <h2 className="font-serif text-gold text-4xl md:text-5xl lg:text-6xl mb-3 md:mb-4">
-                  The Essentials
-                </h2>
-                <p className="text-accent tracking-widest text-xs uppercase">
-                  Most loved by our connoisseurs
-                </p>
-              </div>
-              <Link
-                to="/products"
-                className="flex items-center gap-2 text-sm border-b border-accent pb-1 group cursor-pointer w-fit"
-              >
-                Shop the selection{" "}
-                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-              </Link>
+      {/* 2. WEDDING & CELEBRATIONS SECTION */}
+      <section className="py-16 2xl:py-32 bg-primary text-primary-foreground overflow-hidden px-4 md:px-8 lg:px-12">
+        <div className="mx-auto max-w-screen-2xl">
+          <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-end mb-10 md:mb-12 lg:mb-16">
+            <div>
+              <span className="text-[10px] uppercase tracking-[0.3em] text-accent mb-2 block font-medium">
+                THE WEDDING ATELIER
+              </span>
+              <h2 className="font-serif text-gold text-4xl md:text-5xl lg:text-6xl mb-3 md:mb-4">
+                Wedding & Celebrations
+              </h2>
+              <p className="text-accent tracking-widest text-xs uppercase">
+                Royal invites, shagun boxes & timeless gifts
+              </p>
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-10">
-              {filteredProducts.map((p, idx) => (
+            <Link
+              to="/category/wedding"
+              className="flex items-center gap-2 text-sm border-b border-accent pb-1 group cursor-pointer w-fit text-accent hover:text-white transition-colors"
+            >
+              Shop Wedding Collection{" "}
+              <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 lg:gap-8">
+            {isLoading ? (
+              Array.from({ length: 4 }).map((_, i) => <ProductSkeleton key={i} />)
+            ) : (
+              homeProducts?.wedding?.map((p, idx) => (
                 <motion.div
-                  key={p.node.id}
+                  key={p?.node?.id || p?.id || idx}
                   initial={{ opacity: 0, scale: 0.95 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
@@ -285,14 +302,59 @@ function HomePage() {
                 >
                   <ProductCard product={p} lightMode={false} />
                 </motion.div>
-              ))}
-            </div>
+              ))
+            )}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
+      {/* 3. CORPORATE GIFTING SECTION */}
+      <section className="py-16 md:py-24 lg:py-32 px-4 md:px-8 lg:px-12 bg-white border-b border-accent/10">
+        <div className="mx-auto max-w-screen-2xl">
+          <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-end mb-10 md:mb-12 lg:mb-16">
+            <div>
+              <span className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2 block font-medium">
+                EXECUTIVE CURATIONS
+              </span>
+              <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-foreground mb-3 md:mb-4">
+                Corporate Gifting
+              </h2>
+              <p className="text-muted-foreground tracking-widest text-xs uppercase">
+                Professional excellence & premium office accessories
+              </p>
+            </div>
+            <Link
+              to="/category/corporate"
+              className="flex items-center gap-2 text-sm border-b border-foreground pb-1 group cursor-pointer w-fit text-foreground hover:text-accent transition-colors"
+            >
+              Explore Corporate Gifting{" "}
+              <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 lg:gap-8 xl:gap-10">
+            {isLoading ? (
+              Array.from({ length: 4 }).map((_, i) => <ProductSkeleton key={i} />)
+            ) : (
+              homeProducts?.corporate?.map((p, idx) => (
+                <motion.div
+                  key={p?.node?.id || p?.id || idx}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: idx * 0.1 }}
+                >
+                  <ProductCard product={p} />
+                </motion.div>
+              ))
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* 4. OCCASIONS & CELEBRATIONS SECTION */}
       <section className="py-16 md:py-24 lg:py-32 px-4 md:px-8 lg:px-12 bg-pearl">
-        <div className="w-full">
+        <div className="mx-auto max-w-screen-2xl">
           <div className="text-center mb-14 md:mb-18 lg:mb-24">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -300,24 +362,23 @@ function HomePage() {
               viewport={{ once: true }}
             >
               <Star className="mx-auto mb-5 md:mb-6 text-accent" size={24} strokeWidth={1} />
-              <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl mb-4">
-                Featured Selection
+              <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl mb-4 text-foreground">
+                Occasions & Celebrations
               </h2>
+              <p className="text-muted-foreground tracking-widest text-xs uppercase mb-4">
+                Handcrafted favor trays, damask boxes & festive hampers
+              </p>
               <div className="w-12 h-[1px] bg-primary mx-auto opacity-30" />
             </motion.div>
           </div>
 
-          {isLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <ProductSkeleton key={i} />
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 lg:gap-8 xl:gap-12">
-              {featured.map((p, idx) => (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 lg:gap-8 xl:gap-12">
+            {isLoading ? (
+              Array.from({ length: 4 }).map((_, i) => <ProductSkeleton key={i} />)
+            ) : (
+              homeProducts?.occasions?.map((p, idx) => (
                 <motion.div
-                  key={p.node.id}
+                  key={p?.node?.id || p?.id || idx}
                   initial={{ opacity: 0, y: 40 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-50px" }}
@@ -326,9 +387,9 @@ function HomePage() {
                 >
                   <ProductCard product={p} />
                 </motion.div>
-              ))}
-            </div>
-          )}
+              ))
+            )}
+          </div>
 
           <div className="mt-14 md:mt-18 lg:mt-24 text-center">
             <Link to="/products" className="cursor-pointer">
@@ -376,4 +437,3 @@ function HomePage() {
 }
 
 export default HomePage;
-   
