@@ -1,13 +1,14 @@
-import { Facebook, Instagram, Twitter, Youtube } from "lucide-react";
+import { Facebook, Instagram, Linkedin, Mail, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export function Footer() {
   return (
     <footer className="bg-primary text-primary-foreground pt-24 pb-12">
       <div className="mx-auto max-w-screen-2xl px-4 lg:px-12 2xl:px-0">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-16">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-16 items-start">
+
           {/* BRAND */}
-          <div className="md:col-span-6">
+          <div className="md:col-span-7">
             <h3 className="font-serif text-4xl mb-6">Shika Arts</h3>
             <p className="text-sm opacity-60 leading-relaxed max-w-sm mb-10">
               A premium gifting atelier crafting heartfelt, handcrafted experiences for every
@@ -15,7 +16,7 @@ export function Footer() {
             </p>
             <div className="flex gap-5">
               <a
-                href="https://instagram.com"
+                href="https://www.instagram.com/shikaarts_/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="h-8 w-8 flex items-center justify-center rounded-full border border-white/10 hover:border-accent hover:text-accent transition-all duration-500"
@@ -23,7 +24,7 @@ export function Footer() {
                 <Instagram size={16} strokeWidth={1.5} />
               </a>
               <a
-                href="https://facebook.com"
+                href="https://www.facebook.com/profile.php?id=100063892390349"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="h-8 w-8 flex items-center justify-center rounded-full border border-white/10 hover:border-accent hover:text-accent transition-all duration-500"
@@ -31,65 +32,52 @@ export function Footer() {
                 <Facebook size={16} strokeWidth={1.5} />
               </a>
               <a
-                href="https://twitter.com"
+                href="https://www.linkedin.com/company/shika-arts/?viewAsMember=true"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="h-8 w-8 flex items-center justify-center rounded-full border border-white/10 hover:border-accent hover:text-accent transition-all duration-500"
               >
-                <Twitter size={16} strokeWidth={1.5} />
-              </a>
-              <a
-                href="https://youtube.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="h-8 w-8 flex items-center justify-center rounded-full border border-white/10 hover:border-accent hover:text-accent transition-all duration-500"
-              >
-                <Youtube size={16} strokeWidth={1.5} />
+                <Linkedin size={16} strokeWidth={1.5} />
               </a>
             </div>
           </div>
 
-          {/* ATELIERS */}
-          <div className="md:col-span-3">
+          {/* CONTACT */}
+          <div className="md:col-span-5">
             <h4 className="text-[11px] uppercase tracking-ultra text-accent font-semibold mb-8">
-              Ateliers
+              Contact
             </h4>
-            <ul className="space-y-4 text-xs opacity-70">
-              <li className="hover:text-accent hover:opacity-100 transition-colors">
-                <Link to="/category/floral-design">Floral Design</Link>
+            <ul className="space-y-5">
+              <li>
+                <a
+                  href="tel:+919370440001"
+                  className="flex items-center gap-3 text-xs opacity-70 hover:opacity-100 hover:text-accent transition-all"
+                >
+                  <Phone size={13} strokeWidth={1.5} className="shrink-0" />
+                  +91 93704 40001
+                </a>
               </li>
-              <li className="hover:text-accent hover:opacity-100 transition-colors">
-                <Link to="/category/gourmet-cakes">Gourmet Cakes</Link>
+              <li>
+                <a
+                  href="tel:+918698474999"
+                  className="flex items-center gap-3 text-xs opacity-70 hover:opacity-100 hover:text-accent transition-all"
+                >
+                  <Phone size={13} strokeWidth={1.5} className="shrink-0" />
+                  +91 86984 74999
+                </a>
               </li>
-              <li className="hover:text-accent hover:opacity-100 transition-colors">
-                <Link to="/category/curated-hampers">Curated Hampers</Link>
-              </li>
-              <li className="hover:text-accent hover:opacity-100 transition-colors">
-                <Link to="/category/customizedgifts">Personalized</Link>
+              <li>
+                <a
+                  href="mailto:info@shikaarts.com"
+                  className="flex items-center gap-3 text-xs opacity-70 hover:opacity-100 hover:text-accent transition-all"
+                >
+                  <Mail size={13} strokeWidth={1.5} className="shrink-0" />
+                  info@shikaarts.com
+                </a>
               </li>
             </ul>
           </div>
 
-          {/* SERVICE */}
-          <div className="md:col-span-3">
-            <h4 className="text-[11px] uppercase tracking-ultra text-accent font-semibold mb-8">
-              Service
-            </h4>
-            <ul className="space-y-4 text-xs opacity-70">
-              <li className="hover:text-accent hover:opacity-100 transition-colors">
-                <Link to="/category/Corporate">Corporate Gifting</Link>
-              </li>
-              <li className="hover:text-accent hover:opacity-100 transition-colors">
-                <Link to="/category/Wedding">Wedding Atelier</Link>
-              </li>
-              <li className="hover:text-accent hover:opacity-100 transition-colors">
-                <Link to="/shipping-policy">Shipping Policy</Link>
-              </li>
-              <li className="hover:text-accent hover:opacity-100 transition-colors">
-                <Link to="/about-us">Contact Us</Link>
-              </li>
-            </ul>
-          </div>
         </div>
 
         {/* BOTTOM BAR */}
@@ -112,6 +100,7 @@ export function Footer() {
             </Link>
           </div>
         </div>
+
       </div>
     </footer>
   );
