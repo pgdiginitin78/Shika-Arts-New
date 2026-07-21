@@ -162,15 +162,14 @@ export const removeCartItem = async (cartItemKey) => {
 
 export const getProductBySlug = async (slug) => {
   const { data } = await api.get("/wp-json/wc/store/v1/products", {
-    params: {
-      slug: slug,
-    },
+    params: { slug },
   });
 
   const product = data?.[0] || null;
+  if (!product) return null;
 
-  if (product && product.type === "variable" && product.variations?.length > 0) {
-    const variationDetails = await Promise.all(
+  if (product.type === "variable" && product.variations?.length > 0) {
+    const results = await Promise.allSettled(
       product.variations.map(async (v) => {
         const vd = await getVariationPrice(product.id, v.id);
         if (vd) {
@@ -179,7 +178,15 @@ export const getProductBySlug = async (slug) => {
         return vd;
       }),
     );
-    product._variationDetails = variationDetails.filter(Boolean);
+
+    product._variationDetails = results
+      .filter((r) => r.status === "fulfilled" && r.value)
+      .map((r) => r.value);
+
+    // Log (don't throw) so failures are visible without breaking the page
+    results
+      .filter((r) => r.status === "rejected")
+      .forEach((r) => console.error("[getProductBySlug] variation fetch failed:", r.reason));
   }
 
   return product;

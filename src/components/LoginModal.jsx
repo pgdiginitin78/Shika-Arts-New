@@ -447,23 +447,12 @@ export function LoginModal({ isOpen, onClose }) {
                 <span>Continue with Google</span>
               </Box>
 
-              <Box
-                sx={{
-                  position: "absolute",
-                  inset: 0,
-                  opacity: 0,
-                  overflow: "hidden",
-                  "& > div": { width: "100% !important" },
-                }}
-              >
-                <GoogleOAuthProvider clientId={clientId}>
-                  <GoogleLogin
-                    onSuccess={handleSuccess}
-                    onError={() => console.log("Google Login Failed")}
-                    width="400"
-                  />
-                </GoogleOAuthProvider>
-              </Box>
+              <GoogleOAuthProvider clientId={clientId}>
+                <GoogleLogin
+                  onSuccess={handleSuccess}
+                  onError={() => console.log("Google Login Failed")}
+                />
+              </GoogleOAuthProvider>
             </Box>
           </Box>
 

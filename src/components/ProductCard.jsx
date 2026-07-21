@@ -1,14 +1,15 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { Loader2, Plus, Heart } from "lucide-react";
-import { toast } from "sonner";
-import { useCartStore } from "@/stores/cartStore";
-import { useWishlistStore } from "@/stores/wishlistStore";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice, productToNode } from "@/lib/woocommerce";
 import { getProductBySlug } from "@/services/LoginServices";
-import { motion } from "framer-motion";
 import { addToWishlistApi, removeFromWishlistApi } from "@/services/orderService";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useCartStore } from "@/stores/cartStore";
+import { useCustomerAuthStore } from "@/stores/customerAuthStore";
+import { useWishlistStore } from "@/stores/wishlistStore";
+import { motion } from "framer-motion";
+import { Heart, Loader2, Plus } from "lucide-react";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const buildWishlistPayload = (node, variant, image, product, quantity = 1, productId) => {
   const minorUnit = 2;
@@ -78,6 +79,17 @@ const buildWishlistPayload = (node, variant, image, product, quantity = 1, produ
   };
 };
 
+// Reactive auth check (store) with a localStorage fallback, since
+// customerLogin() persists the token directly to localStorage as well.
+function useIsLoggedIn() {
+  const storeToken = useCustomerAuthStore((s) => s.token ?? s.accessToken ?? null);
+  if (storeToken) return true;
+  if (typeof window !== "undefined") {
+    return Boolean(localStorage.getItem("token"));
+  }
+  return false;
+}
+
 export function ProductCard({ product, lightMode = true }) {
   const addItem = useCartStore((s) => s.addItem);
   const setOpen = useCartStore((s) => s.setOpen);
@@ -86,6 +98,7 @@ export function ProductCard({ product, lightMode = true }) {
   const isGlobalLoading = useCartStore((s) => s.isLoading);
   const isLoading = isAdding || isGlobalLoading;
   const navigate = useNavigate();
+  const isLoggedIn = useIsLoggedIn();
 
   const node = productToNode(product) || {
     id: "",
@@ -112,14 +125,17 @@ export function ProductCard({ product, lightMode = true }) {
 
     if (isWishlisting) return;
 
+    if (!isLoggedIn) {
+      toast.error("Please log in to add items to your wishlist");
+      return;
+    }
+
     setIsWishlisting(true);
 
     try {
-      const resolvedId = Number(
-        product?.id || node?.id || product?.node?.id || 0,
-      );
+      const resolvedId = Number(product?.id || node?.id || product?.node?.id || 0);
       const variationId = product?.variation_id ?? product?.variationId ?? 0;
-      
+
       if (isInWishlist) {
         await removeFromWishlistApi(resolvedId, variationId);
         await useWishlistStore.getState().fetchWishlist();
@@ -128,9 +144,7 @@ export function ProductCard({ product, lightMode = true }) {
         const handle = node.handle || node.id;
         const fullProduct = handle ? await getProductBySlug(handle) : null;
 
-        const fetchResolvedId = Number(
-          fullProduct?.id || resolvedId,
-        );
+        const fetchResolvedId = Number(fullProduct?.id || resolvedId);
 
         if (!fetchResolvedId) {
           toast.error("Couldn't add to wishlist — missing product info.");
@@ -146,7 +160,13 @@ export function ProductCard({ product, lightMode = true }) {
         toast.success("Added to wishlist");
       }
     } catch (error) {
-      toast.error("Couldn't update wishlist. Please try again.");
+      const status = error?.response?.status;
+      if (status === 401 || status === 403) {
+        toast.error("Please log in to add items to your wishlist");
+        navigate("/login", { state: { from: window.location.pathname } });
+      } else {
+        toast.error("Couldn't update wishlist. Please try again.");
+      }
     } finally {
       setIsWishlisting(false);
     }
@@ -200,10 +220,10 @@ export function ProductCard({ product, lightMode = true }) {
       t.includes("medley") ||
       t.includes("bar") ||
       t.includes("sachet") ||
-      t.includes("pouch")||
-      t.includes("bags")||
-      t.includes("bag")||
-       t.includes("badges")
+      t.includes("pouch") ||
+      t.includes("bags") ||
+      t.includes("bag") ||
+      t.includes("badges")
     )
       return "/ pp";
 

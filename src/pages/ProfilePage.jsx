@@ -28,7 +28,6 @@ import { productToNode, formatPrice } from "@/lib/woocommerce";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
-/* ─── helpers ──────────────────────────────────────────────── */
 function formatDate(raw) {
   if (!raw) return "—";
   const d = new Date(raw.replace(" ", "T"));
@@ -59,7 +58,6 @@ function isRealAvatar(url) {
   return !!url && !url.includes("d=mm") && !url.includes("gravatar.com/avatar/0");
 }
 
-/* ─── wishlist helpers ─────────────────────────────────────── */
 function getProductKey(product) {
   const id = product?.id ?? product?.product_id ?? product?.productId ?? null;
   const variationId = product?.variation_id ?? product?.variationId ?? 0;
@@ -94,7 +92,17 @@ function getWishlistPrice(product) {
   return "—";
 }
 
-/* ─── small reusable components ───────────────────────────── */
+function getWishlistSlug(product) {
+  const node = productToNode(product);
+  const handle = node?.handle || node?.slug || product?.slug;
+  if (handle) return handle;
+  if (product?.permalink) {
+    const parts = product.permalink.split("/").filter(Boolean);
+    return parts[parts.length - 1] || null;
+  }
+  return product?.id || product?.product_id || null;
+}
+
 function Field({ label, value, colSpan2 }) {
   return (
     <div className={colSpan2 ? "col-span-2" : "col-span-2 sm:col-span-1"}>
@@ -112,9 +120,10 @@ function NavItem({ icon: Icon, label, active, onClick }) {
       type="button"
       onClick={onClick}
       className={`flex items-center gap-2.5 px-4 py-3 rounded-xl border text-sm font-medium cursor-pointer transition-all duration-200 w-full text-left
-        ${active
-          ? "bg-[#B8892E] border-[#B8892E] text-white"
-          : "bg-white border-[#E7D9B8] text-[#2B211B] hover:bg-[#F3E6C4] hover:border-[#B8892E]"
+        ${
+          active
+            ? "bg-[#B8892E] border-[#B8892E] text-white"
+            : "bg-white border-[#E7D9B8] text-[#2B211B] hover:bg-[#F3E6C4] hover:border-[#B8892E]"
         }`}
     >
       <Icon size={16} strokeWidth={2} className="shrink-0" />
@@ -125,17 +134,22 @@ function NavItem({ icon: Icon, label, active, onClick }) {
 
 function StatusBadge({ status }) {
   const map = {
-    processing:       { label: "Processing",      cls: "bg-blue-100 text-blue-800" },
-    "pending-payment":{ label: "Pending Payment", cls: "bg-yellow-100 text-yellow-800" },
-    pending:          { label: "Pending Payment", cls: "bg-yellow-100 text-yellow-800" },
-    completed:        { label: "Completed",       cls: "bg-green-100 text-green-800" },
-    cancelled:        { label: "Cancelled",       cls: "bg-red-100 text-red-800" },
-    refunded:         { label: "Refunded",        cls: "bg-slate-100 text-slate-600" },
-    "on-hold":        { label: "On Hold",         cls: "bg-orange-100 text-orange-800" },
+    processing: { label: "Processing", cls: "bg-blue-100 text-blue-800" },
+    "pending-payment": { label: "Pending Payment", cls: "bg-yellow-100 text-yellow-800" },
+    pending: { label: "Pending Payment", cls: "bg-yellow-100 text-yellow-800" },
+    completed: { label: "Completed", cls: "bg-green-100 text-green-800" },
+    cancelled: { label: "Cancelled", cls: "bg-red-100 text-red-800" },
+    refunded: { label: "Refunded", cls: "bg-slate-100 text-slate-600" },
+    "on-hold": { label: "On Hold", cls: "bg-orange-100 text-orange-800" },
   };
-  const { label, cls } = map[status] ?? { label: status || "Unknown", cls: "bg-slate-100 text-slate-600" };
+  const { label, cls } = map[status] ?? {
+    label: status || "Unknown",
+    cls: "bg-slate-100 text-slate-600",
+  };
   return (
-    <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap ${cls}`}>
+    <span
+      className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap ${cls}`}
+    >
       {label}
     </span>
   );
@@ -161,9 +175,6 @@ function Spinner() {
   );
 }
 
-/* ═══════════════════════════════════════════════════════════ */
-/*  MAIN PAGE                                                  */
-/* ═══════════════════════════════════════════════════════════ */
 export default function ProfilePage() {
   const [profile, setProfile] = useState(null);
   const [status, setStatus] = useState("loading");
@@ -176,8 +187,6 @@ export default function ProfilePage() {
   const [wishlistItems, setWishlistItems] = useState([]);
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [busyId, setBusyId] = useState(null);
-
-  // Address edit state
   const [isEditingBilling, setIsEditingBilling] = useState(false);
   const [billingForm, setBillingForm] = useState({});
   const [isUpdatingAddress, setIsUpdatingAddress] = useState(false);
@@ -187,30 +196,44 @@ export default function ProfilePage() {
   const setCartOpen = useCartStore((s) => s.setOpen);
   const navigate = useNavigate();
 
-  /* ── profile fetch ── */
   useEffect(() => {
     let alive = true;
     getUserProfile()
       .then((data) => {
         if (!alive) return;
-        if (data && data.success) { 
-          setProfile(data); 
-          setBillingForm(data.billing || {});
-          setStatus("ready"); 
-        }
-        else setStatus("error");
+        if (data && data.success) {
+          setProfile(data);
+          setBillingForm({
+            first_name: data.billing?.first_name || data.account?.first_name || "",
+            last_name: data.billing?.last_name || data.account?.last_name || "",
+            address_1: data.billing?.address_1 || "",
+            city: data.billing?.city || "",
+            state: data.billing?.state || "",
+            postcode: data.billing?.postcode || "",
+            country: data.billing?.country || "",
+            phone: data.billing?.phone || data.account?.phone || "",
+          });
+          setStatus("ready");
+        } else setStatus("error");
       })
-      .catch(() => { if (alive) setStatus("error"); });
-    return () => { alive = false; };
+      .catch(() => {
+        if (alive) setStatus("error");
+      });
+    return () => {
+      alive = false;
+    };
   }, []);
 
-  /* ── fetch orders ── */
   const fetchOrders = useCallback(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
 
     const userDetailsObj = (() => {
-      try { return JSON.parse(localStorage.getItem("customerData")); } catch { return null; }
+      try {
+        return JSON.parse(localStorage.getItem("customerData"));
+      } catch {
+        return null;
+      }
     })();
     if (!userDetailsObj?.id) return;
     setOrdersLoading(true);
@@ -221,7 +244,6 @@ export default function ProfilePage() {
       .finally(() => setOrdersLoading(false));
   }, []);
 
-  /* ── fetch wishlist ── */
   const fetchWishlist = useCallback(() => {
     setWishlistLoading(true);
     getWishlistItems()
@@ -235,7 +257,6 @@ export default function ProfilePage() {
     if (tab === "wishlist") fetchWishlist();
   }, [tab, fetchOrders, fetchWishlist]);
 
-  /* ── logout ── */
   function handleLogout() {
     logout();
     localStorage.removeItem("token");
@@ -244,7 +265,6 @@ export default function ProfilePage() {
     window.location.href = "/";
   }
 
-  /* ── wishlist remove ── */
   const handleWishlistRemove = async (product) => {
     const id = product?.id || product?.product_id || product?.productId;
     const variationId = product?.variation_id ?? product?.variationId ?? 0;
@@ -263,7 +283,6 @@ export default function ProfilePage() {
     }
   };
 
-  /* ── wishlist add to cart ── */
   const handleAddToCart = async (product) => {
     const node = productToNode(product);
     const id = node?.id || product?.id || product?.productId;
@@ -272,7 +291,13 @@ export default function ProfilePage() {
     setBusyId(key);
     setWishlistItems((prev) => prev.filter((p) => getProductKey(p) !== key));
     try {
-      await addItemToCart({ productId: id, variationId: product?.variationId, handle: node?.handle, product: node, quantity: product?.quantity || 1 });
+      await addItemToCart({
+        productId: id,
+        variationId: product?.variationId,
+        handle: node?.handle,
+        product: node,
+        quantity: product?.quantity || 1,
+      });
       await removeFromWishlistApi(id, product?.variation_id ?? 0);
       useWishlistStore.getState().fetchWishlist();
       setCartOpen(true);
@@ -285,7 +310,6 @@ export default function ProfilePage() {
     }
   };
 
-  /* ── update address ── */
   const handleUpdateBilling = async () => {
     setIsUpdatingAddress(true);
     try {
@@ -301,7 +325,7 @@ export default function ProfilePage() {
           phone: billingForm.phone || "",
         },
       };
-      
+
       const res = await updateAddress(payload);
       if (res && res.success) {
         toast.success("Address updated successfully");
@@ -328,19 +352,16 @@ export default function ProfilePage() {
 
   const name = profile ? resolveName(profile.account, profile.billing) : "";
 
-  /* ── nav items config ── */
   const navItems = [
-    { key: "personal", icon: User,        label: "Personal Information" },
-    { key: "orders",   icon: ShoppingBag, label: "My Orders"            },
-    { key: "address",  icon: MapPin,      label: "Manage Address"       },
-    { key: "wishlist", icon: Heart,       label: "Wishlist"             },
-    { key: "logout",   icon: LogOut,      label: "Logout"               },
+    { key: "personal", icon: User, label: "Personal Information" },
+    { key: "orders", icon: ShoppingBag, label: "My Orders" },
+    { key: "address", icon: MapPin, label: "Manage Address" },
+    { key: "wishlist", icon: Heart, label: "Wishlist" },
+    { key: "logout", icon: LogOut, label: "Logout" },
   ];
 
   return (
     <div className="min-h-screen bg-[#FBF7EF] px-4  md:px-6 py-5 font-sans">
-
- 
       {status === "loading" && (
         <div className="flex items-center justify-center min-h-[60vh]">
           <Loader2 size={36} className="animate-spin text-[#7B1E3D]" />
@@ -356,13 +377,11 @@ export default function ProfilePage() {
 
       {status === "ready" && profile && (
         <>
-       
           <h1 className="font-serif text-3xl sm:text-4xl font-semibold text-center text-[#2B211B] mb-8">
             My Account
           </h1>
 
-          <div className="max-w-7xl mx-auto flex flex-col lg:grid lg:grid-cols-[240px_1fr] gap-5 lg:gap-7 lg:items-start">
-
+          <div className="max-w-7xl 2xl:max-w-[1440px] mx-auto flex flex-col lg:grid lg:grid-cols-[240px_1fr] gap-5 lg:gap-7 lg:items-start">
             <aside className="flex flex-row flex-wrap lg:flex-col gap-2">
               {navItems.map(({ key, icon, label }) => (
                 <NavItem
@@ -375,18 +394,18 @@ export default function ProfilePage() {
               ))}
             </aside>
 
-            {/* ══ CONTENT PANEL ══ */}
             <div className="bg-white rounded-2xl border border-[#E7D9B8] shadow-sm p-5 sm:p-7 lg:p-9 animate-fadeIn mb-6">
-
-              {/* ── Personal Information ── */}
               {tab === "personal" && (
                 <>
-                  {/* Avatar row */}
                   <div className="flex items-center gap-4 mb-8">
                     <div className="relative w-20 h-20 shrink-0">
                       <div className="w-full h-full rounded-full bg-[#F3E6C4] border border-[#E7D9B8] flex items-center justify-center overflow-hidden">
                         {isRealAvatar(profile.account.avatar_url) ? (
-                          <img src={profile.account.avatar_url} alt="" className="w-full h-full object-cover" />
+                          <img
+                            src={profile.account.avatar_url}
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
                         ) : (
                           <span className="font-serif italic font-semibold text-4xl text-[#7B1E3D]">
                             {initialOf(name)}
@@ -407,22 +426,50 @@ export default function ProfilePage() {
                     </div>
                   </div>
 
-                  {/* Fields grid */}
                   <div className="grid grid-cols-2 gap-4">
-                    <Field label="First Name"   value={profile.billing.first_name || name} />
-                    <Field label="Last Name"    value={profile.billing.last_name} />
-                    <Field label="Email"        value={profile.account.email}      colSpan2 />
-                    <Field label="Phone"        value={profile.billing.phone}      colSpan2 />
-                    <Field label="Username"     value={profile.account.username} />
-                    <Field label="Member Since" value={formatDate(profile.account.date_registered)} />
+                    <Field
+                      label="First Name"
+                      value={
+                        profile.account.first_name ||
+                        profile.billing.first_name ||
+                        profile.shipping?.first_name ||
+                        name
+                      }
+                    />
+                    <Field
+                      label="Last Name"
+                      value={
+                        profile.account.last_name ||
+                        profile.billing.last_name ||
+                        profile.shipping?.last_name
+                      }
+                    />
+                    <Field
+                      label="Email"
+                      value={profile.account.email || profile.billing.email}
+                      colSpan2
+                    />
+                    <Field
+                      label="Phone"
+                      value={
+                        profile.billing.phone || profile.account.phone || profile.shipping?.phone
+                      }
+                      colSpan2
+                    />
+                    <Field label="Username" value={profile.account.username} />
+                    <Field
+                      label="Member Since"
+                      value={formatDate(profile.account.date_registered)}
+                    />
                   </div>
                 </>
               )}
 
-              {/* ── My Orders ── */}
               {tab === "orders" && (
                 <>
-                  <h2 className="font-serif font-semibold text-2xl text-[#7B1E3D] mb-6">My Orders</h2>
+                  <h2 className="font-serif font-semibold text-2xl text-[#7B1E3D] mb-6">
+                    My Orders
+                  </h2>
 
                   {ordersLoading && <Spinner />}
 
@@ -439,101 +486,125 @@ export default function ProfilePage() {
                   )}
 
                   {!ordersLoading && !ordersError && orders.length > 0 && (
-                    <div className="space-y-4">
-                      <p className="text-xs text-[#8A7A63] mb-2">
-                        {orders.length} order{orders.length !== 1 ? "s" : ""}
-                      </p>
-                      {orders.map((order) => {
-                        const currency = order?.currency ?? "INR";
-                        const total = Number(order?.total ?? 0);
-                        const items = order?.items ?? [];
-                        const date = order?.date_created
-                          ? new Date(order.date_created.replace(" ", "T")).toLocaleDateString("en-IN", {
-                              day: "numeric", month: "short", year: "numeric",
-                            })
-                          : null;
+                    <div className="flex flex-col gap-5">
+                      <div className="flex items-center justify-between border-b border-[#E7D9B8] pb-3">
+                        <p className="text-sm font-medium text-[#8A7A63]">
+                          Showing <span className="font-semibold text-[#2B211B]">{orders.length}</span> order{orders.length !== 1 ? "s" : ""}
+                        </p>
+                      </div>
 
-                        return (
-                          <div
-                            key={order.order_id}
-                            className="bg-white border border-[#E7D9B8] rounded-2xl overflow-hidden hover:shadow-md transition-shadow duration-200"
-                          >
-                            {/* Order head */}
-                            <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-5 border-b border-[#E7D9B8]">
-                              <div className="flex flex-wrap items-center gap-3">
-                                <div>
-                                  <p className="text-[10px] uppercase tracking-widest text-[#8A7A63] mb-0.5">Order</p>
-                                  <p className="text-sm font-semibold text-[#2B211B]">
+                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6">
+                        {orders.map((order) => {
+                          const currency = order?.currency ?? "INR";
+                          const total = Number(order?.total ?? 0);
+                          const items = order?.items ?? [];
+                          const date = order?.date_created
+                            ? new Date(order.date_created.replace(" ", "T")).toLocaleDateString(
+                                "en-IN",
+                                {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                },
+                              )
+                            : null;
+
+                          return (
+                            <div
+                              key={order.order_id}
+                              className="flex flex-col bg-white border border-[#E7D9B8] rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-300"
+                            >
+                              <div className="bg-[#FAF6ED] px-5 py-4 border-b border-[#E7D9B8] flex flex-wrap items-center justify-between gap-2.5">
+                                <div className="flex items-center gap-3 flex-wrap">
+                                  <span className="font-serif font-bold text-base text-[#2B211B]">
                                     #{order.order_number ?? order.order_id}
-                                  </p>
-                                </div>
-                                {date && (
-                                  <span className="flex items-center gap-1 text-xs text-[#8A7A63]">
-                                    <Clock size={11} /> {date}
                                   </span>
-                                )}
+                                  {date && (
+                                    <span className="flex items-center gap-1.5 text-xs text-[#8A7A63] font-medium bg-white px-2.5 py-1 rounded-full border border-[#E7D9B8]">
+                                      <Clock size={12} className="text-[#B8892E]" /> {date}
+                                    </span>
+                                  )}
+                                </div>
                                 <StatusBadge status={order.status} />
                               </div>
-                              <p className="text-sm font-semibold text-[#2B211B]">
-                                {formatMoney(total, currency)}
-                              </p>
-                            </div>
 
-                            {/* Order body */}
-                            <div className="flex flex-wrap items-center gap-3 px-4 py-3 sm:px-5">
-                              {/* Thumbnails */}
-                              <div className="flex gap-2 flex-wrap">
-                                {items.slice(0, 4).map((item, i) => (
-                                  <div
-                                    key={i}
-                                    className="w-12 h-12 rounded-lg overflow-hidden bg-[#F3E6C4] border border-[#E7D9B8] shrink-0"
-                                  >
-                                    {item?.image ? (
-                                      <img src={item.image} alt={item.name || "Product"} className="w-full h-full object-cover" />
-                                    ) : (
-                                      <div className="w-full h-full flex items-center justify-center text-[#B8892E] text-lg">✦</div>
+                              <div className="p-5 flex-1 flex flex-col justify-between gap-4">
+                                <div className="flex items-start gap-4">
+                                  <div className="flex gap-2 shrink-0 flex-wrap max-w-[150px]">
+                                    {items.slice(0, 3).map((item, i) => (
+                                      <div
+                                        key={i}
+                                        className="w-14 h-14 rounded-xl overflow-hidden bg-[#F3E6C4] border border-[#E7D9B8] shadow-sm shrink-0"
+                                      >
+                                        {item?.image ? (
+                                          <img
+                                            src={item.image}
+                                            alt={item.name || "Product"}
+                                            className="w-full h-full object-cover"
+                                          />
+                                        ) : (
+                                          <div className="w-full h-full flex items-center justify-center text-[#B8892E] text-lg">
+                                            ✦
+                                          </div>
+                                        )}
+                                      </div>
+                                    ))}
+                                    {items.length > 3 && (
+                                      <div className="w-14 h-14 rounded-xl bg-[#FAF6ED] border border-[#E7D9B8] flex items-center justify-center text-xs font-bold text-[#7B1E3D] shrink-0 shadow-sm">
+                                        +{items.length - 3}
+                                      </div>
                                     )}
                                   </div>
-                                ))}
-                                {items.length > 4 && (
-                                  <div className="w-12 h-12 rounded-lg bg-[#F3E6C4] border border-[#E7D9B8] flex items-center justify-center text-xs font-semibold text-[#7B1E3D] shrink-0">
-                                    +{items.length - 4}
+                                  <div className="flex-1 min-w-0 flex flex-col justify-center py-0.5">
+                                    <p className="font-serif font-semibold text-base text-[#2B211B] line-clamp-2 leading-snug">
+                                      {items
+                                        .map((i) => i.name)
+                                        .filter(Boolean)
+                                        .join(", ")}
+                                    </p>
+                                    <p className="text-xs text-[#B8892E] font-medium mt-1.5 flex items-center gap-1">
+                                      {items.length} item{items.length !== 1 ? "s" : ""} included
+                                    </p>
                                   </div>
-                                )}
+                                </div>
                               </div>
 
-                              {/* Item names */}
-                              <div className="flex-1 min-w-[120px]">
-                                <p className="text-xs text-[#8A7A63] leading-relaxed line-clamp-2">
-                                  {items.map((i) => i.name).filter(Boolean).join(", ")}
-                                </p>
-                                <p className="text-[11px] text-[#B8892E] mt-0.5">
-                                  {items.length} item{items.length !== 1 ? "s" : ""}
-                                </p>
-                              </div>
+                              <div className="px-5 py-3.5 bg-[#FCFAFA] border-t border-[#F0E6D2] flex items-center justify-between gap-4 mt-auto">
+                                <div>
+                                  <p className="text-[10px] uppercase tracking-wider text-[#8A7A63] font-semibold mb-0.5">
+                                    Total Amount
+                                  </p>
+                                  <p className="font-serif font-bold text-lg text-[#7B1E3D]">
+                                    {formatMoney(total, currency)}
+                                  </p>
+                                </div>
 
-                              {/* View button */}
-                              <button
-                                onClick={() => navigate(`/order-success/${order.order_id}?key=${order.order_key}`)}
-                                className="ml-auto flex items-center gap-1 text-xs font-semibold text-[#7B1E3D] hover:text-[#5E1730] transition-colors cursor-pointer whitespace-nowrap"
-                              >
-                                View Details <ChevronRight size={13} />
-                              </button>
+                                <button
+                                  onClick={() =>
+                                    navigate(
+                                      `/order-success/${order.order_id}?key=${order.order_key}`,
+                                    )
+                                  }
+                                  className="flex items-center gap-1.5 bg-[#7B1E3D] hover:bg-[#5E1730] text-white text-xs font-semibold px-4 py-2.5 rounded transition-all duration-200 shadow-sm hover:shadow cursor-pointer shrink-0"
+                                >
+                                  View Details <ChevronRight size={14} />
+                                </button>
+                              </div>
                             </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
                 </>
               )}
 
-              {/* ── Manage Address ── */}
               {tab === "address" && (
                 <>
-                  <h2 className="font-serif font-semibold text-2xl text-[#7B1E3D] mb-6">Manage Address</h2>
+                  <h2 className="font-serif font-semibold text-2xl text-[#7B1E3D] mb-6">
+                    Manage Address
+                  </h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                    {/* Billing */}
                     <div>
                       <div className="flex items-center justify-between mb-4">
                         <p className="text-xs font-semibold uppercase tracking-widest text-[#7B1E3D]">
@@ -550,7 +621,18 @@ export default function ProfilePage() {
                           <button
                             onClick={() => {
                               setIsEditingBilling(false);
-                              setBillingForm(profile.billing || {});
+                              setBillingForm({
+                                first_name:
+                                  profile.billing?.first_name || profile.account?.first_name || "",
+                                last_name:
+                                  profile.billing?.last_name || profile.account?.last_name || "",
+                                address_1: profile.billing?.address_1 || "",
+                                city: profile.billing?.city || "",
+                                state: profile.billing?.state || "",
+                                postcode: profile.billing?.postcode || "",
+                                country: profile.billing?.country || "",
+                                phone: profile.billing?.phone || profile.account?.phone || "",
+                              });
                             }}
                             className="text-xs text-red-600 font-semibold hover:underline"
                           >
@@ -562,7 +644,9 @@ export default function ProfilePage() {
                       {isEditingBilling ? (
                         <div className="grid grid-cols-2 gap-3">
                           <div className="col-span-1">
-                            <label className="block text-xs font-medium text-[#2B211B] mb-2">First Name</label>
+                            <label className="block text-xs font-medium text-[#2B211B] mb-2">
+                              First Name
+                            </label>
                             <input
                               type="text"
                               name="first_name"
@@ -572,7 +656,9 @@ export default function ProfilePage() {
                             />
                           </div>
                           <div className="col-span-1">
-                            <label className="block text-xs font-medium text-[#2B211B] mb-2">Last Name</label>
+                            <label className="block text-xs font-medium text-[#2B211B] mb-2">
+                              Last Name
+                            </label>
                             <input
                               type="text"
                               name="last_name"
@@ -582,7 +668,9 @@ export default function ProfilePage() {
                             />
                           </div>
                           <div className="col-span-2">
-                            <label className="block text-xs font-medium text-[#2B211B] mb-2">Address</label>
+                            <label className="block text-xs font-medium text-[#2B211B] mb-2">
+                              Address
+                            </label>
                             <input
                               type="text"
                               name="address_1"
@@ -592,7 +680,9 @@ export default function ProfilePage() {
                             />
                           </div>
                           <div className="col-span-1">
-                            <label className="block text-xs font-medium text-[#2B211B] mb-2">City</label>
+                            <label className="block text-xs font-medium text-[#2B211B] mb-2">
+                              City
+                            </label>
                             <input
                               type="text"
                               name="city"
@@ -602,7 +692,9 @@ export default function ProfilePage() {
                             />
                           </div>
                           <div className="col-span-1">
-                            <label className="block text-xs font-medium text-[#2B211B] mb-2">State</label>
+                            <label className="block text-xs font-medium text-[#2B211B] mb-2">
+                              State
+                            </label>
                             <input
                               type="text"
                               name="state"
@@ -612,7 +704,9 @@ export default function ProfilePage() {
                             />
                           </div>
                           <div className="col-span-1">
-                            <label className="block text-xs font-medium text-[#2B211B] mb-2">Postcode</label>
+                            <label className="block text-xs font-medium text-[#2B211B] mb-2">
+                              Postcode
+                            </label>
                             <input
                               type="text"
                               name="postcode"
@@ -622,7 +716,9 @@ export default function ProfilePage() {
                             />
                           </div>
                           <div className="col-span-1">
-                            <label className="block text-xs font-medium text-[#2B211B] mb-2">Country</label>
+                            <label className="block text-xs font-medium text-[#2B211B] mb-2">
+                              Country
+                            </label>
                             <input
                               type="text"
                               name="country"
@@ -632,7 +728,9 @@ export default function ProfilePage() {
                             />
                           </div>
                           <div className="col-span-2">
-                            <label className="block text-xs font-medium text-[#2B211B] mb-2">Phone</label>
+                            <label className="block text-xs font-medium text-[#2B211B] mb-2">
+                              Phone
+                            </label>
                             <input
                               type="text"
                               name="phone"
@@ -654,33 +752,65 @@ export default function ProfilePage() {
                         </div>
                       ) : (
                         <div className="grid grid-cols-2 gap-3">
-                          <Field label="Name"         value={`${profile.billing.first_name} ${profile.billing.last_name}`.trim()} colSpan2 />
-                          <Field label="Address"      value={profile.billing.address_1}  colSpan2 />
-                          <Field label="City / State" value={`${profile.billing.city}, ${profile.billing.state}`} colSpan2 />
-                          <Field label="Postcode"     value={profile.billing.postcode} />
-                          <Field label="Country"      value={profile.billing.country} />
-                          <Field label="Phone"        value={profile.billing.phone}  colSpan2 />
+                          <Field
+                            label="Name"
+                            value={
+                              `${profile.billing?.first_name || profile.account?.first_name || ""} ${profile.billing?.last_name || profile.account?.last_name || ""}`.trim() ||
+                              name
+                            }
+                            colSpan2
+                          />
+                          <Field label="Address" value={profile.billing?.address_1} colSpan2 />
+                          <Field
+                            label="City / State"
+                            value={
+                              profile.billing?.city || profile.billing?.state
+                                ? `${profile.billing?.city || ""}${profile.billing?.city && profile.billing?.state ? ", " : ""}${profile.billing?.state || ""}`
+                                : ""
+                            }
+                            colSpan2
+                          />
+                          <Field label="Postcode" value={profile.billing?.postcode} />
+                          <Field label="Country" value={profile.billing?.country} />
+                          <Field
+                            label="Phone"
+                            value={profile.billing?.phone || profile.account?.phone}
+                            colSpan2
+                          />
                         </div>
                       )}
                     </div>
-                    {/* Shipping */}
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-widest text-[#7B1E3D] mb-4">
                         Shipping Address
                       </p>
                       <div className="grid grid-cols-2 gap-3">
-                        <Field label="Name"         value={`${profile.shipping.first_name} ${profile.shipping.last_name}`.trim()} colSpan2 />
-                        <Field label="Address"      value={profile.shipping.address_1} colSpan2 />
-                        <Field label="City / State" value={`${profile.shipping.city}, ${profile.shipping.state}`} colSpan2 />
-                        <Field label="Postcode"     value={profile.shipping.postcode} />
-                        <Field label="Country"      value={profile.shipping.country} />
+                        <Field
+                          label="Name"
+                          value={
+                            `${profile.shipping?.first_name || profile.account?.first_name || ""} ${profile.shipping?.last_name || profile.account?.last_name || ""}`.trim() ||
+                            name
+                          }
+                          colSpan2
+                        />
+                        <Field label="Address" value={profile.shipping?.address_1} colSpan2 />
+                        <Field
+                          label="City / State"
+                          value={
+                            profile.shipping?.city || profile.shipping?.state
+                              ? `${profile.shipping?.city || ""}${profile.shipping?.city && profile.shipping?.state ? ", " : ""}${profile.shipping?.state || ""}`
+                              : ""
+                          }
+                          colSpan2
+                        />
+                        <Field label="Postcode" value={profile.shipping?.postcode} />
+                        <Field label="Country" value={profile.shipping?.country} />
                       </div>
                     </div>
                   </div>
                 </>
               )}
 
-              {/* ── Wishlist ── */}
               {tab === "wishlist" && (
                 <>
                   <h2 className="font-serif font-semibold text-2xl text-[#7B1E3D] mb-6 flex flex-wrap items-baseline gap-2">
@@ -703,46 +833,58 @@ export default function ProfilePage() {
                   )}
 
                   {!wishlistLoading && wishlistItems.length > 0 && (
-                    <div className="flex flex-col gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
                       {wishlistItems.map((product) => {
                         const key = getProductKey(product);
                         const image = getWishlistImage(product);
                         const title = getWishlistTitle(product);
                         const price = getWishlistPrice(product);
+                        const slug = getWishlistSlug(product);
                         const isBusy = busyId === key;
 
                         return (
                           <div
                             key={key}
-                            className="flex gap-3 sm:gap-4 border border-[#E7D9B8] rounded-xl p-3 sm:p-4 bg-white"
+                            className="flex flex-col border border-[#E7D9B8] rounded-2xl bg-white overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 group"
                           >
-                            {/* Image */}
-                            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-[#F3E6C4] shrink-0">
+                            <div
+                              onClick={() => slug && navigate(`/product/${slug}`)}
+                              className="relative w-full aspect-square bg-[#F3E6C4] overflow-hidden cursor-pointer"
+                            >
                               {image ? (
-                                <img src={image} alt={title} className="w-full h-full object-cover" />
+                                <img
+                                  src={image}
+                                  alt={title}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                />
                               ) : (
-                                <div className="w-full h-full flex items-center justify-center text-2xl text-[#B8892E]">✦</div>
+                                <div className="w-full h-full flex items-center justify-center text-3xl text-[#B8892E]">
+                                  ✦
+                                </div>
                               )}
                             </div>
 
-                            {/* Info */}
-                            <div className="flex-1 min-w-0 flex flex-col justify-between gap-2">
-                              <div>
-                                <p className="font-serif font-semibold text-base text-[#2B211B] truncate leading-tight mb-1">
+                            <div className="p-4 flex flex-col flex-1 justify-between gap-3">
+                              <div
+                                onClick={() => slug && navigate(`/product/${slug}`)}
+                                className="cursor-pointer"
+                              >
+                                <p className="font-serif font-semibold text-base text-[#2B211B] line-clamp-1 group-hover:text-[#7B1E3D] transition-colors leading-snug">
                                   {title}
                                 </p>
-                                <p className="text-sm font-semibold text-[#2B211B]">{price}</p>
+                                <p className="text-sm font-semibold text-[#7B1E3D] mt-1">{price}</p>
                               </div>
-                              <div className="flex items-center gap-2">
+
+                              <div className="flex items-center gap-2 pt-1 mt-auto">
                                 <button
                                   onClick={() => handleAddToCart(product)}
                                   disabled={isBusy}
-                                  className="flex items-center gap-1.5 bg-[#7B1E3D] hover:bg-[#5E1730] disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-medium px-3 py-2 rounded-lg transition-colors cursor-pointer"
+                                  className="flex-1 flex items-center justify-center gap-1.5 bg-[#7B1E3D] hover:bg-[#5E1730] disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-medium py-2.5 px-3 rounded transition-colors cursor-pointer shadow-sm"
                                 >
                                   {isBusy ? (
-                                    <Loader2 size={12} className="animate-spin" />
+                                    <Loader2 size={13} className="animate-spin shrink-0" />
                                   ) : (
-                                    <ShoppingCart size={12} />
+                                    <ShoppingCart size={13} className="shrink-0" />
                                   )}
                                   Add to Cart
                                 </button>
@@ -750,12 +892,12 @@ export default function ProfilePage() {
                                   onClick={() => handleWishlistRemove(product)}
                                   disabled={isBusy}
                                   title="Remove from wishlist"
-                                  className="flex items-center justify-center w-8 h-8 rounded-lg border border-[#E7D9B8] text-[#8A7A63] hover:text-red-600 hover:border-red-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                                  className="flex items-center justify-center w-9 h-9 rounded border border-[#E7D9B8] text-[#8A7A63] hover:text-red-600 hover:border-red-400 hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer shrink-0"
                                 >
                                   {isBusy ? (
-                                    <Loader2 size={12} className="animate-spin" />
+                                    <Loader2 size={13} className="animate-spin" />
                                   ) : (
-                                    <Trash2 size={13} />
+                                    <Trash2 size={14} />
                                   )}
                                 </button>
                               </div>
@@ -768,7 +910,6 @@ export default function ProfilePage() {
                 </>
               )}
 
-              {/* ── Logout ── */}
               {tab === "logout" && (
                 <div className="text-center py-10 px-4">
                   <h2 className="font-serif font-semibold text-2xl text-[#7B1E3D] mb-3">Logout</h2>
@@ -785,7 +926,6 @@ export default function ProfilePage() {
                   </button>
                 </div>
               )}
-
             </div>
           </div>
         </>

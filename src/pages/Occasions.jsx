@@ -7,9 +7,18 @@ import OccasionHero from "../assets/corporate/OccasionHeroBg.webp";
 import { useNavbarMenus } from "../context/NavbarContext";
 import { getProductsByCategory, getProductsByParentCategory } from "../services/LoginServices";
 
-// GRID — All categories
 const AllGridIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <circle cx="6" cy="6" r="1.5" fill="currentColor" stroke="none" />
     <circle cx="12" cy="6" r="1.5" fill="currentColor" stroke="none" />
     <circle cx="18" cy="6" r="1.5" fill="currentColor" stroke="none" />
@@ -22,9 +31,18 @@ const AllGridIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
   </svg>
 );
 
-// BIRTHDAY CAKE with CANDLES — Birthdays
 const BirthdayCakeIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <ellipse cx="9" cy="8" rx="1.2" ry="1.8" fill="currentColor" stroke="none" />
     <ellipse cx="15" cy="8" rx="1.2" ry="1.8" fill="currentColor" stroke="none" />
     <rect x="8" y="9.5" width="2" height="5" fill="currentColor" stroke="none" />
@@ -34,9 +52,18 @@ const BirthdayCakeIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
   </svg>
 );
 
-// GRADUATION CAP — Graduation
 const GradCapIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <path d="M2 10 L12 5 L22 10 L12 15 Z" />
     <path d="M7 12.5 V18 Q12 21 17 18 V12.5" />
     <path d="M22 10 V16" />
@@ -44,16 +71,34 @@ const GradCapIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
   </svg>
 );
 
-// HEART — Valentine's Day
 const HeartIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <path d="M12 21 C12 21 3 15 3 9 C3 6 5 4 8 4 C10 4 11 5 12 7 C13 5 14 4 16 4 C19 4 21 6 21 9 C21 15 12 21 12 21 Z" />
   </svg>
 );
 
-// PARTY POPPER — Celebrations
 const PartyPopperIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <path d="M2 22 L10 14" />
     <path d="M2 22 L8 20 L4 16 Z" fill="currentColor" stroke="none" />
     <path d="M10 14 L15 4 L20 9 Z" />
@@ -66,18 +111,36 @@ const PartyPopperIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
   </svg>
 );
 
-// CHRISTMAS TREE — Christmas
 const ChristmasTreeIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <path d="M12 2 L6 10 H9 L4 16 H9 L5 22 H19 L15 16 H20 L15 10 H18 Z" />
     <path d="M10 22 V24 H14 V22" />
     <circle cx="12" cy="5" r="0.8" fill="currentColor" stroke="none" />
   </svg>
 );
 
-// SUN — New Year / Summer
 const SunIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <circle cx="12" cy="12" r="4" />
     <path d="M12 2 V4" />
     <path d="M12 20 V22" />
@@ -90,9 +153,18 @@ const SunIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
   </svg>
 );
 
-// FAMILY — Family occasions
 const FamilyIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <circle cx="8" cy="5" r="2" />
     <circle cx="16" cy="5" r="2" />
     <circle cx="12" cy="9" r="1.5" />
@@ -102,9 +174,18 @@ const FamilyIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
   </svg>
 );
 
-// GIFT BOX — Gift occasions
 const GiftBoxIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <rect x="3" y="9" width="18" height="3" rx="0.5" />
     <rect x="5" y="12" width="14" height="9" rx="1" />
     <path d="M12 9 V21" />
@@ -113,17 +194,35 @@ const GiftBoxIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
   </svg>
 );
 
-// CIRCLE DOT — Default fallback
 const DefaultIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <circle cx="12" cy="12" r="9" />
     <circle cx="12" cy="12" r="2" fill="currentColor" stroke="none" />
   </svg>
 );
 
-// BABY — Baby occasions fallback
 const BabyIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <circle cx="12" cy="6" r="3" />
     <path d="M9 10 Q7 10 6 12 Q5 16 6 18 Q7 19 9 19" />
     <path d="M15 10 Q17 10 18 12 Q19 16 18 18 Q17 19 15 19" />
@@ -135,7 +234,17 @@ const BabyIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
 );
 
 const DiyaIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <path d="M12 2 C12 2 9 6 9 9 C9 10.65 10.35 12 12 12 C13.65 12 15 10.65 15 9 C15 6 12 2 12 2 Z" />
     <path d="M4 14 H20 C20 18.42 16.42 22 12 22 C7.58 22 4 18.42 4 14 Z" />
     <path d="M12 12 V14" />
@@ -144,7 +253,17 @@ const DiyaIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
 );
 
 const HoliIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <path d="M6 8 L8 20 Q12 22 16 20 L18 8 Z" />
     <ellipse cx="12" cy="8" rx="6" ry="2" />
     <path d="M8 8 C8 12 10 14 12 14 C14 14 16 12 16 8" fill="currentColor" stroke="none" />
@@ -155,7 +274,17 @@ const HoliIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
 );
 
 const RakhiIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <path d="M2 12 C3 10 5 14 7 12" />
     <path d="M22 12 C21 14 19 10 17 12" />
     <circle cx="12" cy="12" r="5" />
@@ -171,18 +300,36 @@ const RakhiIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
   </svg>
 );
 
-// MEGAPHONE — Baby Announcement (universal symbol for announcement/news)
 const AnnouncementIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <path d="M3 9 H8 L20 4 L20 20 L8 15 H3 Z" />
     <path d="M8 15 L8 20 L11 20 L11 15" />
     <circle cx="20" cy="12" r="2" />
   </svg>
 );
 
-// GIFT BOX WITH BOW — Baby Shower (showering the parents-to-be with gifts)
 const BabyShowerGiftIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <rect x="4" y="10" width="16" height="11" rx="1" />
     <rect x="3" y="7" width="18" height="4" rx="1" />
     <path d="M12 7 L12 21" />
@@ -191,9 +338,18 @@ const BabyShowerGiftIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
   </svg>
 );
 
-// BABY FOOTPRINTS — Naming Ceremony (beginning of a new life's journey)
 const FootprintsIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <ellipse cx="8" cy="17" rx="3.5" ry="5" fill="currentColor" stroke="none" />
     <circle cx="5" cy="11" r="1.5" fill="currentColor" stroke="none" />
     <circle cx="8" cy="10" r="1.5" fill="currentColor" stroke="none" />
@@ -205,9 +361,18 @@ const FootprintsIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
   </svg>
 );
 
-// BABY PRAM/STROLLER — New Parent Gifts (most iconic new parent symbol)
 const PramIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <path d="M2 6 L8 6 Q18 6 18 14 H4 Q4 14 4 12 L4 9" />
     <path d="M2 6 L2 3" />
     <path d="M4 14 L3 18" />
@@ -217,26 +382,53 @@ const PramIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
   </svg>
 );
 
-// TWO WEDDING RINGS — Anniversaries (classic anniversary symbol)
 const WeddingRingsIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <circle cx="8.5" cy="12" r="5.5" />
     <circle cx="15.5" cy="12" r="5.5" />
   </svg>
 );
 
-// HOUSE WITH HEART — Housewarming (home + love)
 const HouseHeartIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <path d="M3 11 L12 3 L21 11" />
     <path d="M5 11 V20 Q5 21 6 21 H18 Q19 21 19 20 V11" />
     <path d="M12 15 Q10 12 9 13 Q8 14 9 15 Q10 17 12 18 Q14 17 15 15 Q16 14 15 13 Q14 12 12 15 Z" />
   </svg>
 );
 
-// CLEAN BRIEFCASE — New Job (starting a new career)
 const NewJobIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <rect x="3" y="10" width="18" height="12" rx="2" />
     <path d="M8 10 L8 7 Q8 5 10 5 H14 Q16 5 16 7 L16 10" />
     <path d="M3 16 H21" />
@@ -244,9 +436,18 @@ const NewJobIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
   </svg>
 );
 
-// SUNSET — Retirement (freedom, leisure, horizon of new life)
 const SunsetIcon = ({ size = 15, className, strokeWidth = 1.5 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <path d="M2 18 H22" />
     <path d="M2 22 H22" />
     <path d="M6 18 A6 6 0 0 1 18 18" />
@@ -367,34 +568,62 @@ export default function Occasions() {
 
   const getOccasionIcon = (name) => {
     const n = (name || "").toLowerCase();
-    
-    // All
-    if (n.includes("all")) return <AllGridIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
-    // Baby & Family
-    if (n.includes("announcement")) return <AnnouncementIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
-    if (n.includes("shower")) return <BabyShowerGiftIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
-    if (n.includes("naming")) return <FootprintsIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
-    if (n.includes("parent")) return <PramIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
-    if (n.includes("baby")) return <BabyIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
-    if (n.includes("family")) return <FamilyIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
-    // Milestones
-    if (n.includes("anniversar")) return <WeddingRingsIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
-    if (n.includes("birthday") || n.includes("cake")) return <BirthdayCakeIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
-    if (n.includes("graduation")) return <GradCapIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
-    if (n.includes("housewarming") || n.includes("house") || n.includes("home")) return <HouseHeartIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
-    if (n.includes("job") || n.includes("career") || n.includes("work")) return <NewJobIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
-    if (n.includes("retirement")) return <SunsetIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
-    // Festive
-    if (n.includes("ganpati") || n.includes("ganesh")) return <img src={GanpatiImage} alt="Ganpati" style={{ width: 20, height: 20, transform: "scale(1.6)" }} className="opacity-90 mix-blend-multiply" />;
-    if (n.includes("holi")) return <HoliIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
-    if (n.includes("diwali") || n.includes("festive") || n.includes("seasonal")) return <DiyaIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
-    if (n.includes("raksha") || n.includes("rakhi")) return <RakhiIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
-    if (n.includes("christmas")) return <ChristmasTreeIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
-    if (n.includes("new year") || n.includes("summer")) return <SunIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
-    if (n.includes("valentine")) return <HeartIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
-    // Generic
-    if (n.includes("celebr") || n.includes("party")) return <PartyPopperIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
-    if (n.includes("gift")) return <GiftBoxIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
+
+    if (n.includes("all"))
+      return <AllGridIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
+    if (n.includes("announcement"))
+      return <AnnouncementIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
+    if (n.includes("shower"))
+      return (
+        <BabyShowerGiftIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />
+      );
+    if (n.includes("naming"))
+      return <FootprintsIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
+    if (n.includes("parent"))
+      return <PramIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
+    if (n.includes("baby"))
+      return <BabyIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
+    if (n.includes("family"))
+      return <FamilyIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
+    if (n.includes("anniversar"))
+      return <WeddingRingsIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
+    if (n.includes("birthday") || n.includes("cake"))
+      return <BirthdayCakeIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
+    if (n.includes("graduation"))
+      return <GradCapIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
+    if (n.includes("housewarming") || n.includes("house") || n.includes("home"))
+      return <HouseHeartIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
+    if (n.includes("job") || n.includes("career") || n.includes("work"))
+      return <NewJobIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
+    if (n.includes("retirement"))
+      return <SunsetIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
+    if (n.includes("ganpati") || n.includes("ganesh"))
+      return (
+        <img
+          src={GanpatiImage}
+          alt="Ganpati"
+          style={{ width: 20, height: 20, transform: "scale(1.6)" }}
+          className="opacity-90 mix-blend-multiply"
+        />
+      );
+    if (n.includes("holi"))
+      return <HoliIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
+    if (n.includes("diwali") || n.includes("festive") || n.includes("seasonal"))
+      return <DiyaIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
+    if (n.includes("raksha") || n.includes("rakhi"))
+      return <RakhiIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
+    if (n.includes("christmas"))
+      return (
+        <ChristmasTreeIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />
+      );
+    if (n.includes("new year") || n.includes("summer"))
+      return <SunIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
+    if (n.includes("valentine"))
+      return <HeartIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
+    if (n.includes("celebr") || n.includes("party"))
+      return <PartyPopperIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
+    if (n.includes("gift"))
+      return <GiftBoxIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
     return <DefaultIcon size={20} strokeWidth={1.5} className="opacity-90 text-[#1e2321]" />;
   };
 
@@ -405,7 +634,7 @@ export default function Occasions() {
           <img
             src={OccasionHero}
             alt="Occasions"
-            className="w-full h-full object-cover object-top"
+            className="w-full h-full object-cover "
           />
           <div className="absolute inset-0 bg-black/40 md:bg-gradient-to-b md:from-black/30 md:via-black/20 md:to-black/35" />
         </div>

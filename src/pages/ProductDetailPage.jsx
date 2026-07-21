@@ -3,7 +3,6 @@ import { getProductBySlug } from "@/services/LoginServices";
 import { addToWishlistApi, removeFromWishlistApi } from "@/services/orderService";
 import { useCartStore } from "@/stores/cartStore";
 import { useWishlistStore } from "@/stores/wishlistStore";
-import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   ArrowLeft,
@@ -24,7 +23,6 @@ import {
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-
 function AccordionItem({ icon, label, children }) {
   const [open, setOpen] = useState(false);
   return (
@@ -39,11 +37,7 @@ function AccordionItem({ icon, label, children }) {
         </span>
         {open ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
       </button>
-      {open && (
-        <div className="pb-3 text-sm text-gray-600 leading-relaxed">
-          {children}
-        </div>
-      )}
+      {open && <div className="pb-3 text-sm text-gray-600 leading-relaxed">{children}</div>}
     </div>
   );
 }
@@ -116,7 +110,6 @@ function VariationPicker({ variationDetails, node, selectedPack, setSelectedPack
                 vd.attributes?.[1]?.option ||
                 vd.attributes[0]?.value ||
                 "";
-              console.log("112334334", vd.attributes[0]?.value);
               return (
                 <button
                   key={vd.id}
@@ -183,22 +176,52 @@ function ProductDetailPage() {
   const isLoading = useCartStore((s) => s.isLoading);
   const navigate = useNavigate();
 
-  const toggleWishlist = useWishlistStore((s) => s.toggleItem);
-
   const [qty, setQty] = useState(1);
   const [activeImg, setActiveImg] = useState(0);
   const [selectedPack, setSelectedPack] = useState(null);
   const [isWishlisting, setIsWishlisting] = useState(false);
 
-  const { data, isLoading: loading } = useQuery({
-    queryKey: ["product", handle],
-    queryFn: async () => {
-      const p = await getProductBySlug(handle);
-      if (!p) return null;
-      const node = productToNode(p);
-      return { node, raw: p };
-    },
-  });
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadProduct() {
+      setLoading(true);
+      setFetchError(null);
+      try {
+        const p = await getProductBySlug(handle);
+        if (cancelled) return;
+
+        if (!p) {
+          setData(null);
+          return;
+        }
+
+        const node = productToNode(p);
+        setData({ node, raw: p });
+      } catch (err) {
+        if (!cancelled) {
+          console.error("Failed to load product:", err);
+          setFetchError(err);
+          setData(null);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    setSelectedPack(null);
+    setActiveImg(0);
+    setQty(1);
+
+    loadProduct();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [handle]);
 
   useEffect(() => {
     if (
@@ -243,7 +266,9 @@ function ProductDetailPage() {
   if (!data)
     return (
       <div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center">
-        <p className="text-gray-500 text-xs uppercase tracking-widest">Product not found</p>
+        <p className="text-gray-500 text-xs uppercase tracking-widest">
+          {fetchError ? "Something went wrong loading this product" : "Product not found"}
+        </p>
       </div>
     );
 
@@ -411,8 +436,8 @@ function ProductDetailPage() {
       t.includes("bar") ||
       t.includes("sachet") ||
       t.includes("bags") ||
-      t.includes("bag")||
-       t.includes("badges")
+      t.includes("bag") ||
+      t.includes("badges")
     )
       return "/ pp";
 

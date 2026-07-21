@@ -114,7 +114,7 @@ export function Header() {
   return (
     <>
       <header className="sticky top-0 z-50 glass 2xl:px-3" onMouseLeave={() => setActiveMenu(null)}>
-        <div className="mx-auto flex w-full items-center justify-between px-4 2xl:px-6 relative h-[58px] md:min-h-[80px] py-2">
+        <div className="mx-auto flex w-full items-center justify-between px-4 2xl:px-6 relative h-[58px] md:min-h-[70px] py-2">
           <Link to="/" className="flex items-center">
             <div className="relative">
               <span className="text-3xl md:text-4xl font-serif font-bold text-[#D4AF37]">
@@ -141,7 +141,7 @@ export function Header() {
               <div
                 key={c.slug}
                 onMouseEnter={() => setActiveMenu(c.slug)}
-                className="relative py-4 cursor-pointer"
+                className="relative py-3 cursor-pointer"
               >
                 <NavLink
                   to={`/category/${c.slug}`}
