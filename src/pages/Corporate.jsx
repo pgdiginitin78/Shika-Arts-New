@@ -5,6 +5,7 @@ import { useSearchParams } from "react-router-dom";
 import { useNavbarMenus } from "../context/NavbarContext";
 import { getProductsByCategory, getProductsByParentCategory } from "../services/LoginServices";
 import CorporateBg from "../assets/corporate/CorporateBg.webp";
+import CorporateBgMobile from "../assets/corporate/CorporateBgMobile.png";
 
 import {
   Grip,
@@ -126,9 +127,7 @@ export default function Corporate() {
   }, [selectedSlug, selectedId, filterMode]);
 
   const subCategoriesToShow =
-    activeCategory === "All"
-      ? corporateCat?.children?.flatMap((category) => category.children || []) || []
-      : corporateCat?.children?.find((c) => c.name === activeCategory)?.children || [];
+    corporateCat?.children?.flatMap((category) => category.children || []) || [];
 
   const decodeHtml = (text) => {
     const txt = document.createElement("textarea");
@@ -167,12 +166,23 @@ export default function Corporate() {
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] font-sans text-[#0f1716]">
-      <div className="relative w-full h-[60vh] md:h-[80vh] lg:h-screen min-h-[400px] flex items-center justify-center md:justify-start overflow-hidden">
-        <div className="absolute inset-0 w-full h-full">
+      <div className="relative w-full h-[70vh] sm:h-[65vh] md:h-[80vh] lg:h-screen min-h-[400px] flex items-center justify-center md:justify-start overflow-hidden">
+        <div className="hidden md:block absolute inset-0 w-full h-full">
           <img
             src={CorporateBg}
             alt="Corporate Gifts"
-            className="w-full h-full object-cover object-top "
+            className="w-full h-full object-cover object-center md:object-top"
+            onError={(e) => {
+              e.target.style.display = "none";
+            }}
+          />
+          <div className="absolute inset-0 bg-black/40 md:bg-gradient-to-b md:from-black/30 md:via-black/20 md:to-black/30" />
+        </div>
+        <div className=" md:hidden absolute inset-0 w-full h-full">
+          <img
+            src={CorporateBgMobile}
+            alt="Corporate Gifts"
+            className="w-full h-full object-cover object-center md:object-top"
             onError={(e) => {
               e.target.style.display = "none";
             }}
@@ -180,12 +190,12 @@ export default function Corporate() {
           <div className="absolute inset-0 bg-black/40 md:bg-gradient-to-b md:from-black/30 md:via-black/20 md:to-black/30" />
         </div>
 
-        <div className="relative z-10 w-full max-w-[1440px] mx-auto px-4 sm:px-8 md:px-16 lg:px-0 flex flex-col items-center md:items-start mt-16 md:mt-0">
-          <div className="max-w-2xl flex flex-col items-center md:items-start text-center md:text-left">
+        <div className="relative z-10 w-full max-w-[1440px] 2xl:max-w-[1620px] mx-auto px-4 sm:px-8 md:px-16 lg:px-16 xl:px-20 2xl:px-6 flex flex-col items-center md:items-start mt-16 md:mt-0">
+          <div className="max-w-2xl 2xl:max-w-4xl flex flex-col items-center md:items-start text-center md:text-left">
             <span className="text-white uppercase tracking-[0.2em] text-[10px] md:text-xs font-bold mb-4 md:mb-6 block">
               PROFESSIONAL EXCELLENCE
             </span>
-            <h1 className="text-4xl md:text-5xl lg:text-[64px] font-serif text-white mb-6 leading-[1.15]">
+            <h1 className="text-4xl md:text-5xl lg:text-[64px] font-serif text-white mb-4 leading-[1.15]">
               Corporate Gifts
               <br />
               Curated with Purpose
@@ -207,7 +217,7 @@ export default function Corporate() {
               <div className="h-[1px] bg-white flex-1"></div>
             </div>
 
-            <p className="text-white/80 text-xs md:text-sm max-w-[400px] leading-relaxed font-medium">
+            <p className="text-white/80 text-xs md:text-sm 2xl:text-lg max-w-[400px] 2xl:max-w-[600px] leading-relaxed font-medium">
               Thoughtful gifting solutions that reflect your brand values and leave a lasting
               impression.
             </p>
@@ -215,16 +225,16 @@ export default function Corporate() {
         </div>
       </div>
 
-      <div id="product-grid" className="mx-auto w-full px-4 md:px-6 lg:px-7 py-12">
+      <div id="product-grid" className="mx-auto w-full px-4 md:px-6 2xl:px-12 py-12">
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-5">
           <aside className="w-full lg:w-[220px] shrink-0">
             <div className="mb-10">
               <h3 className="font-bold text-[11px] uppercase tracking-widest mb-6 text-[#1e2321]">
                 Browse Collections
               </h3>
-              <div className="space-y-1">
+              <div className="flex flex-row gap-2 overflow-x-auto pb-2 -mx-4 px-4 lg:mx-0 lg:px-0 lg:pb-0 lg:flex-col lg:overflow-visible lg:gap-0 lg:space-y-1">
                 <label
-                  className={`flex items-center gap-4 px-4 py-3 cursor-pointer transition-colors rounded-[4px] ${activeCategory === "All" ? "bg-[#F0EAE1] text-[#1e2321] font-medium" : "text-gray-500 hover:bg-[#F3EFE8]/50"}`}
+                  className={`flex items-center gap-4 px-4 py-3 cursor-pointer transition-colors rounded-[4px] shrink-0 whitespace-nowrap lg:whitespace-normal lg:shrink ${activeCategory === "All" ? "bg-[#F0EAE1] text-[#1e2321] font-medium" : "text-gray-500 hover:bg-[#F3EFE8]/50"}`}
                   onClick={() => {
                     setActiveCategory("All");
                     setActiveTag("");
@@ -245,7 +255,7 @@ export default function Corporate() {
                   return (
                     <label
                       key={idx}
-                      className={`flex items-center gap-4 px-4 py-3 cursor-pointer transition-colors rounded-[4px] ${isActive ? "bg-[#F0EAE1] text-[#1e2321] font-medium" : "text-gray-500 hover:bg-[#F3EFE8]/50"}`}
+                      className={`flex items-center gap-4 px-4 py-3 cursor-pointer transition-colors rounded-[4px] shrink-0 whitespace-nowrap lg:whitespace-normal lg:shrink ${isActive ? "bg-[#F0EAE1] text-[#1e2321] font-medium" : "text-gray-500 hover:bg-[#F3EFE8]/50"}`}
                       onClick={() => {
                         setActiveCategory(section.name);
                         setSelectedSlug(section.slug);
@@ -265,19 +275,19 @@ export default function Corporate() {
 
                 {(!corporateCat?.children || corporateCat.children.length === 0) && (
                   <>
-                    <div className="flex items-center gap-4 px-4 py-3 text-gray-500 cursor-not-allowed">
+                    <div className="flex items-center gap-4 px-4 py-3 text-gray-500 cursor-not-allowed shrink-0 whitespace-nowrap lg:whitespace-normal lg:shrink">
                       <div className="flex items-center justify-center w-5 h-5">
                         {getCategoryIcon("Client Gifting")}
                       </div>
                       <span className="text-[13px] tracking-wide">Client Gifting</span>
                     </div>
-                    <div className="flex items-center gap-4 px-4 py-3 text-gray-500 cursor-not-allowed">
+                    <div className="flex items-center gap-4 px-4 py-3 text-gray-500 cursor-not-allowed shrink-0 whitespace-nowrap lg:whitespace-normal lg:shrink">
                       <div className="flex items-center justify-center w-5 h-5">
                         {getCategoryIcon("Executive Gifts")}
                       </div>
                       <span className="text-[13px] tracking-wide">Executive Gifts</span>
                     </div>
-                    <div className="flex items-center gap-4 px-4 py-3 text-gray-500 cursor-not-allowed">
+                    <div className="flex items-center gap-4 px-4 py-3 text-gray-500 cursor-not-allowed shrink-0 whitespace-nowrap lg:whitespace-normal lg:shrink">
                       <div className="flex items-center justify-center w-5 h-5">
                         {getCategoryIcon("Premium Collection")}
                       </div>
@@ -292,18 +302,17 @@ export default function Corporate() {
               <h3 className="font-bold text-[11px] uppercase tracking-widest mb-6 text-[#1e2321]">
                 Filter By
               </h3>
-
               <div className="mb-8">
                 <h4 className="text-[10px] uppercase text-gray-500 font-semibold tracking-wider mb-4">
-                  OCCASIONS
+                  CORPORATE
                 </h4>
-                <div className="space-y-1">
+                <div className="flex flex-row gap-2 overflow-x-auto pb-2 -mx-4 px-4 lg:mx-0 lg:px-0 lg:pb-0 lg:flex-col lg:overflow-visible lg:gap-0 lg:space-y-1">
                   {subCategoriesToShow.map((item) => {
                     const isActive = activeTag === item.slug;
                     return (
                       <label
                         key={item.id}
-                        className={`flex items-center gap-3 cursor-pointer group px-3 py-2 rounded-[4px] transition-all ${
+                        className={`flex items-center gap-3 cursor-pointer group px-3 py-2 rounded-[4px] transition-all shrink-0 whitespace-nowrap lg:whitespace-normal lg:shrink ${
                           isActive
                             ? "bg-[#F5EFE6] border-l-[3px] border-[#C5A26F]"
                             : "border-l-[3px] border-transparent hover:bg-gray-50"
@@ -352,12 +361,12 @@ export default function Corporate() {
               </button>
             </div>
           </aside>
-          <div className="flex-1 min-h-[50vh]">
+          <div className="flex-1 min-h-[50vh] min-w-0">
             <div className="flex flex-col sm:flex-row sm:items-center  gap-4 mb-8">
               <p className="text-[13px] text-gray-500 font-medium">
                 Showing 1–{products.length} of {products.length} results
               </p>
-              <div className="flex space-x-2 items-center">
+              <div className="flex flex-wrap space-x-2 items-center">
                 {activeTag && (
                   <div className="flex items-center gap-2 px-3 py-1.5 bg-destructive text-white rounded-full text-xs font-medium">
                     {subCategoriesToShow.find((s) => s.slug === activeTag)?.name || activeTag}
@@ -409,7 +418,7 @@ export default function Corporate() {
             </div>
 
             {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 min-[1920px]:grid-cols-6 min-[2560px]:grid-cols-7 gap-x-6 gap-y-10">
                 {Array.from({ length: 6 }).map((_, i) => (
                   <div key={i} className="aspect-[4/5] animate-pulse rounded-sm bg-gray-200" />
                 ))}
@@ -432,7 +441,7 @@ export default function Corporate() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  gap-3 gap-y-10"
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 min-[1920px]:grid-cols-6 min-[2560px]:grid-cols-7  gap-3 gap-y-10"
                 >
                   {products.map((p, index) => (
                     <ProductCard key={index} product={p} />

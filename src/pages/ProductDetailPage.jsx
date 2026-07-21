@@ -2,6 +2,7 @@ import { formatPrice, productToNode } from "@/lib/woocommerce";
 import { getProductBySlug } from "@/services/LoginServices";
 import { addToWishlistApi, removeFromWishlistApi } from "@/services/orderService";
 import { useCartStore } from "@/stores/cartStore";
+import { useCustomerAuthStore } from "@/stores/customerAuthStore";
 import { useWishlistStore } from "@/stores/wishlistStore";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -22,6 +23,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 
 function AccordionItem({ icon, label, children }) {
   const [open, setOpen] = useState(false);
@@ -176,6 +178,9 @@ function ProductDetailPage() {
   const isLoading = useCartStore((s) => s.isLoading);
   const navigate = useNavigate();
 
+  const customer = useCustomerAuthStore((s) => s.customer);
+  const isLoggedIn = !!customer;
+
   const [qty, setQty] = useState(1);
   const [activeImg, setActiveImg] = useState(0);
   const [selectedPack, setSelectedPack] = useState(null);
@@ -204,7 +209,6 @@ function ProductDetailPage() {
         setData({ node, raw: p });
       } catch (err) {
         if (!cancelled) {
-          console.error("Failed to load product:", err);
           setFetchError(err);
           setData(null);
         }
@@ -283,15 +287,24 @@ function ProductDetailPage() {
   const variationDetails = node.variationDetails || [];
   const hasVariationPrices = variationDetails.length > 0;
 
-  const displayPrice = selectedPack ? selectedPack.price : Number(variant?.price?.amount || 0);
-  const displayRegularPrice = selectedPack
-    ? selectedPack.regularPrice
-    : Number(variant?.regularPrice || 0);
-  const displayCurrency = selectedPack
-    ? selectedPack.currencyCode
-    : variant?.price?.currencyCode || "INR";
+  const displayPrice =
+    selectedPack && selectedPack.price != null
+      ? selectedPack.price
+      : Number(variant?.price?.amount || 0);
+  const displayRegularPrice =
+    selectedPack && selectedPack.regularPrice != null
+      ? selectedPack.regularPrice
+      : Number(variant?.regularPrice || 0);
+  const displayCurrency =
+    selectedPack && selectedPack.currencyCode
+      ? selectedPack.currencyCode
+      : variant?.price?.currencyCode || "INR";
 
   const handleAdd = async () => {
+    if (!isLoggedIn) {
+      toast.error("Please login to add items to your cart");
+      return;
+    }
     if (isVariable && !selectedPack) return;
     if (!variant && !isVariable) return;
 
@@ -315,6 +328,10 @@ function ProductDetailPage() {
   };
 
   const handleBuyNow = async () => {
+    if (!isLoggedIn) {
+      toast.error("Please login to continue with your purchase");
+      return;
+    }
     if (isVariable && !selectedPack) {
       toast.error("Please select an option first");
       return;
@@ -341,6 +358,10 @@ function ProductDetailPage() {
   };
 
   const handleWishlist = async () => {
+    if (!isLoggedIn) {
+      toast.error("Please login to use your wishlist");
+      return;
+    }
     if (isWishlisting) return;
 
     setIsWishlisting(true);
@@ -546,9 +567,9 @@ function ProductDetailPage() {
                 {node.title}
               </h1>
               {(variant || selectedPack) && (
-                <div className="flex items-baseline gap-2 mb-2">
+                <div className="mb-2">
                   {displayPrice > 0 ? (
-                    <>
+                    <div className="flex items-baseline gap-2">
                       <span className="text-xl font-serif font-semibold text-[#1e2321]">
                         {formatPrice(displayPrice, displayCurrency)}
                         <span className="text-sm font-sans font-normal ml-1 text-gray-500">
@@ -560,11 +581,21 @@ function ProductDetailPage() {
                           {formatPrice(displayRegularPrice, displayCurrency)}
                         </span>
                       )}
-                    </>
+                    </div>
                   ) : (
-                    <span className="text-sm font-semibold text-[#1e2321] italic">
-                      Contact Us for Pricing & Customization
-                    </span>
+                    <div className="flex items-center gap-2.5 rounded-lg border border-[#C5A26F]/30 bg-[#FDF8F1] px-3.5 py-2.5">
+                      <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center shrink-0">
+                        <Sparkles size={13} className="text-[#C5A26F]" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-serif font-semibold text-[#1e2321] leading-tight">
+                          Custom Pricing
+                        </p>
+                        <p className="text-[10px] text-gray-500 leading-tight mt-0.5">
+                          Contact us for pricing & customization
+                        </p>
+                      </div>
+                    </div>
                   )}
                 </div>
               )}
@@ -690,6 +721,17 @@ function ProductDetailPage() {
                     Buy Now
                   </button>
                 </>
+              )}
+              {displayPrice <= 0 && (
+                <a
+                  href={`mailto:hello@shikaarts.com?subject=${encodeURIComponent(
+                    `Pricing enquiry: ${node.title}`,
+                  )}`}
+                  className="w-full h-9 flex items-center justify-center gap-1.5 bg-[#1e2321] text-white rounded text-[10px] font-bold uppercase tracking-widest hover:bg-[#2d3532] transition-colors mb-4"
+                >
+                  <Sparkles size={14} />
+                  Enquire Now
+                </a>
               )}
               <button
                 onClick={handleWishlist}

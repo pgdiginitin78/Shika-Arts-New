@@ -11,22 +11,22 @@ const CARDS = [
   {
     id: 3,
     image: CorporateGifts,
-    link: "/category/corporate-gifts",
+    link: "/category/Corporate",
   },
   {
     id: 2,
     image: CustomizedGifts,
-    link: "/category/hampers",
+    link: "/category/customizedgifts",
   },
   {
     id: 4,
     image: OccasionGift,
-    link: "/category/thoughtful-gifts",
+    link: "/category/Occasions",
   },
   {
     id: 1,
     image: WeddingGift,
-    link: "/category/wedding",
+    link: "/category/Wedding",
   },
 ];
 
