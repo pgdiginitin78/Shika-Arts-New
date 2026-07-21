@@ -198,7 +198,6 @@ export default function CustomizedGifts() {
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] font-sans text-[#0f1716]">
-      {/* Hero */}
       <div className="relative w-full h-[70vh] sm:h-[65vh] md:h-[80vh] lg:h-screen min-h-[400px] flex items-center justify-center md:justify-start overflow-hidden">
         <div className=" absolute inset-0 w-full h-full">
           <img
@@ -355,8 +354,6 @@ export default function CustomizedGifts() {
               </button>
             </div>
           </aside>
-
-          {/* Product Grid */}
           <div className="flex-1 min-h-[50vh] min-w-0">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8">
               <p className="text-[13px] text-gray-500 font-medium">

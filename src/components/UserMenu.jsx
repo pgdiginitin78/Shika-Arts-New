@@ -12,22 +12,54 @@ import {
   MenuItem,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../services/LoginServices";
 import { useCartStore } from "@/stores/cartStore";
 import { useWishlistStore } from "@/stores/wishlistStore";
 import { toast } from "sonner";
 
+function getStoredUser() {
+  try {
+    const raw = localStorage.getItem("user");
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    console.warn("Failed to parse stored user, clearing it", e);
+    localStorage.removeItem("user");
+    return null;
+  }
+}
+
+export function notifyUserChanged() {
+  window.dispatchEvent(new Event("user-changed"));
+}
+
+function useStoredUser() {
+  const [customer, setCustomer] = useState(getStoredUser);
+
+  useEffect(() => {
+    const sync = () => setCustomer(getStoredUser());
+    window.addEventListener("user-changed", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("user-changed", sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+
+  return customer;
+}
+
 export function UserMenu() {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
-  const customer = JSON.parse(localStorage.getItem("user"));
+  const customer = useStoredUser();
   const resetCart = useCartStore((s) => s.resetCart);
   const clearWishlist = useWishlistStore((s) => s.clearWishlist);
 
-  const email = customer?.user_email || "";
-  const displayName = customer?.user_display_name || customer?.user_nicename || "";
+  const email = customer?.user_email || customer?.email || "";
+  const displayName =
+    customer?.user_display_name || customer?.display_name || customer?.user_nicename || "";
   const initials = (displayName?.[0] || email?.[0] || "U").toUpperCase();
 
   const handleLogout = async () => {
@@ -36,10 +68,11 @@ export function UserMenu() {
     resetCart();
     clearWishlist();
     localStorage.clear();
+    notifyUserChanged();
     navigate("/");
-    toast.success("Logged out successfully!")
+    toast.success("Logged out successfully!");
   };
-
+  console.log("displayName", customer);
   return (
     <>
       <IconButton
@@ -70,9 +103,7 @@ export function UserMenu() {
         onClose={() => setAnchorEl(null)}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
-        PaperProps={{
-          sx: { mt: 1, minWidth: 220, borderRadius: 1.5 },
-        }}
+        PaperProps={{ sx: { mt: 1, minWidth: 220, borderRadius: 1.5 } }}
       >
         <Box sx={{ px: 2, py: 1.5 }}>
           <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
@@ -120,7 +151,7 @@ export function UserMenu() {
 
 export function UserMenuInline({ onAfter }) {
   const navigate = useNavigate();
-  const customer = JSON.parse(localStorage.getItem("user"));
+  const customer = useStoredUser();
   const resetCart = useCartStore((s) => s.resetCart);
   const clearWishlist = useWishlistStore((s) => s.clearWishlist);
 
@@ -136,6 +167,7 @@ export function UserMenuInline({ onAfter }) {
     resetCart();
     clearWishlist();
     localStorage.clear();
+    notifyUserChanged();
     navigate("/");
   };
 

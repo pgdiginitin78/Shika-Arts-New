@@ -98,9 +98,6 @@ export const getCart = async () => {
   const incomingToken = response.headers["cart-token"];
   const existingToken = localStorage.getItem("cart_token");
 
-  console.log("[Cart] GET /cart → Cart-Token from server:", incomingToken);
-  console.log("[Cart] GET /cart → Existing token in localStorage:", existingToken);
-
   if (incomingToken) {
     // Only overwrite existing token if we don't have one yet
     // (prevents an empty new session from replacing a valid cart session)

@@ -149,7 +149,7 @@ export function Header() {
                     `flex items-center gap-1 text-[10px] 2xl:text-[14px] uppercase tracking-wider font-semibold whitespace-nowrap transition-colors ${isActive || activeMenu === c.slug ? "text-destructive" : "text-foreground hover:text-destructive"}`
                   }
                 >
-                  {c.name.replace(/&amp;/g, '&')}
+                  {c.name.replace(/&amp;/g, "&")}
                   {c.children && c.children.length > 0 && (
                     <ChevronDown
                       size={12}
@@ -246,7 +246,13 @@ export function Header() {
         <AnimatePresence>
           {(() => {
             const activeData = navbarMenus.find((c) => c.slug === activeMenu);
-            if (!activeMenu || !activeData || !activeData.children || activeData.children.length === 0) return null;
+            if (
+              !activeMenu ||
+              !activeData ||
+              !activeData.children ||
+              activeData.children.length === 0
+            )
+              return null;
             return (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
@@ -257,7 +263,9 @@ export function Header() {
               >
                 <div className="w-full px-12 py-12 grid grid-cols-4 gap-12">
                   <div className="col-span-1">
-                    <h3 className="font-serif text-3xl mb-2 italic">The {activeData.name.replace(/&amp;/g, '&')}</h3>
+                    <h3 className="font-serif text-3xl mb-2 italic">
+                      The {activeData.name.replace(/&amp;/g, "&")}
+                    </h3>
                     <p className="text-[14px] 2xl:text-[14px] text-muted-foreground  tracking-widest leading-relaxed">
                       {activeData.slug === "occasions"
                         ? "Discover thoughtfully curated gifting experiences designed for every occasion."
@@ -265,7 +273,8 @@ export function Header() {
                           ? "From onboarding kits to festive campaigns, thoughtfully curated gifting that strengthens every connection."
                           : activeData.slug === "wedding"
                             ? "Craft a wedding celebration that feels uniquely yours with custom invitations, curated hampers, and thoughtful gifting details."
-                            : activeData.slug === "customizedgifts" || activeData.slug === "customization"
+                            : activeData.slug === "customizedgifts" ||
+                                activeData.slug === "customization"
                               ? "From personalised products and custom packaging to curated hampers and branded details, we create gifting experiences designed uniquely around your vision."
                               : "Elevate every gift with beautifully curated packaging designed to leave a lasting impression."}
                     </p>
@@ -279,14 +288,14 @@ export function Header() {
                   </div>
 
                   <div className="col-span-2 grid grid-cols-2 gap-8">
-                    {activeData.children.map(
-                      (section, idx) => (
-                        <div key={idx} className="flex flex-col gap-4">
-                          <h4 className="text-[16px] 2xl:text-[18px] font-semibold  font-serif italic  text-destructive mb-1">
-                            {section.name.replace(/&amp;/g, '&')}
-                          </h4>
-                          <div className="flex flex-col gap-3">
-                            {section.children && section.children.map((item, i) => (
+                    {activeData.children.map((section, idx) => (
+                      <div key={idx} className="flex flex-col gap-4">
+                        <h4 className="text-[16px] 2xl:text-[18px] font-semibold  font-serif italic  text-destructive mb-1">
+                          {section.name.replace(/&amp;/g, "&")}
+                        </h4>
+                        <div className="flex flex-col gap-3">
+                          {section.children &&
+                            section.children.map((item, i) => (
                               <Link
                                 key={i}
                                 to={`/category/${activeData.slug}?tag=${item.slug}`}
@@ -294,21 +303,28 @@ export function Header() {
                                 onClick={() => setActiveMenu(null)}
                               >
                                 <span className="text-[12px] 2xl:text-[14px]  tracking-wider font-semibold text-foreground group-hover:text-destructive transition-colors">
-                                  {item.name.replace(/&amp;/g, '&')}
+                                  {item.name.replace(/&amp;/g, "&")}
                                 </span>
                               </Link>
                             ))}
-                          </div>
                         </div>
-                      ),
-                    )}
+                      </div>
+                    ))}
                   </div>
 
                   <div className="col-span-1">
                     <div className=" w-full bg-secondary overflow-hidden">
                       <img
-                        src={CATEGORIES.find((c) => c.slug.toLowerCase().replace(/\s+/g, '') === activeData.slug.toLowerCase().replace(/\s+/g, '') || c.slug.toLowerCase() === (activeData.slug === 'customizedgifts' ? 'customization' : ''))?.image}
-                        alt={activeData.name.replace(/&amp;/g, '&')}
+                        src={
+                          CATEGORIES.find(
+                            (c) =>
+                              c.slug.toLowerCase().replace(/\s+/g, "") ===
+                                activeData.slug.toLowerCase().replace(/\s+/g, "") ||
+                              c.slug.toLowerCase() ===
+                                (activeData.slug === "customizedgifts" ? "customization" : ""),
+                          )?.image
+                        }
+                        alt={activeData.name.replace(/&amp;/g, "&")}
                         className="w-full h-full object-cover grayscale-[0.2]"
                       />
                     </div>
@@ -320,87 +336,87 @@ export function Header() {
         </AnimatePresence>
       </header>
 
-      {isSearchOpen && createPortal(
-        <AnimatePresence>
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 z-[9999] bg-background/95 backdrop-blur-xl px-4 xl:px-12 flex flex-col"
-          >
-            <form onSubmit={handleSearch} className="w-full flex items-center gap-6 min-h-[80px] shrink-0">
-              <Search className="text-destructive shrink-0" size={24} />
-              <input
-                autoFocus
-                type="text"
-                autoComplete="off"
-                placeholder="Search for luxury gifts..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 bg-transparent border-none text-xl md:text-3xl font-serif outline-none placeholder:text-muted-foreground/30"
-              />
-              {isSearching && (
-                <Loader2 className="animate-spin text-muted-foreground shrink-0" size={20} />
-              )}
-              <button
-                type="button"
-                onClick={closeSearch}
-                className="text-[10px] uppercase tracking-ultra font-bold hover:text-destructive transition-colors cursor-pointer shrink-0"
+      {isSearchOpen &&
+        createPortal(
+          <AnimatePresence>
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="fixed inset-0 z-[9999] bg-background/95 backdrop-blur-xl px-4 xl:px-12 flex flex-col"
+            >
+              <form
+                onSubmit={handleSearch}
+                className="w-full flex items-center gap-6 min-h-[80px] shrink-0"
               >
-                Close
-              </button>
-            </form>
-
-            {searchQuery.trim() && (
-              <div className="flex-1 overflow-y-auto pb-8 max-w-3xl w-full">
-                {searchError && (
-                  <p className="text-sm text-destructive mt-4">{searchError}</p>
+                <Search className="text-destructive shrink-0" size={24} />
+                <input
+                  autoFocus
+                  type="text"
+                  autoComplete="off"
+                  placeholder="Search for luxury gifts..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="flex-1 bg-transparent border-none text-xl md:text-3xl font-serif outline-none placeholder:text-muted-foreground/30"
+                />
+                {isSearching && (
+                  <Loader2 className="animate-spin text-muted-foreground shrink-0" size={20} />
                 )}
+                <button
+                  type="button"
+                  onClick={closeSearch}
+                  className="text-[10px] uppercase tracking-ultra font-bold hover:text-destructive transition-colors cursor-pointer shrink-0"
+                >
+                  Close
+                </button>
+              </form>
 
-                {!isSearching && !searchError && searchResults.length === 0 && (
-                  <p className="text-sm text-muted-foreground mt-4">
-                    No products found for "{searchQuery}"
-                  </p>
-                )}
+              {searchQuery.trim() && (
+                <div className="flex-1 overflow-y-auto pb-8 max-w-3xl w-full">
+                  {searchError && <p className="text-sm text-destructive mt-4">{searchError}</p>}
 
-                <div className="flex flex-col divide-y divide-border mt-2">
-                  {searchResults.map((product) => (
+                  {!isSearching && !searchError && searchResults.length === 0 && (
+                    <p className="text-sm text-muted-foreground mt-4">
+                      No products found for "{searchQuery}"
+                    </p>
+                  )}
+
+                  <div className="flex flex-col divide-y divide-border mt-2">
+                    {searchResults.map((product) => (
+                      <button
+                        key={product.id}
+                        type="button"
+                        onClick={() => handleResultClick(product)}
+                        className="flex items-center gap-4 py-3 text-left hover:bg-secondary/50 transition-colors px-2 rounded-md cursor-pointer"
+                      >
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="w-12 h-12 object-cover rounded-md shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold truncate">{product.name}</p>
+                          <p className="text-xs text-muted-foreground">₹ {product.price}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+
+                  {searchResults.length > 0 && (
                     <button
-                      key={product.id}
                       type="button"
-                      onClick={() => handleResultClick(product)}
-                      className="flex items-center gap-4 py-3 text-left hover:bg-secondary/50 transition-colors px-2 rounded-md cursor-pointer"
+                      onClick={handleSearch}
+                      className="mt-4 text-[11px] uppercase tracking-ultra font-bold text-destructive border-b border-destructive pb-1 cursor-pointer"
                     >
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-12 h-12 object-cover rounded-md shrink-0"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold truncate">{product.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          ₹ {(product.price)}
-                        </p>
-                      </div>
+                      View all results for "{searchQuery}"
                     </button>
-                  ))}
+                  )}
                 </div>
-
-                {searchResults.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={handleSearch}
-                    className="mt-4 text-[11px] uppercase tracking-ultra font-bold text-destructive border-b border-destructive pb-1 cursor-pointer"
-                  >
-                    View all results for "{searchQuery}"
-                  </button>
-                )}
-              </div>
-            )}
-          </motion.div>
-        </AnimatePresence>,
-        document.body
-      )}
+              )}
+            </motion.div>
+          </AnimatePresence>,
+          document.body,
+        )}
 
       <AnimatePresence>
         {isMobileMenuOpen && (
@@ -466,13 +482,13 @@ export function Header() {
                             `text-[16px] uppercase tracking-wider font-semibold transition-colors ${isActive ? "text-destructive" : "text-[#0f1716] hover:text-destructive"}`
                           }
                         >
-                          {c.name.replace(/&amp;/g, '&')}
+                          {c.name.replace(/&amp;/g, "&")}
                         </NavLink>
                         {hasSubMenu && (
                           <button
                             onClick={(e) => toggleCategory(c.slug, e)}
                             className="p-1.5 text-destructive hover:text-[#0f1716] transition-colors cursor-pointer"
-                            aria-label={`Toggle ${c.name.replace(/&amp;/g, '&')} sub-menu`}
+                            aria-label={`Toggle ${c.name.replace(/&amp;/g, "&")} sub-menu`}
                           >
                             <ChevronDown
                               size={18}
@@ -492,19 +508,20 @@ export function Header() {
                           {c.children.map((section, idx) => (
                             <div key={idx} className="flex flex-col gap-2 mt-2">
                               <span className="text-[12px] font-bold uppercase tracking-wider text-destructive">
-                                {section.name.replace(/&amp;/g, '&')}
+                                {section.name.replace(/&amp;/g, "&")}
                               </span>
                               <div className="flex flex-col gap-2 pl-2">
-                                {section.children && section.children.map((item, i) => (
-                                  <Link
-                                    key={i}
-                                    to={`/category/${c.slug}?tag=${item.slug}`}
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                    className="text-[14px] uppercase tracking-wider text-[#0f1716]/80 hover:text-destructive py-1 transition-colors"
-                                  >
-                                    {item.name.replace(/&amp;/g, '&')}
-                                  </Link>
-                                ))}
+                                {section.children &&
+                                  section.children.map((item, i) => (
+                                    <Link
+                                      key={i}
+                                      to={`/category/${c.slug}?tag=${item.slug}`}
+                                      onClick={() => setIsMobileMenuOpen(false)}
+                                      className="text-[14px] uppercase tracking-wider text-[#0f1716]/80 hover:text-destructive py-1 transition-colors"
+                                    >
+                                      {item.name.replace(/&amp;/g, "&")}
+                                    </Link>
+                                  ))}
                               </div>
                             </div>
                           ))}
