@@ -21,10 +21,9 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useState } from "react";
-
 import { useCustomerAuthStore } from "@/stores/customerAuthStore";
-import { customerLogin, getCurrentUser, registerCustomer } from "../services/LoginServices";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
+import { customerLogin, getCurrentUser, registerCustomer } from "../services/LoginServices";
 
 const clientId = "548183815340-krdtfufu7sevl4019h8i7170q3934iba.apps.googleusercontent.com";
 
@@ -110,7 +109,6 @@ export function LoginModal({ isOpen, onClose }) {
         setTab(0);
       }, 2000);
     } catch (err) {
-      console.error("[LoginModal] Register error:", err);
       setError(
         err?.response?.data?.message || err?.message || "Registration failed. Please try again.",
       );
@@ -142,10 +140,8 @@ export function LoginModal({ isOpen, onClose }) {
       localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("customerData", JSON.stringify(data.user));
       useCustomerAuthStore.getState().login(data.token, data.user, null);
-      console.log("Google login successful!", data.user);
       handleClose();
     } catch (error) {
-      console.error("WordPress Google authentication failed", error);
       setError(error.message || "Google sign-in failed. Please try again.");
     } finally {
       setLoading(false);
@@ -165,7 +161,6 @@ export function LoginModal({ isOpen, onClose }) {
     >
       <DialogContent sx={{ p: 0 }}>
         <Box className="relative bg-white p-6 sm:p-8">
-          {/* Close button */}
           <IconButton
             onClick={handleClose}
             aria-label="Close"
@@ -174,7 +169,6 @@ export function LoginModal({ isOpen, onClose }) {
             <CloseIcon fontSize="small" />
           </IconButton>
 
-          {/* Header */}
           <Box className="flex flex-col items-center text-center mb-4">
             <h2 className="font-serif text-2xl font-semibold text-[#7A1F3D] tracking-wider italic">
               Welcome To Shika-Arts
@@ -186,7 +180,6 @@ export function LoginModal({ isOpen, onClose }) {
             </Typography>
           </Box>
 
-          {/* Tabs */}
           <Tabs
             value={tab}
             onChange={handleTabChange}
@@ -293,7 +286,6 @@ export function LoginModal({ isOpen, onClose }) {
             </Box>
           )}
 
-          {/* ── Register Form ── */}
           {tab === 1 && (
             <Box component="form" onSubmit={handleRegister} className="flex flex-col gap-3">
               <Box className="flex gap-3">
@@ -437,7 +429,6 @@ export function LoginModal({ isOpen, onClose }) {
               </div>
             </div>
           </Box>
-
           <Typography
             variant="caption"
             sx={{
