@@ -20,10 +20,11 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCustomerAuthStore } from "@/stores/customerAuthStore";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { customerLogin, getCurrentUser, registerCustomer } from "../services/LoginServices";
+import { toast } from "sonner";
 
 const clientId = "548183815340-krdtfufu7sevl4019h8i7170q3934iba.apps.googleusercontent.com";
 
@@ -35,20 +36,33 @@ export function LoginModal({ isOpen, onClose }) {
   const [lastName, setLastName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [googleBtnWidth, setGoogleBtnWidth] = useState(0);
 
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const googleBtnContainerRef = useRef(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const el = googleBtnContainerRef.current;
+    if (!el) return;
+
+    const updateWidth = () => setGoogleBtnWidth(el.offsetWidth);
+    updateWidth();
+
+    const observer = new ResizeObserver(updateWidth);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [isOpen]);
 
   const resetForm = () => {
     setEmail("");
     setPassword("");
     setFirstName("");
     setLastName("");
-    setError("");
-    setSuccessMsg("");
     setShowPassword(false);
+    setError("");
   };
 
   const handleClose = () => {
@@ -64,19 +78,23 @@ export function LoginModal({ isOpen, onClose }) {
 
   const handleEmailLogin = async (e) => {
     e.preventDefault();
+    setError("");
     if (!email || !password) {
       setError("Please enter both email and password.");
       return;
     }
-    setError("");
+
     setLoading(true);
     try {
       const res = await customerLogin(email, password);
       const customerData = await getCurrentUser(res.token);
-      console.log("LoginData", res);
       useCustomerAuthStore.getState().setCustomer(customerData);
       localStorage.setItem("customerData", JSON.stringify(customerData));
-      handleClose();
+      toast.success("Login successful!");
+      setLoading(false);
+      setTimeout(() => {
+        handleClose();
+      }, 1200);
     } catch (err) {
       const errorCode = err?.response?.data?.code;
 
@@ -84,32 +102,29 @@ export function LoginModal({ isOpen, onClose }) {
         ?.replace("[jwt_auth]", "")
         ?.replace(/_/g, " ")
         ?.replace(/\b\w/g, (c) => c.toUpperCase());
-
-      setError(errorMessage || "Login failed.");
-    } finally {
+      toast.error(errorMessage || "Login failed.");
       setLoading(false);
     }
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setError("");
     if (!firstName || !lastName || !email || !password) {
       setError("Please fill in all fields.");
       return;
     }
-    setError("");
     setLoading(true);
     try {
       const payload = { firstName, lastName, email, password };
       await registerCustomer(payload);
-      setSuccessMsg("Account created! You can now sign in.");
-      resetForm();
+      toast.success("Account created successfully! You can now sign in.");
+      resetFormKeepSuccess();
       setTimeout(() => {
-        setSuccessMsg("");
         setTab(0);
       }, 2000);
     } catch (err) {
-      setError(
+      toast.error(
         err?.response?.data?.message || err?.message || "Registration failed. Please try again.",
       );
     } finally {
@@ -117,12 +132,24 @@ export function LoginModal({ isOpen, onClose }) {
     }
   };
 
+  const resetFormKeepSuccess = () => {
+    setEmail("");
+    setPassword("");
+    setFirstName("");
+    setLastName("");
+    setShowPassword(false);
+  };
+
   const fieldSx = { size: "small", fullWidth: true };
 
   const handleSuccess = async (credentialResponse) => {
     const idToken = credentialResponse.credential;
+    if (!idToken) {
+      toast.error("Google sign-in failed. Please try again.");
+      return;
+    }
     setLoading(true);
-    setError("");
+
     try {
       const response = await fetch(
         "https://api.shikaarts.com/wp-json/custom-auth/v1/google-login",
@@ -140,11 +167,14 @@ export function LoginModal({ isOpen, onClose }) {
       localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("customerData", JSON.stringify(data.user));
       useCustomerAuthStore.getState().login(data.token, data.user, null);
-      handleClose();
-    } catch (error) {
-      setError(error.message || "Google sign-in failed. Please try again.");
-    } finally {
+      toast.success("Login successful!");
       setLoading(false);
+      setTimeout(() => {
+        handleClose();
+      }, 1200);
+    } catch (error) {
+      setLoading(false);
+      toast.error(error.message || "Google sign-in failed. Please try again.");
     }
   };
 
@@ -155,6 +185,7 @@ export function LoginModal({ isOpen, onClose }) {
       fullScreen={fullScreen}
       maxWidth="xs"
       fullWidth
+      keepMounted
       PaperProps={{
         sx: { borderRadius: fullScreen ? 0 : 2, overflow: "hidden" },
       }}
@@ -204,25 +235,29 @@ export function LoginModal({ isOpen, onClose }) {
             </Box>
           )}
 
-          {successMsg && (
-            <Box
-              className="mb-4 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700"
-              role="status"
-            >
-              {successMsg}
-            </Box>
-          )}
-
           {tab === 0 && (
-            <Box component="form" onSubmit={handleEmailLogin} className="flex flex-col gap-3">
+            <Box
+              component="form"
+              onSubmit={handleEmailLogin}
+              autoComplete="off"
+              className="flex flex-col gap-3"
+            >
               <TextField
                 {...fieldSx}
                 label="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoFocus
-                autoComplete="email"
+                autoComplete="off"
+                name="shika_login_user"
+                id="shika_login_user"
                 slotProps={{
+                  htmlInput: {
+                    autoComplete: "off",
+                    "data-lpignore": "true",
+                    "data-1p-ignore": "true",
+                    "data-form-type": "other",
+                  },
                   input: {
                     startAdornment: (
                       <EmailIcon sx={{ mr: 1, fontSize: 18, color: "text.secondary" }} />
@@ -236,8 +271,16 @@ export function LoginModal({ isOpen, onClose }) {
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
+                autoComplete="new-password"
+                name="shika_login_pass"
+                id="shika_login_pass"
                 slotProps={{
+                  htmlInput: {
+                    autoComplete: "new-password",
+                    "data-lpignore": "true",
+                    "data-1p-ignore": "true",
+                    "data-form-type": "other",
+                  },
                   input: {
                     startAdornment: (
                       <LockIcon sx={{ mr: 1, fontSize: 18, color: "text.secondary" }} />
@@ -389,14 +432,14 @@ export function LoginModal({ isOpen, onClose }) {
             </Box>
           )}
 
-          <Box sx={{ mt: 3, mb: 1 }}>
+          <div className="mt-3 mb-2">
             <Divider sx={{ mb: 2 }}>
               <Typography variant="body2" color="text.secondary">
                 OR
               </Typography>
             </Divider>
 
-            <div className="relative w-full h-11">
+            <div ref={googleBtnContainerRef} className="relative w-full h-11">
               <div className="absolute inset-0 flex items-center justify-center gap-2 rounded-lg border border-[#7A1F3D] bg-white text-[#7A1F3D] font-semibold text-sm pointer-events-none">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="w-5 h-5">
                   <path
@@ -419,16 +462,19 @@ export function LoginModal({ isOpen, onClose }) {
 
                 <span>Continue with Google</span>
               </div>
-              <div className="absolute inset-0 z-10 overflow-hidden opacity-[0.01] cursor-pointer">
-                <GoogleOAuthProvider clientId={clientId}>
-                  <GoogleLogin
-                    onSuccess={handleSuccess}
-                    onError={() => console.log("Google Login Failed")}
-                  />
-                </GoogleOAuthProvider>
-              </div>
+              {googleBtnWidth > 0 && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center opacity-[0.01] cursor-pointer">
+                  <GoogleOAuthProvider clientId={clientId}>
+                    <GoogleLogin
+                      width={googleBtnWidth}
+                      onSuccess={handleSuccess}
+                      onError={() => toast.error("Google sign-in failed. Please try again.")}
+                    />
+                  </GoogleOAuthProvider>
+                </div>
+              )}
             </div>
-          </Box>
+          </div>
           <Typography
             variant="caption"
             sx={{

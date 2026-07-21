@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { logout } from "../services/LoginServices";
 import { useCartStore } from "@/stores/cartStore";
 import { useWishlistStore } from "@/stores/wishlistStore";
+import { toast } from "sonner";
 
 export function UserMenu() {
   const navigate = useNavigate();
@@ -36,6 +37,7 @@ export function UserMenu() {
     clearWishlist();
     localStorage.clear();
     navigate("/");
+    toast.success("Logged out successfully!")
   };
 
   return (

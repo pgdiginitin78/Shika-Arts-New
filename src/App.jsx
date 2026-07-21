@@ -75,7 +75,7 @@ function App() {
           <Footer />
           <CartDrawer />
           <WishlistDrawer />
-          <Toaster position="top-center" />
+          <Toaster position="top-center" richColors />
         </BrowserRouter>
       </NavbarProvider>
     </QueryClientProvider>
