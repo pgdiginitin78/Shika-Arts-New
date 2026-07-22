@@ -9,6 +9,8 @@ import { WishlistDrawer } from "./components/WishlistDrawer";
 import { NavbarProvider } from "./context/NavbarContext";
 import { useCartSync } from "./hooks/useCartSync";
 import { useWishlistSync } from "./hooks/useWishlistSync";
+import { useState } from "react";
+import { ResetPasswordModal } from "./components/ResetPasswordModal";
 
 import AdminDashboard from "./pages/AdminDashboard";
 import Category from "./pages/Category";
@@ -32,11 +34,24 @@ import TermsAndConditions from "./pages/TermsAndConditions";
 import ShippingPolicy from "./pages/ShippingPolicy";
 const queryClient = new QueryClient();
 
+function getResetParams() {
+  const params = new URLSearchParams(window.location.search);
+  const action = params.get("action");
+  const key = params.get("key");
+  const login = params.get("login");
+  if (action === "rp" && key && login) {
+    return { key, login };
+  }
+  return null;
+}
+
 function App() {
   useCartSync();
   useWishlistSync();
   const customerData = JSON.parse(localStorage.getItem("user") || "{}");
   console.log("rolesAre", customerData);
+  const resetParams = getResetParams();
+  const [resetModalOpen, setResetModalOpen] = useState(!!resetParams);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -76,6 +91,14 @@ function App() {
           <CartDrawer />
           <WishlistDrawer />
           <Toaster position="top-center" richColors />
+          {resetParams && (
+            <ResetPasswordModal
+              isOpen={resetModalOpen}
+              resetKey={resetParams.key}
+              loginName={resetParams.login}
+              onClose={() => setResetModalOpen(false)}
+            />
+          )}
         </BrowserRouter>
       </NavbarProvider>
     </QueryClientProvider>
