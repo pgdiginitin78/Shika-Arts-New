@@ -7,6 +7,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import { Toaster } from "./components/ui/sonner";
 import { WishlistDrawer } from "./components/WishlistDrawer";
 import { NavbarProvider } from "./context/NavbarContext";
+import { CartAnimationProvider } from "./context/CartAnimationContext";
 import { useCartSync } from "./hooks/useCartSync";
 import { useWishlistSync } from "./hooks/useWishlistSync";
 import { useState } from "react";
@@ -55,6 +56,7 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <CartAnimationProvider>
       <NavbarProvider>
         <BrowserRouter>
           <ScrollToTop />
@@ -101,6 +103,7 @@ function App() {
           )}
         </BrowserRouter>
       </NavbarProvider>
+      </CartAnimationProvider>
     </QueryClientProvider>
   );
 }

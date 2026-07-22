@@ -190,7 +190,7 @@ export default function Corporate() {
           <div className="absolute inset-0 bg-black/40 md:bg-gradient-to-b md:from-black/30 md:via-black/20 md:to-black/30" />
         </div>
 
-        <div className="relative z-10 w-full max-w-[1440px] 2xl:max-w-[1620px] mx-auto px-4 sm:px-8 md:px-16 lg:px-16 xl:px-20 2xl:px-6 flex flex-col items-center md:items-start mt-16 md:mt-0">
+        <div className="relative z-10 w-full max-w-[1440px] 2xl:max-w-[1620px] mx-auto px-4 sm:px-8 md:px-16 lg:px-14 2xl:px-6 flex flex-col items-center md:items-start mt-16 md:mt-0">
           <div className="max-w-2xl 2xl:max-w-4xl flex flex-col items-center md:items-start text-center md:text-left">
             <span className="text-white uppercase tracking-[0.2em] text-[10px] md:text-xs font-bold mb-4 md:mb-6 block">
               PROFESSIONAL EXCELLENCE
@@ -441,7 +441,7 @@ export default function Corporate() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 min-[1920px]:grid-cols-6 min-[2560px]:grid-cols-7  gap-3 gap-y-10"
+                  className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 min-[1920px]:grid-cols-6 min-[2560px]:grid-cols-7  gap-3 gap-y-10"
                 >
                   {products.map((p, index) => (
                     <ProductCard key={index} product={p} />

@@ -5,9 +5,10 @@ import { addToWishlistApi, removeFromWishlistApi } from "@/services/orderService
 import { useCartStore } from "@/stores/cartStore";
 import { useCustomerAuthStore } from "@/stores/customerAuthStore";
 import { useWishlistStore } from "@/stores/wishlistStore";
+import { useCartAnimation } from "@/context/CartAnimationContext";
 import { motion } from "framer-motion";
 import { Heart, Loader2, Plus } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -99,6 +100,8 @@ export function ProductCard({ product, lightMode = true }) {
   const isLoading = isAdding || isGlobalLoading;
   const navigate = useNavigate();
   const isLoggedIn = useIsLoggedIn();
+  const { launchAnimation } = useCartAnimation();
+  const addButtonRef = useRef(null);
 
   const node = productToNode(product) || {
     id: "",
@@ -177,13 +180,18 @@ export function ProductCard({ product, lightMode = true }) {
     e.stopPropagation();
 
     if (!variant) return;
+    const imgSrc = product?.image || image?.url;
+    const triggerEl = addButtonRef.current;
+    const qtyBefore = useCartStore
+      .getState()
+      .items.reduce((sum, i) => sum + (Number(i.quantity) || 0), 0);
 
     setIsAdding(true);
     try {
       const handle = node.handle || node.id;
       if (handle) {
         const fullProduct = await getProductBySlug(handle);
-        if (fullProduct && fullProduct.type === "variable") {
+        if (fullProduct && fullProduct.type?.toLowerCase() === "variable") {
           navigate(`/product/${handle}`);
           return;
         }
@@ -196,7 +204,21 @@ export function ProductCard({ product, lightMode = true }) {
         quantity: 1,
       });
 
-      if (data && !data.error) {
+      const qtyAfter = useCartStore
+        .getState()
+        .items.reduce((sum, i) => sum + (Number(i.quantity) || 0), 0);
+      if (data?.error === "woocommerce_rest_missing_attributes") {
+        const handle = node.handle || node.id;
+        if (handle) navigate(`/product/${handle}`);
+        return;
+      }
+
+      const wasAdded = data && !data.error && qtyAfter > qtyBefore;
+
+      if (wasAdded) {
+        if (imgSrc && triggerEl) {
+          await launchAnimation({ src: imgSrc, triggerElement: triggerEl });
+        }
         setOpen(true);
       }
     } finally {
@@ -247,7 +269,7 @@ export function ProductCard({ product, lightMode = true }) {
       to={`/product/${node.handle || node.id}`}
       className="group block relative w-full border rounded"
     >
-      <div className="relative h-[300px] flex-shrink-0 overflow-hidden bg-secondary shine-effect">
+      <div className="relative h-[230px] md:h-[300px] flex-shrink-0 overflow-hidden bg-secondary shine-effect">
         {product?.image || image?.url ? (
           <motion.img
             whileHover={{ scale: 1.05 }}
@@ -265,6 +287,7 @@ export function ProductCard({ product, lightMode = true }) {
         <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-10">
           {Number(variant?.price?.amount || 0) > 0 ? (
             <button
+              ref={addButtonRef}
               onClick={handleAdd}
               disabled={isLoading || !variant}
               className="w-full bg-primary text-primary-foreground cursor-pointer py-3 rounded flex items-center justify-center gap-2 text-[10px] uppercase tracking-ultra hover:bg-accent hover:text-primary transition-colors"

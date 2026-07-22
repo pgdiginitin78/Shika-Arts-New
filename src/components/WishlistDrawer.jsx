@@ -74,6 +74,7 @@ export function WishlistDrawer() {
       fetchWishlist();
     }
   }, [isOpen, fetchWishlist]);
+  
 
   const handleAddToCart = async (product) => {
     const node = productToNode(product);
@@ -130,7 +131,7 @@ export function WishlistDrawer() {
 
   return (
     <Sheet open={isOpen} onOpenChange={setOpen}>
-      <SheetContent className="flex h-full w-full flex-col sm:max-w-lg">
+      <SheetContent className="flex h-full w-full flex-col sm:max-w-[450px]">
         <SheetHeader className="flex-shrink-0">
           <SheetTitle className="font-serif text-2xl">Your Wishlist</SheetTitle>
           <SheetDescription>
@@ -171,7 +172,7 @@ export function WishlistDrawer() {
                   return (
                     <div
                       key={itemKey}
-                      className="flex gap-4 rounded-sm border border-border p-3 group"
+                      className="flex gap-3 rounded-sm border border-border p-2 group"
                     >
                       <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-sm bg-secondary">
                         {image ? (

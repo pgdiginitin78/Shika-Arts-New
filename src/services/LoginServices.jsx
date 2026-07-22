@@ -113,11 +113,12 @@ export const getCart = async () => {
   return response.data;
 };
 
-export const addToCart = async (productId, quantity = 1, variationAttributes = []) => {
-  const body =
-    variationAttributes.length > 0
-      ? { id: productId, quantity, variation: variationAttributes }
-      : { id: productId, quantity };
+export const addToCart = async (productId, quantity = 1, variationAttributes = [], variationId = null) => {
+  // WooCommerce Store API requires the variation's own ID when adding a variable product.
+  // Passing the parent product ID causes the 'woocommerce_rest_missing_attributes' 400 error.
+  const idToSend = variationId || productId;
+
+  const body = { id: idToSend, quantity };
 
   const response = await api.post("/wp-json/wc/store/v1/cart/add-item", body);
 
@@ -155,6 +156,29 @@ export const removeCartItem = async (cartItemKey) => {
   }
 
   return response.data;
+};
+
+/**
+ * Fetch a single variation's details (price, stock, attributes) from the WooCommerce Store API.
+ * The Store API exposes variations under /products?include=<variationId> or via the REST API.
+ */
+const getVariationPrice = async (productId, variationId) => {
+  try {
+    // WC Store API does not have a dedicated /products/{id}/variations endpoint,
+    // so we fetch the variation as a product by its own ID.
+    const { data } = await api.get(`/wp-json/wc/store/v1/products/${variationId}`);
+    return data || null;
+  } catch {
+    // Fallback: try fetching via REST v2 (may require auth)
+    try {
+      const { data } = await api.get(
+        `/wp-json/wc/v2/products/${productId}/variations/${variationId}`,
+      );
+      return data || null;
+    } catch {
+      return null;
+    }
+  }
 };
 
 export const getProductBySlug = async (slug) => {

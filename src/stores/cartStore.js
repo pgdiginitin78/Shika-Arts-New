@@ -151,8 +151,11 @@ export const useCartStore = create((set, get) => ({
       const variationAttributes = Array.isArray(item?.variationAttributes)
         ? item.variationAttributes
         : [];
+      // If a specific variation ID is provided (variable products), use it directly.
+      // The WC Store API identifies variations by their own ID, not the parent product ID.
+      const variationId = item?.variationId ? toNumber(item.variationId) : null;
 
-      const data = await addToCart(productId, quantity, variationAttributes);
+      const data = await addToCart(productId, quantity, variationAttributes, variationId);
 
       if (Array.isArray(data?.items)) {
         // Use server response directly — most accurate

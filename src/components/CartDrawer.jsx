@@ -100,7 +100,7 @@ const moveToWishlist = async (item) => {
 
   return (
     <Sheet open={isOpen} onOpenChange={setOpen}>
-      <SheetContent className="flex h-full w-full flex-col sm:max-w-lg">
+      <SheetContent className="flex h-full w-full flex-col sm:max-w-[490px]">
         <SheetHeader className="flex-shrink-0">
           <SheetTitle className="font-serif text-2xl">Your Cart</SheetTitle>
           <SheetDescription>

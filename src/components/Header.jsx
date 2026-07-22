@@ -198,6 +198,7 @@ export function Header() {
               )}
             </button>
             <button
+              id="cart-icon"
               onClick={() => setOpen(true)}
               className="group relative flex items-center cursor-pointer p-1 text-foreground hover:text-destructive transition-colors"
               aria-label="Open cart"

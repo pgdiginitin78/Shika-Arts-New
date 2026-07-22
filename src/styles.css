@@ -238,4 +238,47 @@
       opacity: 0;
     }
   }
+
+  /* ── Premium Fly-to-Cart Arc Animation ──────────────────── */
+
+  /* Layer 1 — X axis only, strict linear */
+  @keyframes flyArcX {
+    from { transform: translateX(0px); }
+    to   { transform: translateX(var(--fdx)); }
+  }
+
+  /* Layer 2 — Y axis only, ease-in produces parabolic arc */
+  @keyframes flyArcY {
+    from { transform: translateY(0px); }
+    to   { transform: translateY(var(--fdy)); }
+  }
+
+  /* Layer 3 — shrinks steadily from start to finish + fades at end */
+  @keyframes flyScaleFade {
+    0%   { transform: scale(1);    opacity: 1; }
+    30%  { transform: scale(0.7);  opacity: 1; }
+    70%  { transform: scale(0.35); opacity: 0.85; }
+    100% { transform: scale(0);    opacity: 0; }
+  }
+
+  /* Glowing halo around the flying image */
+  @keyframes glowPulse {
+    0%   { opacity: 0.9; transform: scale(0.9); }
+    40%  { opacity: 1;   transform: scale(1.5); }
+    100% { opacity: 0;   transform: scale(0.6); }
+  }
+
+  /* Cart icon bounce with subtle rotation — premium feel */
+  @keyframes cartBounce {
+    0%   { transform: scale(1)    rotate(0deg);  }
+    20%  { transform: scale(1.45) rotate(-10deg);}
+    45%  { transform: scale(0.88) rotate(5deg);  }
+    65%  { transform: scale(1.18) rotate(-3deg); }
+    82%  { transform: scale(0.96) rotate(1deg);  }
+    100% { transform: scale(1)    rotate(0deg);  }
+  }
+
+  .cart-bounce {
+    animation: cartBounce 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards;
+  }
 }

@@ -113,12 +113,12 @@ export default function EarthWorth() {
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] font-sans text-[#0f1716]">
-      <div className="relative w-full h-[60vh] md:h-[80vh] lg:h-screen  flex items-center justify-center md:justify-start overflow-hidden">
+      <div className="relative w-full h-[60vh] md:h-[80vh]  lg:h-screen  flex items-center justify-center md:justify-start overflow-hidden">
         <div className="absolute inset-0 w-full h-full">
           <img
             src={EarthWorthBanner}
             alt="Earth Worth Gifts"
-            className="w-full h-full object-cover object-top "
+            className="w-full h-full object-cover object-left md:object-center lg:object-top "
             onError={(e) => {
               e.target.style.display = "none";
             }}
@@ -202,7 +202,7 @@ export default function EarthWorth() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5  gap-3 gap-y-10"
+                className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5  gap-3 gap-y-10"
               >
                 {products.map((p, index) => (
                   <ProductCard key={index} product={p} />
