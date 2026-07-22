@@ -1,7 +1,7 @@
 import { useCallback, useRef } from "react";
 
 const RAZORPAY_SCRIPT_URL = "https://checkout.razorpay.com/v1/checkout.js";
-const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_T87yo81olrgCBZ";
+const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_live_T8F4jaxynA2g0z";
 
 function loadRazorpayScript() {
   return new Promise((resolve, reject) => {

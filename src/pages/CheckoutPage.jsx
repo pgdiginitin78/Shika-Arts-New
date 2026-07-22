@@ -263,6 +263,11 @@ export default function CheckoutPage() {
             });
           }
         },
+        onFailure: (err) => {
+          setIsCheckingOut(false);
+          toast.error(err?.message || "Payment failed or cancelled.");
+          if (wooOrderId) cancelWooOrder(wooOrderId);
+        },
       });
     } catch (err) {
       toast.dismiss("checkout");
