@@ -122,6 +122,7 @@ export default function MyOrdersPage() {
     );
   }
 
+
   return (
     <div className="min-h-screen bg-[#FAFAF8] py-8 px-4 sm:py-12">
       <div className="max-w-3xl mx-auto space-y-6">
@@ -191,7 +192,7 @@ export default function MyOrdersPage() {
 
                   <button
                     onClick={() =>
-                      navigate(`/order-success/${order.order_id}?key=${order.order_key}`)
+                      navigate(`/order-success/${order.order_id}`)
                     }
                     className="w-full sm:w-auto shrink-0 flex items-center justify-center gap-1 rounded-lg border border-gray-200 sm:border-none px-4 py-2 sm:px-0 sm:py-0 text-xs font-semibold text-[#1e2321] hover:text-[#7A1F3D] hover:bg-gray-50 sm:hover:bg-transparent transition-colors cursor-pointer"
                   >

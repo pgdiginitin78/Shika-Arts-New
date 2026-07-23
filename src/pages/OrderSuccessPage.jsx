@@ -6,23 +6,27 @@ import {
   CheckCircle2,
   ChevronRight,
   Download,
+  Hourglass,
   Loader2,
   MapPin,
   Package,
   ShoppingBag,
-  XCircle
+  XCircle,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import ShopingSvgIocn from "../assets/ShopingSvgIcon.svg";
+import ItemOrderdSvgIocn from "../assets/ItemOrderdIcon.svg";
+import RazorpayIcon from "../assets/razorpay-icon.png";
 
 const CANCELLABLE_STATUSES = ["pending", "pending-payment", "processing", "on-hold"];
 
 function statusLabel(status) {
   const map = {
     processing: { label: "Processing", color: "bg-blue-100 text-blue-800" },
-    "pending-payment": { label: "Pending Payment", color: "bg-yellow-100 text-yellow-800" },
-    pending: { label: "Pending Payment", color: "bg-yellow-100 text-yellow-800" },
+    "pending-payment": { label: "Pending Payment", color: "bg-[#f4ebd9] text-[#700c14]" },
+    pending: { label: "Pending Payment", color: "bg-[#f4ebd9] text-[#700c14]" },
     completed: { label: "Completed", color: "bg-green-100 text-green-800" },
     cancelled: { label: "Cancelled", color: "bg-red-100 text-red-800" },
     refunded: { label: "Refunded", color: "bg-gray-100 text-gray-700" },
@@ -123,11 +127,9 @@ export default function OrderSuccessPage() {
       setTimeout(() => {
         navigate("/my-orders");
       }, 800);
-
     } catch (err) {
       const message =
-        err?.response?.data?.message ||
-        "Could not cancel this order. Please contact support.";
+        err?.response?.data?.message || "Could not cancel this order. Please contact support.";
       toast.error(message);
     } finally {
       setIsCancelling(false);
@@ -156,8 +158,13 @@ export default function OrderSuccessPage() {
         <div className="text-center max-w-sm space-y-5">
           <AlertCircle className="mx-auto text-red-400" size={52} strokeWidth={1.5} />
           <h2 className="text-xl font-serif text-[#1e2321]">Something went wrong</h2>
-          <p className="text-gray-500 text-sm leading-relaxed">{error ?? "We couldn't fetch your order details."}</p>
-          <Button onClick={() => navigate("/")} className="bg-[#1e2321] text-white hover:bg-[#2d3532] tracking-wide">
+          <p className="text-gray-500 text-sm leading-relaxed">
+            {error ?? "We couldn't fetch your order details."}
+          </p>
+          <Button
+            onClick={() => navigate("/")}
+            className="bg-[#1e2321] text-white hover:bg-[#2d3532] tracking-wide"
+          >
             Return Home
           </Button>
         </div>
@@ -171,13 +178,15 @@ export default function OrderSuccessPage() {
   const billingAddr = formatAddress(order?.billing);
   const shippingAddr = formatAddress(order?.shipping);
   const items = order?.items ?? [];
-  const subtotal = items.reduce((sum, item) => sum + Number(item?.price ?? 0) * Number(item?.quantity ?? 1), 0);
+  const subtotal = items.reduce(
+    (sum, item) => sum + Number(item?.price ?? 0) * Number(item?.quantity ?? 1),
+    0,
+  );
   const canCancel = CANCELLABLE_STATUSES.includes(order?.status);
 
   return (
     <div className="min-h-screen bg-[#FAFAF8] py-10 px-4 sm:py-16">
-      <div className="max-w-3xl mx-auto space-y-6 sm:space-y-8">
-
+      <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
         <div className="text-center space-y-4">
           <div className="relative inline-flex items-center justify-center">
             <div className="absolute inset-0 rounded-full ring-1 ring-green-200 scale-110" />
@@ -186,62 +195,95 @@ export default function OrderSuccessPage() {
             </div>
           </div>
           <div className="space-y-1.5">
-            <h1 className="text-[26px] sm:text-4xl font-serif text-[#1e2321] tracking-tight">Order Confirmed</h1>
+            <h1 className="text-[26px] sm:text-4xl font-serif text-[#1e2321] tracking-tight">
+              Order Confirmed
+            </h1>
             <p className="text-gray-500 text-sm sm:text-[15px] px-4 max-w-md mx-auto leading-relaxed">
               Thank you for your purchase. We will notify you the moment your order ships.
             </p>
           </div>
-          <span className={`inline-block px-4 py-1.5 rounded-full text-[11px] uppercase tracking-wider font-semibold ${statusColor}`}>
+          <span
+            className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[11px] uppercase tracking-wider font-semibold ${statusColor}`}
+          >
+            {statusText === "Pending Payment" && <Hourglass size={14} />}
             {statusText}
           </span>
         </div>
 
-        <div className="bg-white border border-[#1e2321]/10 rounded-2xl shadow-sm p-5 sm:p-7 space-y-5">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6 text-sm">
-            <div>
-              <Eyebrow>Order ID</Eyebrow>
-              <p className="font-semibold text-[#1e2321] text-[15px]">#{order?.order_number ?? orderId}</p>
-            </div>
-            <div>
-              <Eyebrow>Payment Method</Eyebrow>
-              <p className="font-semibold text-[#1e2321] text-[15px]">{order?.payment_method ?? "Razorpay"}</p>
-            </div>
-            <div>
-              <Eyebrow>Order Total</Eyebrow>
-              <p className="font-semibold text-[#1e2321] text-base sm:text-lg tabular-nums">{formatPrice(totalPrice, currency)}</p>
-            </div>
+        <div className="bg-[#FAF9F6] border border-[#1e2321]/10 rounded-2xl shadow-sm overflow-hidden flex flex-col md:flex-row">
+          <div className="relative w-full md:w-[240px] shrink-0 bg-[#6E0B13] flex items-center justify-center py-12 md:py-0 overflow-hidden rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none">
+            <div className="absolute inset-0 opacity-[0.25] pointer-events-none bg-cover bg-center mix-blend-screen" />
+
+            <img src={ShopingSvgIocn} className="h-20" />
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 border-t border-[#1e2321]/8 pt-5">
-            <Button
-              variant="outline"
-              onClick={handleDownloadInvoice}
-              disabled={isDownloading}
-              className="flex-1 h-11 border-[#1e2321]/30 text-[#1e2321] hover:bg-[#1e2321]/5 hover:border-[#1e2321] text-sm tracking-wide flex items-center justify-center gap-2"
-            >
-              {isDownloading ? (
-                <>
-                  <Loader2 size={16} className="animate-spin" />
-                  Preparing Invoice…
-                </>
-              ) : (
-                <>
-                  <Download size={16} strokeWidth={1.75} />
-                  Download Invoice
-                </>
-              )}
-            </Button>
+          <div className="flex-1 p-5 sm:p-7 flex flex-col justify-center">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6 text-sm mb-6">
+              <div className="text-center sm:text-left">
+                <Eyebrow>ORDER ID</Eyebrow>
+                <p className="font-semibold text-[#700c14] text-[18px] sm:text-[22px] mt-1">
+                  #{order?.order_number ?? orderId}
+                </p>
+              </div>
+              <div className="text-center sm:border-l sm:border-[#1e2321]/10 sm:px-6">
+                <Eyebrow>PAYMENT METHOD</Eyebrow>
+                <div className="flex items-center justify-center sm:justify-start gap-2.5 mt-2">
+                  <span className="w-8 h-8 sm:w-9 sm:h-9 bg-[#151917] rounded-xl flex items-center justify-center shrink-0 shadow-md">
+                    {order?.payment_method?.toLowerCase() === "razorpay" ||
+                    !order?.payment_method ? (
+                      <div className="w-5 h-5 sm:w-[22px] sm:h-[22px] bg-white rounded-sm flex items-center justify-center p-[2px]">
+                        <img src={RazorpayIcon} alt="Razorpay" className="w-full h-full object-contain" />
+                      </div>
+                    ) : (
+                      <span className="text-xs font-bold text-white">
+                        {order?.payment_method?.charAt(0)?.toUpperCase()}
+                      </span>
+                    )}
+                  </span>
+                  <p className="font-bold text-[#1e2321] text-[16px] sm:text-[18px]">
+                    {order?.payment_method ?? "Razorpay"}
+                  </p>
+                </div>
+              </div>
+              <div className="text-center sm:text-right sm:border-l sm:border-[#1e2321]/10 sm:pl-6">
+                <Eyebrow>ORDER TOTAL</Eyebrow>
+                <p className="font-semibold text-[#700c14] text-[18px] sm:text-[22px] tabular-nums mt-1">
+                  {formatPrice(totalPrice, currency)}
+                </p>
+              </div>
+            </div>
 
-            {canCancel && (
+            <div className="flex flex-col sm:flex-row gap-3 border-t border-[#1e2321]/10 pt-6 mt-auto">
               <Button
                 variant="outline"
-                onClick={() => setCancelDialogOpen(true)}
-                className="flex-1 h-11 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300 text-sm tracking-wide flex items-center justify-center gap-2"
+                onClick={handleDownloadInvoice}
+                disabled={isDownloading}
+                className="flex-1 h-12 bg-[#1a1f1d] hover:bg-[#252b28] border-transparent text-[#e2b975] hover:text-[#e2b975] text-sm tracking-wide flex items-center justify-center gap-2 rounded-lg transition-colors"
               >
-                <XCircle size={16} strokeWidth={1.75} />
-                Cancel Order
+                {isDownloading ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    Preparing Invoice…
+                  </>
+                ) : (
+                  <>
+                    <Download size={16} strokeWidth={1.75} />
+                    Download Invoice
+                  </>
+                )}
               </Button>
-            )}
+
+              {canCancel && (
+                <Button
+                  variant="outline"
+                  onClick={() => setCancelDialogOpen(true)}
+                  className="flex-1 h-12 border-[#700c14]/30 text-[#700c14] hover:bg-[#700c14]/5 hover:border-[#700c14] hover:text-[#700c14] text-sm tracking-wide flex items-center justify-center gap-2 rounded-lg transition-colors bg-transparent"
+                >
+                  <XCircle size={16} strokeWidth={1.75} />
+                  Cancel Order
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -256,8 +298,8 @@ export default function OrderSuccessPage() {
             >
               <h3 className="text-lg font-serif text-[#1e2321]">Cancel this order?</h3>
               <p className="text-sm text-gray-500 leading-relaxed">
-                This will cancel order #{order?.order_number ?? orderId}. This action cannot be undone,
-                and any payment made may take a few business days to be refunded.
+                This will cancel order #{order?.order_number ?? orderId}. This action cannot be
+                undone, and any payment made may take a few business days to be refunded.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 pt-1">
                 <Button
@@ -289,14 +331,14 @@ export default function OrderSuccessPage() {
 
         <div className="bg-white border border-[#1e2321]/10 rounded-2xl shadow-sm overflow-hidden">
           <div className="px-5 py-4 sm:px-7 sm:py-5 border-b border-[#1e2321]/8 flex items-center gap-2.5">
-            <Package size={18} className="text-[#1e2321]" strokeWidth={1.75} />
+            <img src={ItemOrderdSvgIocn} className="h-7" />
             <h2 className="font-serif text-lg sm:text-xl text-[#1e2321]">Items Ordered</h2>
             <span className="ml-auto text-xs uppercase tracking-wider text-gray-400">
               {items.length} item{items.length !== 1 ? "s" : ""}
             </span>
           </div>
 
-          <div className="divide-y divide-[#1e2321]/6">
+          <div className="divide-y divide-[#1e2321]/6 max-h-[360px] overflow-y-auto custom-scrollbar">
             {items.length === 0 ? (
               <div className="px-6 py-10 text-center text-gray-400 text-sm">No items found.</div>
             ) : (
@@ -305,17 +347,28 @@ export default function OrderSuccessPage() {
                 const lineTotal = itemPrice * Number(item?.quantity ?? 1);
 
                 return (
-                  <div key={item?.product_id ?? i} className="flex items-center gap-4 sm:gap-5 px-5 py-4 sm:px-7 sm:py-5">
+                  <div
+                    key={item?.product_id ?? i}
+                    className="flex items-center gap-4 sm:gap-5 px-5 py-4 sm:px-7 sm:py-5"
+                  >
                     <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl overflow-hidden bg-[#FAFAF8] border border-[#1e2321]/10">
                       {item?.image ? (
-                        <img src={item.image} alt={item.name || "Product"} className="w-full h-full object-cover" />
+                        <img
+                          src={item.image}
+                          alt={item.name || "Product"}
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-300 text-2xl">✦</div>
+                        <div className="w-full h-full flex items-center justify-center text-gray-300 text-2xl">
+                          ✦
+                        </div>
                       )}
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-sm sm:text-[15px] font-medium text-[#1e2321] leading-snug break-words">{item?.name}</h3>
+                      <h3 className="text-sm sm:text-[15px] font-medium text-[#1e2321] leading-snug break-words">
+                        {item?.name}
+                      </h3>
 
                       {Array.isArray(item?.attributes) && item.attributes.length > 0 && (
                         <p className="text-xs text-gray-400 mt-1 tracking-wide">
@@ -326,7 +379,9 @@ export default function OrderSuccessPage() {
                         </p>
                       )}
 
-                      <p className="text-xs text-gray-400 mt-1.5 tracking-wide">Qty {item?.quantity}</p>
+                      <p className="text-xs text-gray-400 mt-1.5 tracking-wide">
+                        Qty {item?.quantity}
+                      </p>
                     </div>
 
                     <div className="text-sm sm:text-[15px] font-semibold text-[#1e2321] shrink-0 tabular-nums">
@@ -338,12 +393,15 @@ export default function OrderSuccessPage() {
             )}
           </div>
 
-          <div className="px-5 py-5 sm:px-7 sm:py-6 bg-[#FAFAF8] space-y-2.5 text-sm border-t border-[#1e2321]/8">
-            <div className="flex justify-between text-gray-500">
+          <div className="px-5 py-5 sm:px-7 sm:py-6 bg-[#FAFAF8] text-sm border-t border-[#1e2321]/8">
+            <div className="flex justify-between text-gray-500 mb-4">
               <span>Subtotal</span>
               <span className="tabular-nums">{formatPrice(subtotal, currency)}</span>
             </div>
-            <div className="flex justify-between font-semibold text-[#1e2321] text-base sm:text-lg pt-3 border-t border-[#1e2321]/15">
+            <div className="relative border-t border-[#1e2321]/15 pt-4 flex justify-between font-semibold text-[#1e2321] text-base sm:text-lg">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#FAFAF8] px-3 flex items-center justify-center">
+                <span className="text-[10px] text-[#DFB574]">✦</span>
+              </div>
               <span>Total</span>
               <span className="tabular-nums">{formatPrice(totalPrice, currency)}</span>
             </div>
@@ -361,8 +419,14 @@ export default function OrderSuccessPage() {
                   <h3 className="font-serif text-[#1e2321] text-[15px]">Billing Address</h3>
                 </div>
                 <div className="space-y-1 text-sm text-gray-500 leading-relaxed">
-                  {billingAddr.map((line, i) => <p key={i} className="break-words">{line}</p>)}
-                  {order?.billing?.email && <p className="mt-2.5 text-gray-400 break-words">{order.billing.email}</p>}
+                  {billingAddr.map((line, i) => (
+                    <p key={i} className="break-words">
+                      {line}
+                    </p>
+                  ))}
+                  {order?.billing?.email && (
+                    <p className="mt-2.5 text-gray-400 break-words">{order.billing.email}</p>
+                  )}
                   {order?.billing?.phone && <p className="text-gray-400">{order.billing.phone}</p>}
                 </div>
               </div>
@@ -376,7 +440,11 @@ export default function OrderSuccessPage() {
                   <h3 className="font-serif text-[#1e2321] text-[15px]">Shipping Address</h3>
                 </div>
                 <div className="space-y-1 text-sm text-gray-500 leading-relaxed">
-                  {shippingAddr.map((line, i) => <p key={i} className="break-words">{line}</p>)}
+                  {shippingAddr.map((line, i) => (
+                    <p key={i} className="break-words">
+                      {line}
+                    </p>
+                  ))}
                 </div>
               </div>
             )}
