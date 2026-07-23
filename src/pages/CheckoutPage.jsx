@@ -438,7 +438,7 @@ export default function CheckoutPage() {
           </details>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6 xl:gap-10 items-start">
+        <div className="flex flex-col lg:flex-row gap-6 xl:gap-5 items-start">
 
           <div className="w-full lg:flex-1 space-y-5">
 
@@ -449,7 +449,7 @@ export default function CheckoutPage() {
                     <MapPin size={13} className="text-[#7A1F3D]" /> Saved Addresses
                   </h2>
                 </div>
-                <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {suggestions.map((s, idx) => {
                     const isSelected = selectedAddressIdx === idx;
                     return (
@@ -484,7 +484,7 @@ export default function CheckoutPage() {
               </div>
             )}
 
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden pb-11">
               <div className="px-5 sm:px-6 py-4 border-b border-gray-100">
                 <h2 className="text-base font-serif text-[#1e2321]">Contact Information</h2>
               </div>
@@ -593,7 +593,7 @@ export default function CheckoutPage() {
           </div>
 
           <div className="hidden lg:block w-[340px] xl:w-[380px] shrink-0">
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm sticky top-[72px] overflow-hidden">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm sticky top-[72px] overflow-hidden">
               <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
                 <h2 className="text-sm font-serif text-[#1e2321]">Order Summary</h2>
                 <span className="bg-[#7A1F3D]/10 text-[#7A1F3D] text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
