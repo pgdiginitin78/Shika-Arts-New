@@ -123,8 +123,20 @@ export async function cancelOrder(orderId) {
   return data;
 }
 
+// services/orderService.js
 export async function downloadInvoice(orderId) {
-  window.open(`https://api.shikaarts.com/wp-json/custom/v1/download-invoice/${orderId}`, "_blank");
+  const response = await fetch(
+    `https://api.shikaarts.com/wp-json/custom/v1/download-invoice/${orderId}`,
+    { method: "GET" },
+  );
+
+  if (!response.ok) {
+    throw new Error("Invoice not available");
+  }
+
+  const originalBlob = await response.blob();
+  const pdfBlob = new Blob([originalBlob], { type: "application/pdf" });
+  return URL.createObjectURL(pdfBlob); // local blob: URL, not a real navigation
 }
 
 /**

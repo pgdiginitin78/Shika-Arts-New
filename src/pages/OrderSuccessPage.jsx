@@ -9,9 +9,13 @@ import {
   Hourglass,
   Loader2,
   MapPin,
-  Package,
+  Sparkles,
+  PackageCheck,
+  ShieldCheck,
   ShoppingBag,
   XCircle,
+  RotateCcw,
+  PauseCircle,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -19,6 +23,30 @@ import { toast } from "sonner";
 import ShopingSvgIocn from "../assets/ShopingSvgIcon.svg";
 import ItemOrderdSvgIocn from "../assets/ItemOrderdIcon.svg";
 import RazorpayIcon from "../assets/razorpay-icon.png";
+import mandalaBg from "../assets/mandalaBg.png";
+
+import { motion } from "framer-motion";
+
+const container = {
+  hidden: {},
+  show: {
+    transition: { staggerChildren: 0.12, delayChildren: 0.1 },
+  },
+};
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+};
+
+const iconPop = {
+  hidden: { opacity: 0, scale: 0.4 },
+  show: {
+    opacity: 1,
+    scale: 1,
+    transition: { type: "spring", stiffness: 260, damping: 18, delay: 0.05 },
+  },
+};
 
 const CANCELLABLE_STATUSES = ["pending", "pending-payment", "processing", "on-hold"];
 
@@ -33,6 +61,110 @@ function statusLabel(status) {
     "on-hold": { label: "On Hold", color: "bg-orange-100 text-orange-800" },
   };
   return map[status] ?? { label: status || "Unknown", color: "bg-gray-100 text-gray-600" };
+}
+
+function statusHero(status) {
+  const map = {
+    completed: {
+      Icon: CheckCircle2,
+      title: "Order Confirmed",
+      subtitle: "Thank you for your purchase. We'll notify you the moment your order ships.",
+      accent: "green",
+      glow: "bg-green-400/25",
+      ring: "ring-green-200/70",
+      iconBg: "from-white to-green-50 border-green-100",
+      iconColor: "text-green-600",
+      shadow: "shadow-[0_4px_20px_-4px_rgba(34,197,94,0.35)]",
+      pulse: true,
+    },
+    processing: {
+      Icon: PackageCheck,
+      title: "Order Processing",
+      subtitle: "We've received your order and it's being prepared for shipment.",
+      accent: "blue",
+      glow: "bg-blue-400/25",
+      ring: "ring-blue-200/70",
+      iconBg: "from-white to-blue-50 border-blue-100",
+      iconColor: "text-blue-600",
+      shadow: "shadow-[0_4px_20px_-4px_rgba(59,130,246,0.35)]",
+      pulse: true,
+    },
+    pending: {
+      Icon: Hourglass,
+      title: "Payment Pending",
+      subtitle: "We're waiting for your payment to be confirmed. This won't take long.",
+      accent: "amber",
+      glow: "bg-amber-400/25",
+      ring: "ring-amber-200/70",
+      iconBg: "from-white to-amber-50 border-amber-100",
+      iconColor: "text-amber-600",
+      shadow: "shadow-[0_4px_20px_-4px_rgba(245,158,11,0.35)]",
+      pulse: true,
+    },
+    "pending-payment": {
+      Icon: Hourglass,
+      title: "Payment Pending",
+      subtitle: "We're waiting for your payment to be confirmed. This won't take long.",
+      accent: "amber",
+      glow: "bg-amber-400/25",
+      ring: "ring-amber-200/70",
+      iconBg: "from-white to-amber-50 border-amber-100",
+      iconColor: "text-amber-600",
+      shadow: "shadow-[0_4px_20px_-4px_rgba(245,158,11,0.35)]",
+      pulse: true,
+    },
+    cancelled: {
+      Icon: XCircle,
+      title: "Order Cancelled",
+      subtitle: "This order has been cancelled. Any payment made will be refunded shortly.",
+      accent: "red",
+      glow: "bg-red-400/20",
+      ring: "ring-red-200/60",
+      iconBg: "from-white to-red-50 border-red-100",
+      iconColor: "text-red-600",
+      shadow: "shadow-[0_4px_20px_-4px_rgba(239,68,68,0.3)]",
+      pulse: false,
+    },
+    refunded: {
+      Icon: RotateCcw,
+      title: "Order Refunded",
+      subtitle: "Your payment for this order has been refunded to your original payment method.",
+      accent: "gray",
+      glow: "bg-gray-400/15",
+      ring: "ring-gray-200/60",
+      iconBg: "from-white to-gray-50 border-gray-200",
+      iconColor: "text-gray-600",
+      shadow: "shadow-[0_4px_20px_-4px_rgba(107,114,128,0.25)]",
+      pulse: false,
+    },
+    "on-hold": {
+      Icon: PauseCircle,
+      title: "Order On Hold",
+      subtitle: "Your order is currently on hold. We'll update you as soon as it moves forward.",
+      accent: "orange",
+      glow: "bg-orange-400/20",
+      ring: "ring-orange-200/60",
+      iconBg: "from-white to-orange-50 border-orange-100",
+      iconColor: "text-orange-600",
+      shadow: "shadow-[0_4px_20px_-4px_rgba(249,115,22,0.3)]",
+      pulse: true,
+    },
+  };
+
+  return (
+    map[status] ?? {
+      Icon: AlertCircle,
+      title: "Order Status Unknown",
+      subtitle: "We couldn't determine the current status of this order. Please contact support.",
+      accent: "gray",
+      glow: "bg-gray-400/15",
+      ring: "ring-gray-200/60",
+      iconBg: "from-white to-gray-50 border-gray-200",
+      iconColor: "text-gray-500",
+      shadow: "shadow-[0_4px_20px_-4px_rgba(107,114,128,0.25)]",
+      pulse: false,
+    }
+  );
 }
 
 function formatAddress(addr) {
@@ -92,16 +224,14 @@ export default function OrderSuccessPage() {
     if (!orderId || isDownloading) return;
     setIsDownloading(true);
     try {
-      if (order?.invoice_url) {
-        window.open(order.invoice_url, "_blank", "noopener,noreferrer");
-      } else {
-        const result = await downloadInvoice(orderId);
-        if (result?.invoice_url) {
-          window.open(result.invoice_url, "_blank", "noopener,noreferrer");
-        } else {
-          throw new Error("Invoice not available");
-        }
-      }
+      const blobUrl = await downloadInvoice(orderId);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = `Invoice-${orderId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
     } catch {
       toast.error("Invoice isn't ready yet. Please try again in a bit.");
     } finally {
@@ -172,7 +302,9 @@ export default function OrderSuccessPage() {
     );
   }
 
-  const { label: statusText, color: statusColor } = statusLabel(order?.status ?? "");
+
+  const hero = statusHero(order?.status ?? "");
+  const HeroIcon = hero.Icon;
   const currency = order?.currency ?? "INR";
   const totalPrice = Number(order?.total ?? 0);
   const billingAddr = formatAddress(order?.billing);
@@ -186,33 +318,82 @@ export default function OrderSuccessPage() {
 
   return (
     <div className="min-h-screen bg-[#FAFAF8] py-10 px-4 sm:py-16">
-      <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
-        <div className="text-center space-y-4">
-          <div className="relative inline-flex items-center justify-center">
-            <div className="absolute inset-0 rounded-full ring-1 ring-green-200 scale-110" />
-            <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-green-50 border border-green-100 flex items-center justify-center">
-              <CheckCircle2 className="text-green-600" size={36} strokeWidth={1.5} />
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <h1 className="text-[26px] sm:text-4xl font-serif text-[#1e2321] tracking-tight">
-              Order Confirmed
-            </h1>
-            <p className="text-gray-500 text-sm sm:text-[15px] px-4 max-w-md mx-auto leading-relaxed">
-              Thank you for your purchase. We will notify you the moment your order ships.
-            </p>
-          </div>
-          <span
-            className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[11px] uppercase tracking-wider font-semibold ${statusColor}`}
+      <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
+        <motion.div
+          variants={container}
+          initial="hidden"
+          animate="show"
+          className="text-center space-y-6"
+        >
+          <motion.div
+            variants={iconPop}
+            className="relative inline-flex items-center justify-center"
           >
-            {statusText === "Pending Payment" && <Hourglass size={14} />}
-            {statusText}
-          </span>
-        </div>
+            <motion.div
+              className={`absolute inset-0 rounded-full ${hero.glow} blur-xl`}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={
+                hero.pulse
+                  ? { scale: [1, 1.3, 1], opacity: [0.6, 0.15, 0.6] }
+                  : { scale: 1, opacity: 0.35 }
+              }
+              transition={{ duration: 2.4, repeat: hero.pulse ? Infinity : 0, ease: "easeInOut" }}
+            />
+            <motion.div
+              className={`absolute inset-0 rounded-full ring-1 ${hero.ring}`}
+              animate={
+                hero.pulse
+                  ? { scale: [1.1, 1.3, 1.1], opacity: [0.8, 0, 0.8] }
+                  : { scale: 1.1, opacity: 0.5 }
+              }
+              transition={{ duration: 2, repeat: hero.pulse ? Infinity : 0, ease: "easeOut" }}
+            />
+            <div
+              className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-b border flex items-center justify-center ${hero.iconBg} ${hero.shadow}`}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.6 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.25, ease: "easeOut" }}
+              >
+                <HeroIcon className={hero.iconColor} size={36} strokeWidth={1.5} />
+              </motion.div>
+            </div>
+          </motion.div>
+
+          <div className="space-y-2">
+            <motion.h1
+              variants={fadeUp}
+              className="text-[26px] sm:text-4xl font-serif text-[#1e2321] tracking-tight"
+            >
+              {hero.title}
+            </motion.h1>
+            <motion.p
+              variants={fadeUp}
+              className="text-gray-500 text-sm sm:text-[15px] px-4 max-w-md mx-auto leading-relaxed"
+            >
+              {hero.subtitle}
+            </motion.p>
+          </div>
+
+          {order?.status === "completed" && (
+            <motion.div
+              variants={fadeUp}
+              className="flex items-center justify-center gap-2 text-gray-400 text-xs pt-1"
+            >
+              <PackageCheck size={14} strokeWidth={1.5} />
+              <span>Confirmation sent to your email</span>
+              <Sparkles size={12} strokeWidth={1.5} className="text-amber-400" />
+            </motion.div>
+          )}
+        </motion.div>
 
         <div className="bg-[#FAF9F6] border border-[#1e2321]/10 rounded-2xl shadow-sm overflow-hidden flex flex-col md:flex-row">
           <div className="relative w-full md:w-[240px] shrink-0 bg-[#6E0B13] flex items-center justify-center py-12 md:py-0 overflow-hidden rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none">
-            <div className="absolute inset-0 opacity-[0.25] pointer-events-none bg-cover bg-center mix-blend-screen" />
+            <div
+              className="absolute inset-0 opacity-[0.25] animate-pulse pointer-events-none bg-[length:180px] bg-left bg-no-repeat mix-blend-screen"
+              style={{ backgroundImage: `url(${mandalaBg})` }}
+            />
 
             <img src={ShopingSvgIocn} className="h-20" />
           </div>
@@ -232,7 +413,11 @@ export default function OrderSuccessPage() {
                     {order?.payment_method?.toLowerCase() === "razorpay" ||
                     !order?.payment_method ? (
                       <div className="w-5 h-5 sm:w-[22px] sm:h-[22px] bg-white rounded-sm flex items-center justify-center p-[2px]">
-                        <img src={RazorpayIcon} alt="Razorpay" className="w-full h-full object-contain" />
+                        <img
+                          src={RazorpayIcon}
+                          alt="Razorpay"
+                          className="w-full h-full object-contain"
+                        />
                       </div>
                     ) : (
                       <span className="text-xs font-bold text-white">
@@ -254,11 +439,11 @@ export default function OrderSuccessPage() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 border-t border-[#1e2321]/10 pt-6 mt-auto">
-              <Button
-                variant="outline"
+              <button
+                type="button"
                 onClick={handleDownloadInvoice}
                 disabled={isDownloading}
-                className="flex-1 h-12 bg-[#1a1f1d] hover:bg-[#252b28] border-transparent text-[#e2b975] hover:text-[#e2b975] text-sm tracking-wide flex items-center justify-center gap-2 rounded-lg transition-colors"
+                className="flex-1 h-12 bg-[#1a1f1d] cursor-pointer hover:bg-[#252b28] border-transparent text-[#e2b975] hover:text-[#e2b975] text-sm tracking-wide flex items-center justify-center gap-2 rounded-lg transition-colors"
               >
                 {isDownloading ? (
                   <>
@@ -271,7 +456,7 @@ export default function OrderSuccessPage() {
                     Download Invoice
                   </>
                 )}
-              </Button>
+              </button>
 
               {canCancel && (
                 <Button
