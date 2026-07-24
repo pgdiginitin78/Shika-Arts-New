@@ -127,7 +127,7 @@ export default function BrochureDownloads() {
 
   return (
     <div className="min-h-screen bg-[#FAF8F5] px-4 py-6 sm:px-6 sm:py-10 lg:px-10">
-      <div className="mx-auto max-w-[960px]">
+      <div className="mx-auto max-w-[1220px]">
         <div className="mb-6 flex flex-col gap-5 sm:mb-8 sm:flex-row sm:items-center sm:justify-between sm:gap-10">
           <div className="flex min-w-0 flex-col gap-1">
             <h1 className="text-[22px] font-semibold tracking-tight text-[#1c1a17] sm:text-[28px]">
@@ -148,7 +148,7 @@ export default function BrochureDownloads() {
                 placeholder="Search name, email, mobile"
                 size="small"
                 fullWidth
-                sx={{ ...fieldSx, width: { xs: "100%", sm: 260 }, flexShrink: 0 }}
+                sx={{ ...fieldSx, width: { xs: "100%", sm: 280, lg: 350, xl: 450 }, flexShrink: 0 }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -295,7 +295,7 @@ export default function BrochureDownloads() {
                           Mobile
                         </th>
                         <th className="px-5 py-3 text-right text-[11px] font-bold uppercase tracking-widest text-stone-400">
-                          Downloaded
+                          Date
                         </th>
                       </tr>
                     </thead>
