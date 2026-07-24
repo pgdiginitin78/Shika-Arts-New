@@ -1,8 +1,8 @@
-import BookmarkIcon from "@mui/icons-material/Bookmark";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import LogoutIcon from "@mui/icons-material/Logout";
-import PersonIcon from "@mui/icons-material/Person";
-import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
+import BookmarkRoundedIcon from "@mui/icons-material/BookmarkRounded";
+import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
+import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
+import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
+import ShoppingBagRoundedIcon from "@mui/icons-material/ShoppingBagRounded";
 import {
   Avatar,
   Box,
@@ -21,6 +21,36 @@ import { useCartStore } from "@/stores/cartStore";
 import { useWishlistStore } from "@/stores/wishlistStore";
 import { toast } from "sonner";
 
+const ACCENT = "#7A1F3D";
+
+const MENU_ITEM_STYLES = {
+  dashboard: { color: "#2F6FED", bg: "#EAF1FE" },
+  brochure: { color: "#B4790F", bg: "#FBF1DD" },
+  orders: { color: "#1E9E6C", bg: "#E6F7EF" },
+  account: { color: "#7A5CC0", bg: "#F1EDFB" },
+  signout: { color: "#D1414B", bg: "#FCEAEB" },
+};
+
+function IconChip({ icon, tone }) {
+  const style = MENU_ITEM_STYLES[tone];
+  return (
+    <Box
+      sx={{
+        width: 30,
+        height: 30,
+        borderRadius: "9px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        bgcolor: style.bg,
+        color: style.color,
+      }}
+    >
+      {icon}
+    </Box>
+  );
+}
+
 function getStoredUser() {
   try {
     const raw = localStorage.getItem("user");
@@ -32,7 +62,6 @@ function getStoredUser() {
   }
 }
 
-/** Reads the richer WP user data (including is_super_admin) stored after login. */
 function getCustomerData() {
   try {
     const raw = localStorage.getItem("customerData");
@@ -42,7 +71,6 @@ function getCustomerData() {
   }
 }
 
-/** Reactive version — re-syncs whenever user-changed or storage events fire. */
 function useStoredCustomerData() {
   const [data, setData] = useState(getCustomerData);
 
@@ -87,7 +115,6 @@ export function UserMenu() {
   const resetCart = useCartStore((s) => s.resetCart);
   const clearWishlist = useWishlistStore((s) => s.clearWishlist);
 
-  // is_super_admin comes from the WP /users/me response stored as "customerData"
   const isSuperAdmin = customerData?.is_super_admin === true;
 
   const email = customer?.user_email || customer?.email || "";
@@ -105,25 +132,31 @@ export function UserMenu() {
     navigate("/");
     toast.success("Logged out successfully!");
   };
-  console.log("displayName", customer);
+
   return (
     <>
       <IconButton
         onClick={(e) => setAnchorEl(e.currentTarget)}
         size="small"
         aria-label={`Account menu for ${displayName}`}
-        sx={{ p: 0.5 }}
+        sx={{
+          p: 0.4,
+          border: "2px solid transparent",
+          transition: "border-color 0.2s ease",
+          "&:hover": { borderColor: `${ACCENT}33` },
+        }}
       >
         <Avatar
           src={customer?.imageUrl || undefined}
           alt={displayName}
           sx={{
-            width: 32,
-            height: 32,
-            bgcolor: "#7A1F3D",
-            color: "#fff",
+            width: 34,
+            height: 34,
             fontSize: 13,
             fontWeight: 700,
+            color: "#fff",
+            background: `linear-gradient(135deg, ${ACCENT} 0%, #B0335C 100%)`,
+            boxShadow: `0 2px 8px ${ACCENT}40`,
           }}
         >
           {initials}
@@ -136,17 +169,56 @@ export function UserMenu() {
         onClose={() => setAnchorEl(null)}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
-        PaperProps={{ sx: { mt: 1, minWidth: 220, borderRadius: 1.5 } }}
+        PaperProps={{
+          sx: {
+            mt: 1.25,
+            minWidth: 250,
+            borderRadius: 2.5,
+            overflow: "hidden",
+            border: "1px solid",
+            borderColor: "rgba(0,0,0,0.06)",
+            boxShadow: "0 12px 32px rgba(15, 23, 22, 0.14)",
+          },
+        }}
+        MenuListProps={{ sx: { pt: "0px !important", pb: "0px !important" } }}
       >
-        <Box sx={{ px: 2, py: 1.5 }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-            {displayName}
-          </Typography>
-          {email && (
-            <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>
-              {email}
+        <Box
+          sx={{
+            px: 2.25,
+            py: 2,
+            display: "flex",
+            alignItems: "center",
+            gap: 1.5,
+            background: `linear-gradient(135deg, ${ACCENT}10 0%, ${ACCENT}03 100%)`,
+          }}
+        >
+          <Avatar
+            src={customer?.imageUrl || undefined}
+            sx={{
+              width: 42,
+              height: 42,
+              fontSize: 15,
+              fontWeight: 700,
+              color: "#fff",
+              background: `linear-gradient(135deg, ${ACCENT} 0%, #B0335C 100%)`,
+            }}
+          >
+            {initials}
+          </Avatar>
+          <Box sx={{ minWidth: 0 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#1c1a17" }} noWrap>
+              {displayName}
             </Typography>
-          )}
+            {email && (
+              <Typography
+                variant="caption"
+                sx={{ color: "text.secondary", display: "block" }}
+                noWrap
+              >
+                {email}
+              </Typography>
+            )}
+          </Box>
         </Box>
         <Divider />
         {isSuperAdmin && (
@@ -155,11 +227,15 @@ export function UserMenu() {
               setAnchorEl(null);
               navigate("/admin");
             }}
+            sx={{ px: 2.25, py: 1.1, gap: 1.5 }}
           >
-            <ListItemIcon>
-              <DashboardIcon fontSize="small" />
+            <ListItemIcon sx={{ minWidth: "auto" }}>
+              <IconChip tone="dashboard" icon={<DashboardRoundedIcon sx={{ fontSize: 17 }} />} />
             </ListItemIcon>
-            <ListItemText primary="Dashboard" />
+            <ListItemText
+              primary="Dashboard"
+              primaryTypographyProps={{ fontSize: 14, fontWeight: 500 }}
+            />
           </MenuItem>
         )}
         {isSuperAdmin && (
@@ -168,11 +244,15 @@ export function UserMenu() {
               setAnchorEl(null);
               navigate("/admin/brochure-downloads");
             }}
+            sx={{ px: 2.25, py: 1.1, gap: 1.5 }}
           >
-            <ListItemIcon>
-              <BookmarkIcon fontSize="small" />
+            <ListItemIcon sx={{ minWidth: "auto" }}>
+              <IconChip tone="brochure" icon={<BookmarkRoundedIcon sx={{ fontSize: 17 }} />} />
             </ListItemIcon>
-            <ListItemText primary="Brochure Downloads" />
+            <ListItemText
+              primary="Brochure Downloads"
+              primaryTypographyProps={{ fontSize: 14, fontWeight: 500 }}
+            />
           </MenuItem>
         )}
         <MenuItem
@@ -180,28 +260,44 @@ export function UserMenu() {
             setAnchorEl(null);
             navigate("/my-orders");
           }}
+          sx={{ px: 2.25, py: 1.1, gap: 1.5 }}
         >
-          <ListItemIcon>
-            <ShoppingBagIcon fontSize="small" />
+          <ListItemIcon sx={{ minWidth: "auto" }}>
+            <IconChip tone="orders" icon={<ShoppingBagRoundedIcon sx={{ fontSize: 17 }} />} />
           </ListItemIcon>
-          <ListItemText primary="My Orders" />
+          <ListItemText
+            primary="My Orders"
+            primaryTypographyProps={{ fontSize: 14, fontWeight: 500 }}
+          />
         </MenuItem>
         <MenuItem
           onClick={() => {
             setAnchorEl(null);
             navigate("/profilePage");
           }}
+          sx={{ px: 2.25, py: 1.1, gap: 1.5 }}
         >
-          <ListItemIcon>
-            <PersonIcon fontSize="small" />
+          <ListItemIcon sx={{ minWidth: "auto" }}>
+            <IconChip tone="account" icon={<PersonRoundedIcon sx={{ fontSize: 17 }} />} />
           </ListItemIcon>
-          <ListItemText primary="My Account" />
+          <ListItemText
+            primary="My Account"
+            primaryTypographyProps={{ fontSize: 14, fontWeight: 500 }}
+          />
         </MenuItem>
-        <MenuItem onClick={handleLogout}>
-          <ListItemIcon>
-            <LogoutIcon fontSize="small" />
+        <Divider sx={{ my: 0.5 }} />
+        <MenuItem onClick={handleLogout} sx={{ px: 2.25, py: 1.1, gap: 1.5 }}>
+          <ListItemIcon sx={{ minWidth: "auto" }}>
+            <IconChip tone="signout" icon={<LogoutRoundedIcon sx={{ fontSize: 17 }} />} />
           </ListItemIcon>
-          <ListItemText primary="Sign Out" />
+          <ListItemText
+            primary="Sign Out"
+            primaryTypographyProps={{
+              fontSize: 14,
+              fontWeight: 500,
+              color: MENU_ITEM_STYLES.signout.color,
+            }}
+          />
         </MenuItem>
       </Menu>
     </>
@@ -233,17 +329,21 @@ export function UserMenuInline({ onAfter }) {
   };
 
   return (
-    <Box className="flex flex-col gap-3 w-full">
-      <Box className="flex items-center gap-3">
+    <Box className="flex flex-col  w-full" sx={{ marginTop: 0, paddingTop: 0 }}>
+      <Box
+        className="flex items-center gap-3  border-b border-black/5"
+        sx={{ marginTop: 0, paddingTop: 0 }}
+      >
         <Avatar
           src={customer?.imageUrl || undefined}
           sx={{
-            width: 40,
-            height: 40,
-            bgcolor: "#7A1F3D",
-            color: "#fff",
-            fontSize: 14,
+            width: 44,
+            height: 44,
+            fontSize: 15,
             fontWeight: 700,
+            color: "#fff",
+            background: `linear-gradient(135deg, ${ACCENT} 0%, #B0335C 100%)`,
+            boxShadow: `0 2px 10px ${ACCENT}40`,
           }}
         >
           {initials}
@@ -253,16 +353,17 @@ export function UserMenuInline({ onAfter }) {
           {email && <span className="text-[11px] text-muted-foreground truncate">{email}</span>}
         </Box>
       </Box>
+
       {isSuperAdmin && (
         <button
           onClick={() => {
             onAfter?.();
             navigate("/admin");
           }}
-          className="flex items-center gap-3 text-[13px] uppercase tracking-wider font-semibold text-[#0f1716] hover:text-destructive py-1.5 cursor-pointer transition-colors"
+          className="flex items-center gap-3 text-[13px] font-semibold text-[#0f1716] hover:bg-black/[0.03] rounded-lg py-2 px-1.5 cursor-pointer transition-colors"
         >
-          <DashboardIcon sx={{ fontSize: 18 }} />
-          <span>Dashboard</span>
+          <IconChip tone="dashboard" icon={<DashboardRoundedIcon sx={{ fontSize: 17 }} />} />
+          <span className="uppercase tracking-wider">Dashboard</span>
         </button>
       )}
       {isSuperAdmin && (
@@ -271,10 +372,10 @@ export function UserMenuInline({ onAfter }) {
             onAfter?.();
             navigate("/admin/brochure-downloads");
           }}
-          className="flex items-center gap-3 text-[13px] uppercase tracking-wider font-semibold text-[#0f1716] hover:text-destructive py-1.5 cursor-pointer transition-colors"
+          className="flex items-center gap-3 text-[13px] font-semibold text-[#0f1716] hover:bg-black/[0.03] rounded-lg py-2 px-1.5 cursor-pointer transition-colors"
         >
-          <BookmarkIcon sx={{ fontSize: 18 }} />
-          <span>Brochure Downloads</span>
+          <IconChip tone="brochure" icon={<BookmarkRoundedIcon sx={{ fontSize: 17 }} />} />
+          <span className="uppercase tracking-wider">Brochure Downloads</span>
         </button>
       )}
       <button
@@ -282,17 +383,18 @@ export function UserMenuInline({ onAfter }) {
           onAfter?.();
           navigate("/my-orders");
         }}
-        className="flex items-center gap-3 text-[13px] uppercase tracking-wider font-semibold text-[#0f1716] hover:text-destructive py-1.5 cursor-pointer transition-colors"
+        className="flex items-center gap-3 text-[13px] font-semibold text-[#0f1716] hover:bg-black/[0.03] rounded-lg py-2 px-1.5 cursor-pointer transition-colors"
       >
-        <ShoppingBagIcon sx={{ fontSize: 18 }} />
-        <span>My Orders</span>
+        <IconChip tone="orders" icon={<ShoppingBagRoundedIcon sx={{ fontSize: 17 }} />} />
+        <span className="uppercase tracking-wider">My Orders</span>
       </button>
       <button
         onClick={handleLogout}
-        className="flex items-center gap-3 text-[13px] uppercase tracking-wider font-semibold text-destructive py-1.5 cursor-pointer"
+        className="flex items-center gap-3 text-[13px] font-semibold hover:bg-black/[0.03] rounded-lg py-2 px-1.5 cursor-pointer transition-colors mt-1"
+        style={{ color: MENU_ITEM_STYLES.signout.color }}
       >
-        <LogoutIcon sx={{ fontSize: 18 }} />
-        <span>Sign out</span>
+        <IconChip tone="signout" icon={<LogoutRoundedIcon sx={{ fontSize: 17 }} />} />
+        <span className="uppercase tracking-wider">Sign out</span>
       </button>
     </Box>
   );
