@@ -1,3 +1,5 @@
+import BookmarkIcon from "@mui/icons-material/Bookmark";
+import DashboardIcon from "@mui/icons-material/Dashboard";
 import LogoutIcon from "@mui/icons-material/Logout";
 import PersonIcon from "@mui/icons-material/Person";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
@@ -30,6 +32,33 @@ function getStoredUser() {
   }
 }
 
+/** Reads the richer WP user data (including is_super_admin) stored after login. */
+function getCustomerData() {
+  try {
+    const raw = localStorage.getItem("customerData");
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Reactive version — re-syncs whenever user-changed or storage events fire. */
+function useStoredCustomerData() {
+  const [data, setData] = useState(getCustomerData);
+
+  useEffect(() => {
+    const sync = () => setData(getCustomerData());
+    window.addEventListener("user-changed", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("user-changed", sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+
+  return data;
+}
+
 export function notifyUserChanged() {
   window.dispatchEvent(new Event("user-changed"));
 }
@@ -54,8 +83,12 @@ export function UserMenu() {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const customer = useStoredUser();
+  const customerData = useStoredCustomerData();
   const resetCart = useCartStore((s) => s.resetCart);
   const clearWishlist = useWishlistStore((s) => s.clearWishlist);
+
+  // is_super_admin comes from the WP /users/me response stored as "customerData"
+  const isSuperAdmin = customerData?.is_super_admin === true;
 
   const email = customer?.user_email || customer?.email || "";
   const displayName =
@@ -116,6 +149,32 @@ export function UserMenu() {
           )}
         </Box>
         <Divider />
+        {isSuperAdmin && (
+          <MenuItem
+            onClick={() => {
+              setAnchorEl(null);
+              navigate("/admin");
+            }}
+          >
+            <ListItemIcon>
+              <DashboardIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText primary="Dashboard" />
+          </MenuItem>
+        )}
+        {isSuperAdmin && (
+          <MenuItem
+            onClick={() => {
+              setAnchorEl(null);
+              navigate("/admin/brochure-downloads");
+            }}
+          >
+            <ListItemIcon>
+              <BookmarkIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText primary="Brochure Downloads" />
+          </MenuItem>
+        )}
         <MenuItem
           onClick={() => {
             setAnchorEl(null);
@@ -136,13 +195,13 @@ export function UserMenu() {
           <ListItemIcon>
             <PersonIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText primary="My account" />
+          <ListItemText primary="My Account" />
         </MenuItem>
         <MenuItem onClick={handleLogout}>
           <ListItemIcon>
             <LogoutIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText primary="Sign out" />
+          <ListItemText primary="Sign Out" />
         </MenuItem>
       </Menu>
     </>
@@ -152,8 +211,10 @@ export function UserMenu() {
 export function UserMenuInline({ onAfter }) {
   const navigate = useNavigate();
   const customer = useStoredUser();
+  const customerData = useStoredCustomerData();
   const resetCart = useCartStore((s) => s.resetCart);
   const clearWishlist = useWishlistStore((s) => s.clearWishlist);
+  const isSuperAdmin = customerData?.is_super_admin === true;
 
   if (!customer) return null;
 
@@ -192,6 +253,30 @@ export function UserMenuInline({ onAfter }) {
           {email && <span className="text-[11px] text-muted-foreground truncate">{email}</span>}
         </Box>
       </Box>
+      {isSuperAdmin && (
+        <button
+          onClick={() => {
+            onAfter?.();
+            navigate("/admin");
+          }}
+          className="flex items-center gap-3 text-[13px] uppercase tracking-wider font-semibold text-[#0f1716] hover:text-destructive py-1.5 cursor-pointer transition-colors"
+        >
+          <DashboardIcon sx={{ fontSize: 18 }} />
+          <span>Dashboard</span>
+        </button>
+      )}
+      {isSuperAdmin && (
+        <button
+          onClick={() => {
+            onAfter?.();
+            navigate("/admin/brochure-downloads");
+          }}
+          className="flex items-center gap-3 text-[13px] uppercase tracking-wider font-semibold text-[#0f1716] hover:text-destructive py-1.5 cursor-pointer transition-colors"
+        >
+          <BookmarkIcon sx={{ fontSize: 18 }} />
+          <span>Brochure Downloads</span>
+        </button>
+      )}
       <button
         onClick={() => {
           onAfter?.();

@@ -10,10 +10,11 @@ import { NavbarProvider } from "./context/NavbarContext";
 import { CartAnimationProvider } from "./context/CartAnimationContext";
 import { useCartSync } from "./hooks/useCartSync";
 import { useWishlistSync } from "./hooks/useWishlistSync";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ResetPasswordModal } from "./components/ResetPasswordModal";
 
 import AdminDashboard from "./pages/AdminDashboard";
+import BrochureDownloads from "./pages/BrochureDownloads";
 import Category from "./pages/Category";
 import CheckoutPage from "./pages/CheckoutPage";
 import Corporate from "./pages/Corporate";
@@ -49,8 +50,33 @@ function getResetParams() {
 function App() {
   useCartSync();
   useWishlistSync();
-  const customerData = JSON.parse(localStorage.getItem("user") || "{}");
-  console.log("rolesAre", customerData);
+
+  // Reactive: re-read whenever user-changed or cross-tab storage events fire
+  const [isSuperAdmin, setIsSuperAdmin] = useState(() => {
+    try {
+      const d = JSON.parse(localStorage.getItem("customerData") || "{}");
+      return d?.is_super_admin === true;
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    const sync = () => {
+      try {
+        const d = JSON.parse(localStorage.getItem("customerData") || "{}");
+        setIsSuperAdmin(d?.is_super_admin === true);
+      } catch {
+        setIsSuperAdmin(false);
+      }
+    };
+    window.addEventListener("user-changed", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("user-changed", sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
   const resetParams = getResetParams();
   const [resetModalOpen, setResetModalOpen] = useState(!!resetParams);
 
@@ -78,8 +104,11 @@ function App() {
               <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
               <Route path="/my-orders" element={<MyOrdersPage />} />
-              {customerData?.role === "administrator" && (
+              {isSuperAdmin && (
                 <Route path="/admin" element={<AdminDashboard />} />
+              )}
+              {isSuperAdmin && (
+                <Route path="/admin/brochure-downloads" element={<BrochureDownloads />} />
               )}
               <Route path="/profilePage" element={<ProfilePage />} />
               <Route path="/auth/callback" element={<GoogleAuthCallback />} />

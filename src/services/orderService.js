@@ -247,3 +247,16 @@ export async function getHomeProducts() {
   const { data } = await api.get("/wp-json/custom/v1/home-products");
   return data;
 }
+
+export async function downloadBrochure(dataObj) {
+  const { data } = await api.post("/wp-json/custom/v1/brochure-download", dataObj);
+  return data;
+}
+
+
+export async function getBrochureDownloads() {
+  const { data } = await api.get(
+    "/wp-json/custom/v1/brochure-downloads"
+  );
+  return data;
+}

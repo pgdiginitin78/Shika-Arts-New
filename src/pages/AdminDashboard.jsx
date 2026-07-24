@@ -1194,6 +1194,60 @@ function OrderDetailModal({ orderId, onClose }) {
   );
 }
 
+function StatCard({ icon: Icon, label, value, format, accent = "gold", delay = 0, caption }) {
+  const palette = ACCENTS[accent] || ACCENTS.gold;
+  const decimals = format ? 2 : 0;
+  const animated = useCountUp(Number(value) || 0, { duration: 900, decimals });
+  const display = format ? format(value) : animated;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -3 }}
+      transition={{ duration: 0.38, delay, ease: [0.22, 1, 0.36, 1] }}
+      className="relative overflow-hidden rounded-2xl border border-stone-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-lg"
+    >
+      {/* background glow blob */}
+      <div
+        className="pointer-events-none absolute -right-6 -bottom-8 h-24 w-24 rounded-full opacity-[0.15]"
+        style={{ background: `radial-gradient(circle, ${palette.to}, transparent 70%)` }}
+      />
+
+      {/* icon badge */}
+      <div className="relative mb-3 h-9 w-9">
+        <div
+          className="absolute inset-0 rounded-xl"
+          style={{ background: `linear-gradient(145deg, ${palette.from}, ${palette.to})` }}
+        />
+        <div
+          className="absolute inset-0 rounded-xl opacity-40"
+          style={{ boxShadow: `0 4px 12px ${palette.glow}` }}
+        />
+        <div className="relative flex h-full w-full items-center justify-center">
+          <Icon size={16} className="text-white" />
+        </div>
+      </div>
+
+      {/* value */}
+      <p
+        className="relative text-xl font-bold tracking-tight text-stone-900 sm:text-2xl"
+        style={{ fontVariantNumeric: "tabular-nums" }}
+      >
+        {display}
+      </p>
+
+      {/* label + caption */}
+      <p className="mt-0.5 text-xs font-semibold uppercase tracking-wide text-stone-500">
+        {label}
+      </p>
+      {caption && (
+        <p className="mt-1 text-[10px] text-stone-400">{caption}</p>
+      )}
+    </motion.div>
+  );
+}
+
 export default function AdminOrdersDashboard() {
   const [filters, setFilters] = useState({
     status: [],
@@ -1325,8 +1379,8 @@ export default function AdminOrdersDashboard() {
     : [];
 
   return (
-    <div className="min-h-screen bg-stone-50 px-3 py-5 sm:px-6 sm:py-6 lg:px-10">
-      <div className="mx-auto max-w-7xl">
+    <div className="min-h-screen bg-stone-50 px-3 py-5 sm:px-6 sm:py-6 lg:px-10 ">
+      <div className="mx-auto w-full">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-xl font-semibold text-stone-900 sm:text-2xl">Orders</h1>

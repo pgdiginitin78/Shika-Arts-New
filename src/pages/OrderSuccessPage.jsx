@@ -1,6 +1,7 @@
+import InvoiceTemplate from "@/components/InvoiceTemplate";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/woocommerce";
-import { cancelOrder, downloadInvoice, getOrderDetails } from "@/services/orderService";
+import { cancelOrder, getOrderDetails } from "@/services/orderService";
 import {
   AlertCircle,
   CheckCircle2,
@@ -9,21 +10,20 @@ import {
   Hourglass,
   Loader2,
   MapPin,
-  Sparkles,
   PackageCheck,
-  ShieldCheck,
-  ShoppingBag,
-  XCircle,
-  RotateCcw,
   PauseCircle,
+  RotateCcw,
+  ShoppingBag,
+  Sparkles,
+  XCircle
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import ShopingSvgIocn from "../assets/ShopingSvgIcon.svg";
 import ItemOrderdSvgIocn from "../assets/ItemOrderdIcon.svg";
-import RazorpayIcon from "../assets/razorpay-icon.png";
 import mandalaBg from "../assets/mandalaBg.png";
+import RazorpayIcon from "../assets/razorpay-icon.png";
+import ShopingSvgIocn from "../assets/ShopingSvgIcon.svg";
 
 import { motion } from "framer-motion";
 
@@ -206,6 +206,7 @@ export default function OrderSuccessPage() {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const invoiceRef = useRef(null);
 
   useEffect(() => {
     if (!orderId) {
@@ -221,19 +222,54 @@ export default function OrderSuccessPage() {
   }, [orderId]);
 
   const handleDownloadInvoice = async () => {
-    if (!orderId || isDownloading) return;
+    if (!orderId || isDownloading || !invoiceRef.current) return;
     setIsDownloading(true);
     try {
-      const blobUrl = await downloadInvoice(orderId);
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = `Invoice-${orderId}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
-    } catch {
-      toast.error("Invoice isn't ready yet. Please try again in a bit.");
+      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+        import("html2canvas"),
+        import("jspdf"),
+      ]);
+
+      const el = invoiceRef.current;
+      const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+        width: el.scrollWidth,
+        height: el.scrollHeight,
+        windowWidth: el.scrollWidth,
+        windowHeight: el.scrollHeight,
+      });
+
+      const pdf = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * pageWidth) / canvas.width;
+
+      if (imgHeight <= pageHeight) {
+        const imgData = canvas.toDataURL("image/jpeg", 1.0);
+        pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
+      } else {
+        const imgData = canvas.toDataURL("image/jpeg", 1.0);
+        let heightLeft = imgHeight;
+        let position = 0;
+        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+        while (heightLeft > 0) {
+          position -= pageHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+        }
+      }
+
+      pdf.save(`ShikaArts-Invoice-${order?.order_number ?? orderId}.pdf`);
+      toast.success("Invoice downloaded successfully!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Could not generate invoice. Please try again.");
     } finally {
       setIsDownloading(false);
     }
@@ -301,7 +337,6 @@ export default function OrderSuccessPage() {
       </div>
     );
   }
-
 
   const hero = statusHero(order?.status ?? "");
   const HeroIcon = hero.Icon;
@@ -653,6 +688,20 @@ export default function OrderSuccessPage() {
             <ChevronRight size={16} strokeWidth={1.75} />
           </Button>
         </div>
+      </div>
+
+      {/* Hidden Invoice Template — rendered off-screen for PDF capture */}
+      <div
+        style={{
+          position: "fixed",
+          top: "-9999px",
+          left: "-9999px",
+          zIndex: -1,
+          pointerEvents: "none",
+        }}
+        aria-hidden="true"
+      >
+        <InvoiceTemplate ref={invoiceRef} order={order} />
       </div>
     </div>
   );

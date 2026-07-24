@@ -26,6 +26,7 @@ import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { customerLogin, getCurrentUser, registerCustomer } from "../services/LoginServices";
 import { toast } from "sonner";
 import { ForgotPasswordModal } from "./ForgotPasswordModal";
+import { notifyUserChanged } from "./UserMenu";
 
 const clientId = "548183815340-krdtfufu7sevl4019h8i7170q3934iba.apps.googleusercontent.com";
 
@@ -92,6 +93,7 @@ export function LoginModal({ isOpen, onClose }) {
       const customerData = await getCurrentUser(res.token);
       useCustomerAuthStore.getState().setCustomer(customerData);
       localStorage.setItem("customerData", JSON.stringify(customerData));
+      notifyUserChanged(); // re-sync UserMenu & App.jsx isSuperAdmin immediately
       toast.success("Login successful!");
       setLoading(false);
       setTimeout(() => {
