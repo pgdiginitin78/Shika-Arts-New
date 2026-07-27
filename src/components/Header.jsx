@@ -13,6 +13,18 @@ import { LoginModal } from "./LoginModal";
 import { UserMenu, UserMenuInline } from "./UserMenu";
 import { searchProducts } from "@/services/orderService";
 
+// Safe localStorage JSON read — never throws even if the value is
+// missing, the literal string "undefined", or otherwise corrupted.
+function getStoredUser() {
+  try {
+    const raw = localStorage.getItem("user");
+    if (!raw || raw === "undefined") return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
 export function Header() {
   const setOpen = useCartStore((s) => s.setOpen);
   const totalItems = useCartStore((s) => s.items?.length);
@@ -105,7 +117,7 @@ export function Header() {
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
-  const customer = JSON.parse(localStorage.getItem("user"));
+  const customer = getStoredUser();
 
   const handleLoginClick = () => {
     setIsLoginOpen(true);

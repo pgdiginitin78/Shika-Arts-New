@@ -117,10 +117,17 @@ export function UserMenu() {
 
   const isSuperAdmin = customerData?.is_super_admin === true;
 
-  const email = customer?.user_email || customer?.email || "";
-  const displayName =
-    customer?.user_display_name || customer?.display_name || customer?.user_nicename || "";
-  const initials = (displayName?.[0] || email?.[0] || "U").toUpperCase();
+  const accountInfo = customer?.account || customerData?.account || customer;
+  const email = accountInfo?.email || accountInfo?.user_email || "";
+  const firstName = accountInfo?.first_name || "";
+  const lastName = accountInfo?.last_name || "";
+  
+  const displayName = (firstName || lastName)
+    ? `${firstName} ${lastName}`.trim()
+    : (accountInfo?.display_name || accountInfo?.user_display_name || accountInfo?.user_nicename || "");
+
+  const initials = (firstName?.[0] || displayName?.[0] || email?.[0] || "U").toUpperCase();
+  const avatarUrl = accountInfo?.avatar_url || customer?.imageUrl || undefined;
 
   const handleLogout = async () => {
     setAnchorEl(null);
@@ -147,7 +154,7 @@ export function UserMenu() {
         }}
       >
         <Avatar
-          src={customer?.imageUrl || undefined}
+          src={avatarUrl}
           alt={displayName}
           sx={{
             width: 34,
@@ -193,7 +200,7 @@ export function UserMenu() {
           }}
         >
           <Avatar
-            src={customer?.imageUrl || undefined}
+            src={avatarUrl}
             sx={{
               width: 42,
               height: 42,
@@ -314,9 +321,17 @@ export function UserMenuInline({ onAfter }) {
 
   if (!customer) return null;
 
-  const email = customer?.user_email || "";
-  const displayName = customer?.user_display_name || customer?.user_nicename || email || "Account";
-  const initials = (displayName?.[0] || email?.[0] || "U").toUpperCase();
+  const accountInfo = customer?.account || customerData?.account || customer;
+  const email = accountInfo?.email || accountInfo?.user_email || "";
+  const firstName = accountInfo?.first_name || "";
+  const lastName = accountInfo?.last_name || "";
+  
+  const displayName = (firstName || lastName)
+    ? `${firstName} ${lastName}`.trim()
+    : (accountInfo?.display_name || accountInfo?.user_display_name || accountInfo?.user_nicename || email || "Account");
+
+  const initials = (firstName?.[0] || displayName?.[0] || email?.[0] || "U").toUpperCase();
+  const avatarUrl = accountInfo?.avatar_url || customer?.imageUrl || undefined;
 
   const handleLogout = async () => {
     onAfter?.();
@@ -335,7 +350,7 @@ export function UserMenuInline({ onAfter }) {
         sx={{ marginTop: 0, paddingTop: 0 }}
       >
         <Avatar
-          src={customer?.imageUrl || undefined}
+          src={avatarUrl}
           sx={{
             width: 44,
             height: 44,

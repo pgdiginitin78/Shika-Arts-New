@@ -23,10 +23,17 @@ import { useTheme } from "@mui/material/styles";
 import { useEffect, useRef, useState } from "react";
 import { useCustomerAuthStore } from "@/stores/customerAuthStore";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
-import { customerLogin, getCurrentUser, registerCustomer } from "../services/LoginServices";
+import {
+  customerLogin,
+  getCurrentUser,
+  registerCustomer,
+  resendOtp,
+} from "../services/LoginServices";
+import { startTokenAutoRefresh } from "../services/http-common";
 import { toast } from "sonner";
 import { ForgotPasswordModal } from "./ForgotPasswordModal";
 import { notifyUserChanged } from "./UserMenu";
+import { OtpVerificationModal } from "./OtpVerificationModal";
 
 const clientId = "548183815340-krdtfufu7sevl4019h8i7170q3934iba.apps.googleusercontent.com";
 
@@ -41,6 +48,8 @@ export function LoginModal({ isOpen, onClose }) {
   const [showPassword, setShowPassword] = useState(false);
   const [googleBtnWidth, setGoogleBtnWidth] = useState(0);
   const [forgotOpen, setForgotOpen] = useState(false);
+  const [otpOpen, setOtpOpen] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState("");
 
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
@@ -90,10 +99,13 @@ export function LoginModal({ isOpen, onClose }) {
     setLoading(true);
     try {
       const res = await customerLogin(email, password);
-      const customerData = await getCurrentUser(res.token);
-      useCustomerAuthStore.getState().setCustomer(customerData);
+      const profile = await getCurrentUser(res.token);
+      const customerData = profile.account || profile;
+
+      localStorage.setItem("user", JSON.stringify(customerData));
       localStorage.setItem("customerData", JSON.stringify(customerData));
-      notifyUserChanged(); // re-sync UserMenu & App.jsx isSuperAdmin immediately
+      useCustomerAuthStore.getState().login(res.token, customerData, null);
+      notifyUserChanged();
       toast.success("Login successful!");
       setLoading(false);
       setTimeout(() => {
@@ -102,10 +114,26 @@ export function LoginModal({ isOpen, onClose }) {
     } catch (err) {
       const errorCode = err?.response?.data?.code;
 
-      const errorMessage = errorCode
-        ?.replace("[jwt_auth]", "")
-        ?.replace(/_/g, " ")
-        ?.replace(/\b\w/g, (c) => c.toUpperCase());
+      if (errorCode === "email_not_verified") {
+        toast.error(err?.response?.data?.message || "Please verify your email to log in.");
+        setRegisteredEmail(email);
+        setOtpOpen(true);
+        try {
+          await resendOtp({ email });
+        } catch (e) {
+          console.error("Failed to auto-resend OTP", e);
+        }
+        setLoading(false);
+        return;
+      }
+
+      const errorMessage =
+        err?.response?.data?.message ||
+        errorCode
+          ?.replace("[jwt_auth]", "")
+          ?.replace(/_/g, " ")
+          ?.replace(/\b\w/g, (c) => c.toUpperCase());
+
       toast.error(errorMessage || "Login failed.");
       setLoading(false);
     }
@@ -122,11 +150,10 @@ export function LoginModal({ isOpen, onClose }) {
     try {
       const payload = { firstName, lastName, email, password };
       await registerCustomer(payload);
-      toast.success("Account created successfully! You can now sign in.");
+      toast.success("Account created successfully! Please verify your email.");
+      setRegisteredEmail(email);
+      setOtpOpen(true);
       resetFormKeepSuccess();
-      setTimeout(() => {
-        setTab(0);
-      }, 2000);
     } catch (err) {
       toast.error(
         err?.response?.data?.message || err?.message || "Registration failed. Please try again.",
@@ -168,9 +195,12 @@ export function LoginModal({ isOpen, onClose }) {
         throw new Error(data.message || "Google login failed.");
       }
       localStorage.setItem("token", data.token);
+      localStorage.setItem("refresh_token", data.refresh_token);
+      localStorage.setItem("token_expires_at", Date.now() + data.access_token_expires_in * 1000);
       localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("customerData", JSON.stringify(data.user));
       useCustomerAuthStore.getState().login(data.token, data.user, null);
+      startTokenAutoRefresh();
       toast.success("Login successful!");
       setLoading(false);
       setTimeout(() => {
@@ -521,6 +551,12 @@ export function LoginModal({ isOpen, onClose }) {
       </Dialog>
 
       <ForgotPasswordModal isOpen={forgotOpen} onClose={() => setForgotOpen(false)} />
+      <OtpVerificationModal
+        isOpen={otpOpen}
+        onClose={() => setOtpOpen(false)}
+        email={registeredEmail}
+        onSuccess={() => setTab(0)}
+      />
     </>
   );
 }

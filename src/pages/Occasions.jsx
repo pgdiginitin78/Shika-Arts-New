@@ -487,7 +487,6 @@ export default function Occasions() {
       occasionCat?.children?.forEach((menu) => {
         const matched = menu.children?.find((s) => s.slug === tagParam);
         if (matched) {
-          setActiveCategory(menu.name);
           setSelectedSlug(matched.slug);
           setSelectedId(matched.id);
           setFilterMode("exact");

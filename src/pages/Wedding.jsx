@@ -60,7 +60,6 @@ export default function Wedding() {
         const found = menu.children?.find((s) => s.slug === tagParam);
         if (found) {
           matched = found;
-          setActiveCategory(menu.name);
         }
       });
       if (matched) {

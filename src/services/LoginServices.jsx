@@ -1,16 +1,15 @@
 import { useCustomerAuthStore } from "@/stores/customerAuthStore";
-import api from "./http-common";
+import api, { startTokenAutoRefresh } from "./http-common";
 
 export const customerLogin = async (username, password) => {
-  const { data } = await api.post("/wp-json/jwt-auth/v1/token", {
+  const { data } = await api.post("/wp-json/custom/v1/login", {
     username,
     password,
   });
-
   localStorage.setItem("token", data.token);
-  localStorage.setItem("user", JSON.stringify(data));
-  localStorage.setItem("customerData", JSON.stringify(data));
-  useCustomerAuthStore.getState().login(data.token, data.customer || data.user || data, null);
+  localStorage.setItem("refresh_token", data.refresh_token);
+  localStorage.setItem("token_expires_at", Date.now() + data.access_token_expires_in * 1000);
+  startTokenAutoRefresh();
   return data;
 };
 
@@ -19,16 +18,40 @@ export const registerCustomer = async (payload) => {
   return data;
 };
 
-export const logout = () => {
+export const verifyEmailOtp = async (payload) => {
+  const { data } = await api.post("/wp-json/custom/v1/verify-email", payload);
+  return data;
+};
+
+export const resendOtp = async (payload) => {
+  const { data } = await api.post("/wp-json/custom/v1/resend-otp", payload);
+  return data;
+};
+
+export const logout = async () => {
+  const refresh_token = localStorage.getItem("refresh_token");
+
+  if (refresh_token) {
+    try {
+      await api.post("/wp-json/custom/v1/logout", { refresh_token });
+    } catch (e) {
+      console.error("Logout API call failed:", e);
+    }
+  }
+
   localStorage.removeItem("token");
+  localStorage.removeItem("refresh_token");
+  localStorage.removeItem("token_expires_at");
   localStorage.removeItem("user");
   localStorage.removeItem("customerData");
   localStorage.removeItem("cart_token");
   useCustomerAuthStore.getState().logout();
 };
 
-export const getCurrentUser = async () => {
-  const { data } = await api.get("/wp-json/wp/v2/users/me");
+export const getCurrentUser = async (token) => {
+  const { data } = await api.get("/wp-json/custom/v1/user-profile", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   return data;
 };
 
@@ -46,15 +69,11 @@ export const searchProducts = async (search) => {
   return data.products;
 };
 
-// api/products.js
-
-// Get all categories as a tree (parent > children > grandchildren)
 export const getCategories = async () => {
   const { data } = await api.get("/wp-json/custom/v1/all-categories");
   return data;
 };
 
-// api/products.js
 export const getProductsByParentCategory = async (categorySlug, perPage = -1) => {
   const { data } = await api.get(`/wp-json/custom/v1/products-by-parent/${categorySlug}`, {
     params: {
@@ -64,7 +83,6 @@ export const getProductsByParentCategory = async (categorySlug, perPage = -1) =>
   return data;
 };
 
-// Get products by exact single category (for subcategory pages)
 export const getProductsByCategory = async (categorySlug, page = 1, perPage = 100) => {
   const effectivePerPage = perPage === 100 ? -1 : perPage;
   const { data } = await api.get("/wp-json/custom/v1/all-products", {
@@ -99,8 +117,6 @@ export const getCart = async () => {
   const existingToken = localStorage.getItem("cart_token");
 
   if (incomingToken) {
-    // Only overwrite existing token if we don't have one yet
-    // (prevents an empty new session from replacing a valid cart session)
     if (!existingToken || existingToken === incomingToken) {
       localStorage.setItem("cart_token", incomingToken);
     } else {
@@ -113,9 +129,12 @@ export const getCart = async () => {
   return response.data;
 };
 
-export const addToCart = async (productId, quantity = 1, variationAttributes = [], variationId = null) => {
-  // WooCommerce Store API requires the variation's own ID when adding a variable product.
-  // Passing the parent product ID causes the 'woocommerce_rest_missing_attributes' 400 error.
+export const addToCart = async (
+  productId,
+  quantity = 1,
+  variationAttributes = [],
+  variationId = null,
+) => {
   const idToSend = variationId || productId;
 
   const body = { id: idToSend, quantity };
@@ -158,18 +177,11 @@ export const removeCartItem = async (cartItemKey) => {
   return response.data;
 };
 
-/**
- * Fetch a single variation's details (price, stock, attributes) from the WooCommerce Store API.
- * The Store API exposes variations under /products?include=<variationId> or via the REST API.
- */
 const getVariationPrice = async (productId, variationId) => {
   try {
-    // WC Store API does not have a dedicated /products/{id}/variations endpoint,
-    // so we fetch the variation as a product by its own ID.
     const { data } = await api.get(`/wp-json/wc/store/v1/products/${variationId}`);
     return data || null;
   } catch {
-    // Fallback: try fetching via REST v2 (may require auth)
     try {
       const { data } = await api.get(
         `/wp-json/wc/v2/products/${productId}/variations/${variationId}`,
@@ -204,7 +216,6 @@ export const getProductBySlug = async (slug) => {
       .filter((r) => r.status === "fulfilled" && r.value)
       .map((r) => r.value);
 
-    // Log (don't throw) so failures are visible without breaking the page
     results
       .filter((r) => r.status === "rejected")
       .forEach((r) => console.error("[getProductBySlug] variation fetch failed:", r.reason));

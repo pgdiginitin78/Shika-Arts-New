@@ -34,6 +34,7 @@ import AboutUs from "./pages/AboutUs";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import ShippingPolicy from "./pages/ShippingPolicy";
+import { startTokenAutoRefresh } from "./services/http-common";
 const queryClient = new QueryClient();
 
 function getResetParams() {
@@ -51,10 +52,10 @@ function App() {
   useCartSync();
   useWishlistSync();
 
-  // Reactive: re-read whenever user-changed or cross-tab storage events fire
   const [isSuperAdmin, setIsSuperAdmin] = useState(() => {
     try {
       const d = JSON.parse(localStorage.getItem("customerData") || "{}");
+      console.log("jsonData",d)
       return d?.is_super_admin === true;
     } catch {
       return false;
@@ -80,58 +81,60 @@ function App() {
   const resetParams = getResetParams();
   const [resetModalOpen, setResetModalOpen] = useState(!!resetParams);
 
+  useEffect(() => {
+    startTokenAutoRefresh();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <CartAnimationProvider>
-      <NavbarProvider>
-        <BrowserRouter>
-          <ScrollToTop />
-          <Header />
-          <main className="">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/category/Occasions" element={<Occasions />} />
-              <Route path="/category/Corporate" element={<Corporate />} />
-              <Route path="/category/Wedding" element={<Wedding />} />
-              <Route path="/category/customizedgifts" element={<CustomizedGifts />} />
-              <Route path="/category/customization" element={<CustomizedGifts />} />
-              <Route path="/category/packaging-studio" element={<PackagingStudio />} />
-              <Route path="/category/packagingstudio" element={<PackagingStudio />} />
-              <Route path="/category/earthworth" element={<EarthWorth />} />
-              <Route path="/category/:slug" element={<Category />} />
-              <Route path="/product/:handle" element={<Product />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/checkout" element={<CheckoutPage />} />
-              <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
-              <Route path="/my-orders" element={<MyOrdersPage />} />
-              {isSuperAdmin && (
-                <Route path="/admin" element={<AdminDashboard />} />
-              )}
-              {isSuperAdmin && (
-                <Route path="/admin/brochure-downloads" element={<BrochureDownloads />} />
-              )}
-              <Route path="/profilePage" element={<ProfilePage />} />
-              <Route path="/auth/callback" element={<GoogleAuthCallback />} />
-              <Route path="/about-us" element={<AboutUs />} />
-              <Route path="/privacy" element={<PrivacyPolicy />} />
-              <Route path="/terms" element={<TermsAndConditions />} />
-              <Route path="/shipping-policy" element={<ShippingPolicy />} />
-            </Routes>
-          </main>
-          <Footer />
-          <CartDrawer />
-          <WishlistDrawer />
-          <Toaster position="top-center" richColors />
-          {resetParams && (
-            <ResetPasswordModal
-              isOpen={resetModalOpen}
-              resetKey={resetParams.key}
-              loginName={resetParams.login}
-              onClose={() => setResetModalOpen(false)}
-            />
-          )}
-        </BrowserRouter>
-      </NavbarProvider>
+        <NavbarProvider>
+          <BrowserRouter>
+            <ScrollToTop />
+            <Header />
+            <main className="">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/category/Occasions" element={<Occasions />} />
+                <Route path="/category/Corporate" element={<Corporate />} />
+                <Route path="/category/Wedding" element={<Wedding />} />
+                <Route path="/category/customizedgifts" element={<CustomizedGifts />} />
+                <Route path="/category/customization" element={<CustomizedGifts />} />
+                <Route path="/category/packaging-studio" element={<PackagingStudio />} />
+                <Route path="/category/packagingstudio" element={<PackagingStudio />} />
+                <Route path="/category/earthworth" element={<EarthWorth />} />
+                <Route path="/category/:slug" element={<Category />} />
+                <Route path="/product/:handle" element={<Product />} />
+                <Route path="/products" element={<Products />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
+                <Route path="/my-orders" element={<MyOrdersPage />} />
+                {isSuperAdmin && <Route path="/admin" element={<AdminDashboard />} />}
+                {isSuperAdmin && (
+                  <Route path="/admin/brochure-downloads" element={<BrochureDownloads />} />
+                )}
+                <Route path="/profilePage" element={<ProfilePage />} />
+                <Route path="/auth/callback" element={<GoogleAuthCallback />} />
+                <Route path="/about-us" element={<AboutUs />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsAndConditions />} />
+                <Route path="/shipping-policy" element={<ShippingPolicy />} />
+              </Routes>
+            </main>
+            <Footer />
+            <CartDrawer />
+            <WishlistDrawer />
+            <Toaster position="top-center" richColors />
+            {resetParams && (
+              <ResetPasswordModal
+                isOpen={resetModalOpen}
+                resetKey={resetParams.key}
+                loginName={resetParams.login}
+                onClose={() => setResetModalOpen(false)}
+              />
+            )}
+          </BrowserRouter>
+        </NavbarProvider>
       </CartAnimationProvider>
     </QueryClientProvider>
   );

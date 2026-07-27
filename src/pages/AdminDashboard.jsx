@@ -1,5 +1,18 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from "recharts";
 
 import {
   getAdminOrders,
@@ -716,6 +729,85 @@ function ReceiptIcon({ size = 14, className }) {
   );
 }
 
+function ChartIcon({ size = 14, className }) {
+  return (
+    <IconBase size={size} className={className}>
+      <rect
+        x="3.5"
+        y="12.5"
+        width="3.4"
+        height="8"
+        rx="0.8"
+        fill="currentColor"
+        fillOpacity="0.35"
+        stroke="currentColor"
+        strokeWidth="1.1"
+      />
+      <rect
+        x="10.3"
+        y="7"
+        width="3.4"
+        height="13.5"
+        rx="0.8"
+        fill="currentColor"
+        fillOpacity="0.55"
+        stroke="currentColor"
+        strokeWidth="1.1"
+      />
+      <rect
+        x="17.1"
+        y="3.5"
+        width="3.4"
+        height="17"
+        rx="0.8"
+        fill="currentColor"
+        fillOpacity="0.8"
+        stroke="currentColor"
+        strokeWidth="1.1"
+      />
+    </IconBase>
+  );
+}
+
+function DonutIcon({ size = 14, className }) {
+  return (
+    <IconBase size={size} className={className}>
+      <circle
+        cx="12"
+        cy="12"
+        r="8.4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="4.2"
+        strokeDasharray="14 39"
+        opacity="0.85"
+      />
+      <circle
+        cx="12"
+        cy="12"
+        r="8.4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="4.2"
+        strokeDasharray="9 39"
+        strokeDashoffset="-14"
+        opacity="0.55"
+      />
+      <circle
+        cx="12"
+        cy="12"
+        r="8.4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="4.2"
+        strokeDasharray="29 39"
+        strokeDashoffset="-23"
+        opacity="0.25"
+      />
+    </IconBase>
+  );
+}
+
 const STATUSES = [
   { value: "pending", label: "Pending" },
   { value: "processing", label: "Processing" },
@@ -778,6 +870,20 @@ function formatMoney(value, currency = "INR") {
     }).format(amount);
   } catch {
     return `${currency} ${amount.toFixed(2)}`;
+  }
+}
+
+function formatCompactMoney(value) {
+  const amount = Number(value || 0);
+  try {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      notation: "compact",
+      maximumFractionDigits: 1,
+    }).format(amount);
+  } catch {
+    return `₹${amount.toFixed(0)}`;
   }
 }
 
@@ -914,6 +1020,156 @@ function FilterField({ label, children }) {
 
 const inputClass =
   "w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-stone-800 outline-none transition focus:border-rose-800 focus:ring-2 focus:ring-rose-100";
+
+function ChartTooltip({ active, payload, label }) {
+  if (!active || !payload || !payload.length) return null;
+  return (
+    <div className="rounded-lg border border-stone-200 bg-white/95 px-3 py-2 text-xs shadow-lg backdrop-blur">
+      {label && <p className="mb-1 font-semibold text-stone-700">{label}</p>}
+      {payload.map((entry, idx) => (
+        <div key={idx} className="flex items-center gap-1.5 text-stone-600">
+          <span
+            className="h-2 w-2 shrink-0 rounded-full"
+            style={{ background: entry.color || entry.fill }}
+          />
+          <span>{entry.name}</span>
+          <span className="ml-auto font-semibold text-stone-800">
+            {entry.dataKey === "total" ? formatMoney(entry.value) : entry.value}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ChartCard({ icon: Icon, title, subtitle, children, delay = 0, className = "" }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay, ease: [0.22, 1, 0.36, 1] }}
+      className={`relative overflow-hidden rounded-2xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5 ${className}`}
+    >
+      <div className="flex items-center gap-2.5">
+        <div className="relative h-8 w-8 shrink-0">
+          <div
+            className="absolute inset-0 rounded-lg"
+            style={{ background: "linear-gradient(145deg, #B4677C, #7A2438)" }}
+          />
+          <div className="relative flex h-full w-full items-center justify-center">
+            <Icon size={14} className="text-white" />
+          </div>
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-stone-800">{title}</p>
+          {subtitle && <p className="text-[11px] text-stone-400">{subtitle}</p>}
+        </div>
+      </div>
+      <div className="mt-4">{children}</div>
+    </motion.div>
+  );
+}
+
+function StatusDonutChart({ data }) {
+  const [activeIndex, setActiveIndex] = useState(null);
+
+  if (!data.length) {
+    return (
+      <div className="flex h-52 flex-col items-center justify-center text-stone-300">
+        <DonutIcon size={26} />
+        <p className="mt-2 text-xs text-stone-400">No status data yet</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+      <div className="relative mx-auto h-52 w-52 shrink-0">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={data}
+              dataKey="count"
+              nameKey="label"
+              innerRadius={62}
+              outerRadius={90}
+              paddingAngle={3}
+              cornerRadius={6}
+              stroke="none"
+              onMouseEnter={(_, idx) => setActiveIndex(idx)}
+              onMouseLeave={() => setActiveIndex(null)}
+            >
+              {data.map((entry, idx) => (
+                <Cell
+                  key={entry.key}
+                  fill={entry.color}
+                  opacity={activeIndex === null || activeIndex === idx ? 1 : 0.35}
+                />
+              ))}
+            </Pie>
+            <Tooltip content={<ChartTooltip />} />
+          </PieChart>
+        </ResponsiveContainer>
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+          <p className="text-2xl font-bold text-stone-900">
+            {data.reduce((sum, d) => sum + d.count, 0)}
+          </p>
+          <p className="text-[10px] uppercase tracking-wide text-stone-400">Orders</p>
+        </div>
+      </div>
+      <div className="grid flex-1 grid-cols-2 gap-x-4 gap-y-2.5 sm:grid-cols-1">
+        {data.map((entry) => (
+          <div key={entry.key} className="flex items-center gap-2">
+            <span
+              className="h-2.5 w-2.5 shrink-0 rounded-full"
+              style={{ background: entry.color }}
+            />
+            <span className="truncate text-xs text-stone-600">{entry.label}</span>
+            <span className="ml-auto text-xs font-semibold text-stone-800">{entry.count}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RevenueByStatusChart({ data }) {
+  if (!data.length) {
+    return (
+      <div className="flex h-52 flex-col items-center justify-center text-stone-300">
+        <ChartIcon size={26} />
+        <p className="mt-2 text-xs text-stone-400">No revenue data yet</p>
+      </div>
+    );
+  }
+
+  return (
+    <ResponsiveContainer width="100%" height={232}>
+      <BarChart data={data} margin={{ top: 4, right: 8, left: -12, bottom: 0 }}>
+        <CartesianGrid vertical={false} stroke="#F0EAE3" />
+        <XAxis
+          dataKey="label"
+          tick={{ fontSize: 11, fill: "#A8A29E" }}
+          axisLine={{ stroke: "#E7E0D6" }}
+          tickLine={false}
+        />
+        <YAxis
+          tick={{ fontSize: 11, fill: "#A8A29E" }}
+          axisLine={false}
+          tickLine={false}
+          tickFormatter={formatCompactMoney}
+          width={56}
+        />
+        <Tooltip content={<ChartTooltip />} cursor={{ fill: "rgba(120,36,56,0.05)" }} />
+        <Bar dataKey="total" name="Revenue" radius={[8, 8, 0, 0]} maxBarSize={46}>
+          {data.map((entry) => (
+            <Cell key={entry.key} fill={entry.color} />
+          ))}
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
 
 function OrderDetailModal({ orderId, onClose }) {
   const [detail, setDetail] = useState(null);
@@ -1208,13 +1464,11 @@ function StatCard({ icon: Icon, label, value, format, accent = "gold", delay = 0
       transition={{ duration: 0.38, delay, ease: [0.22, 1, 0.36, 1] }}
       className="relative overflow-hidden rounded-2xl border border-stone-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-lg"
     >
-      {/* background glow blob */}
       <div
         className="pointer-events-none absolute -right-6 -bottom-8 h-24 w-24 rounded-full opacity-[0.15]"
         style={{ background: `radial-gradient(circle, ${palette.to}, transparent 70%)` }}
       />
 
-      {/* icon badge */}
       <div className="relative mb-3 h-9 w-9">
         <div
           className="absolute inset-0 rounded-xl"
@@ -1229,7 +1483,6 @@ function StatCard({ icon: Icon, label, value, format, accent = "gold", delay = 0
         </div>
       </div>
 
-      {/* value */}
       <p
         className="relative text-xl font-bold tracking-tight text-stone-900 sm:text-2xl"
         style={{ fontVariantNumeric: "tabular-nums" }}
@@ -1237,14 +1490,52 @@ function StatCard({ icon: Icon, label, value, format, accent = "gold", delay = 0
         {display}
       </p>
 
-      {/* label + caption */}
-      <p className="mt-0.5 text-xs font-semibold uppercase tracking-wide text-stone-500">
-        {label}
-      </p>
-      {caption && (
-        <p className="mt-1 text-[10px] text-stone-400">{caption}</p>
-      )}
+      <p className="mt-0.5 text-xs font-semibold uppercase tracking-wide text-stone-500">{label}</p>
+      {caption && <p className="mt-1 text-[10px] text-stone-400">{caption}</p>}
     </motion.div>
+  );
+}
+
+function StatCardSkeleton() {
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
+      <div className="mb-3 h-9 w-9 animate-pulse rounded-xl bg-stone-100" />
+      <div className="h-8 w-24 animate-pulse rounded-lg bg-stone-100" />
+      <div className="mt-1.5 h-4 w-16 animate-pulse rounded bg-stone-50" />
+      <div className="mt-2 h-3 w-32 animate-pulse rounded bg-stone-50" />
+    </div>
+  );
+}
+
+function StatusMiniCardSkeleton() {
+  return (
+    <div className="relative overflow-hidden rounded-xl border border-stone-200 bg-white p-3 shadow-sm sm:p-3.5">
+      <div className="relative flex items-center gap-2.5">
+        <div className="h-8 w-8 shrink-0 animate-pulse rounded-lg bg-stone-100 sm:h-9 sm:w-9" />
+        <div className="flex-1 space-y-1.5">
+          <div className="h-4 w-16 animate-pulse rounded bg-stone-100" />
+          <div className="h-3 w-12 animate-pulse rounded bg-stone-50" />
+        </div>
+      </div>
+      <div className="mt-2 flex justify-end">
+        <div className="h-5 w-20 animate-pulse rounded bg-stone-100" />
+      </div>
+    </div>
+  );
+}
+
+function ChartCardSkeleton() {
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5">
+      <div className="flex items-center gap-2.5">
+        <div className="h-8 w-8 animate-pulse rounded-lg bg-stone-100" />
+        <div className="space-y-1.5">
+          <div className="h-3.5 w-28 animate-pulse rounded bg-stone-100" />
+          <div className="h-3 w-20 animate-pulse rounded bg-stone-50" />
+        </div>
+      </div>
+      <div className="mt-6 h-52 animate-pulse rounded-xl bg-stone-50" />
+    </div>
   );
 }
 
@@ -1266,6 +1557,7 @@ export default function AdminOrdersDashboard() {
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [summary, setSummary] = useState(null);
+  const [summaryLoading, setSummaryLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -1309,12 +1601,14 @@ export default function AdminOrdersDashboard() {
   }, [page, perPage, filters]);
 
   const loadSummary = useCallback(() => {
+    setSummaryLoading(true);
     getAdminOrdersSummary({
       date_from: filters.date_from,
       date_to: filters.date_to,
     })
       .then((data) => setSummary(data.summary))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setSummaryLoading(false));
   }, [filters.date_from, filters.date_to]);
 
   useEffect(() => {
@@ -1378,6 +1672,20 @@ export default function AdminOrdersDashboard() {
     ? Object.entries(summary.status_breakdown)
     : [];
 
+  const chartData = useMemo(() => {
+    return breakdownEntries.map(([key, data]) => {
+      const accent = STATUS_ACCENT_MAP[key] || "slate";
+      const palette = ACCENTS[accent] || ACCENTS.slate;
+      return {
+        key,
+        label: formatStatusLabel(key),
+        count: data.count,
+        total: data.total,
+        color: palette.to,
+      };
+    });
+  }, [breakdownEntries]);
+
   return (
     <div className="min-h-screen bg-stone-50 px-3 py-5 sm:px-6 sm:py-6 lg:px-10 ">
       <div className="mx-auto w-full">
@@ -1397,7 +1705,29 @@ export default function AdminOrdersDashboard() {
           </button>
         </div>
 
-        {summary && (
+        {summaryLoading && !summary ? (
+          <>
+            <div className="mt-5 grid grid-cols-2 gap-2.5 sm:mt-6 sm:grid-cols-3 sm:gap-3 lg:grid-cols-6">
+              {[...Array(6)].map((_, i) => (
+                <StatCardSkeleton key={i} />
+              ))}
+            </div>
+            <div className="mt-4 grid gap-3 sm:mt-5 sm:grid-cols-2">
+              <ChartCardSkeleton />
+              <ChartCardSkeleton />
+            </div>
+            <div className="mt-4 sm:mt-5">
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-stone-400 sm:text-[11px]">
+                Status
+              </p>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-2.5 lg:grid-cols-4">
+                {[...Array(4)].map((_, i) => (
+                  <StatusMiniCardSkeleton key={i} />
+                ))}
+              </div>
+            </div>
+          </>
+        ) : summary ? (
           <>
             <div className="mt-5 grid grid-cols-2 gap-2.5 sm:mt-6 sm:grid-cols-3 sm:gap-3 lg:grid-cols-6">
               <StatCard
@@ -1451,7 +1781,28 @@ export default function AdminOrdersDashboard() {
               />
             </div>
 
-            {breakdownEntries.length > 0 && (
+            {chartData.length > 0 && (
+              <div className="mt-4 grid gap-3 sm:mt-5 sm:grid-cols-2">
+                <ChartCard
+                  icon={DonutIcon}
+                  title="Order status split"
+                  subtitle="Share of orders by current status"
+                  delay={0.18}
+                >
+                  <StatusDonutChart data={chartData} />
+                </ChartCard>
+                <ChartCard
+                  icon={ChartIcon}
+                  title="Revenue by status"
+                  subtitle="Order value grouped by status"
+                  delay={0.21}
+                >
+                  <RevenueByStatusChart data={chartData} />
+                </ChartCard>
+              </div>
+            )}
+
+            {/* {breakdownEntries.length > 0 && (
               <div className="mt-4 sm:mt-5">
                 <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-stone-400 sm:text-[11px]">
                   Status
@@ -1475,9 +1826,9 @@ export default function AdminOrdersDashboard() {
                   })}
                 </div>
               </div>
-            )}
+            )} */}
           </>
-        )}
+        ) : null}
 
         <div className="mt-5 rounded-2xl border border-stone-200 bg-white sm:mt-6">
           <div className="flex flex-wrap items-center gap-3 border-b border-stone-100 p-4">
@@ -1653,6 +2004,33 @@ export default function AdminOrdersDashboard() {
                 </tr>
               </thead>
               <tbody>
+                {loading &&
+                  [...Array(5)].map((_, idx) => (
+                    <tr key={`skeleton-${idx}`} className="border-b border-stone-50">
+                      <td className="px-4 py-3">
+                        <div className="h-4 w-16 animate-pulse rounded bg-stone-100"></div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="mb-1.5 h-4 w-32 animate-pulse rounded bg-stone-100"></div>
+                        <div className="h-3 w-40 animate-pulse rounded bg-stone-50"></div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="h-6 w-20 animate-pulse rounded-full bg-stone-100"></div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="h-4 w-20 animate-pulse rounded bg-stone-100"></div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="h-4 w-8 animate-pulse rounded bg-stone-100"></div>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="ml-auto h-4 w-16 animate-pulse rounded bg-stone-100"></div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="h-4 w-24 animate-pulse rounded bg-stone-100"></div>
+                      </td>
+                    </tr>
+                  ))}
                 <AnimatePresence mode="wait">
                   {!loading &&
                     orders.map((order, idx) => (
@@ -1693,12 +2071,6 @@ export default function AdminOrdersDashboard() {
               </tbody>
             </table>
 
-            {loading && (
-              <div className="flex h-40 items-center justify-center">
-                <RefreshIcon size={22} className="animate-spin text-stone-300" />
-              </div>
-            )}
-
             {!loading && orders.length === 0 && !error && (
               <div className="flex h-40 flex-col items-center justify-center text-stone-400">
                 <CrateIcon size={28} className="mb-2 opacity-40" />
@@ -1709,9 +2081,23 @@ export default function AdminOrdersDashboard() {
 
           <div className="space-y-2 p-3 lg:hidden">
             {loading ? (
-              <div className="flex h-32 items-center justify-center">
-                <RefreshIcon size={22} className="animate-spin text-stone-300" />
-              </div>
+              [...Array(4)].map((_, idx) => (
+                <div
+                  key={`mob-skeleton-${idx}`}
+                  className="rounded-xl border border-stone-100 p-3.5"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="h-4 w-16 animate-pulse rounded bg-stone-100"></div>
+                    <div className="h-6 w-20 animate-pulse rounded-full bg-stone-100"></div>
+                  </div>
+                  <div className="mt-2 h-4 w-32 animate-pulse rounded bg-stone-100"></div>
+                  <div className="mt-1 h-3 w-40 animate-pulse rounded bg-stone-50"></div>
+                  <div className="mt-3 flex items-center justify-between">
+                    <div className="h-3 w-24 animate-pulse rounded bg-stone-100"></div>
+                    <div className="h-4 w-20 animate-pulse rounded bg-stone-100"></div>
+                  </div>
+                </div>
+              ))
             ) : orders.length === 0 ? (
               <div className="flex h-32 flex-col items-center justify-center text-stone-400">
                 <CrateIcon size={26} className="mb-2 opacity-40" />
