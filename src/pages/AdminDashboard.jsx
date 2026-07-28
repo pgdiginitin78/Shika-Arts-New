@@ -13,6 +13,10 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { format, parse, isValid } from "date-fns";
 
 import {
   getAdminOrders,
@@ -924,6 +928,34 @@ function formatStatusLabel(key) {
     .join(" ");
 }
 
+function toApiDateString(dateObj) {
+  if (!dateObj || !isValid(dateObj)) return "";
+  return format(dateObj, "yyyy-MM-dd");
+}
+
+function fromApiDateString(value) {
+  if (!value) return null;
+  const parsed = parse(value, "yyyy-MM-dd", new Date());
+  return isValid(parsed) ? parsed : null;
+}
+
+const muiDatePickerSx = {
+  "& .MuiOutlinedInput-root": {
+    borderRadius: "0.5rem",
+    fontSize: "0.875rem",
+    backgroundColor: "#fff",
+  },
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#e7e5e4",
+  },
+  "&:hover .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#7A1F3D",
+  },
+  "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#7A1F3D !important",
+  },
+};
+
 function StatusBadge({ status, label }) {
   const style = STATUS_STYLES[status] || "bg-stone-100 text-stone-700 ring-stone-600/20";
   return (
@@ -1801,32 +1833,6 @@ export default function AdminOrdersDashboard() {
                 </ChartCard>
               </div>
             )}
-
-            {/* {breakdownEntries.length > 0 && (
-              <div className="mt-4 sm:mt-5">
-                <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-stone-400 sm:text-[11px]">
-                  Status
-                </p>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-2.5 lg:grid-cols-4">
-                  {breakdownEntries.map(([key, data], idx) => {
-                    const Icon = STATUS_ICON_MAP[key] || CrateIcon;
-                    const accent = STATUS_ACCENT_MAP[key] || "slate";
-                    return (
-                      <StatusMiniCard
-                        key={key}
-                        icon={Icon}
-                        label={formatStatusLabel(key)}
-                        count={data.count}
-                        total={data.total}
-                        currency="INR"
-                        accent={accent}
-                        delay={idx * 0.03}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            )} */}
           </>
         ) : null}
 
@@ -1897,22 +1903,42 @@ export default function AdminOrdersDashboard() {
                   </div>
 
                   <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                    <FilterField label="From date">
-                      <input
-                        type="date"
-                        value={filters.date_from}
-                        onChange={(e) => updateFilter("date_from", e.target.value)}
-                        className={inputClass}
-                      />
-                    </FilterField>
-                    <FilterField label="To date">
-                      <input
-                        type="date"
-                        value={filters.date_to}
-                        onChange={(e) => updateFilter("date_to", e.target.value)}
-                        className={inputClass}
-                      />
-                    </FilterField>
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                      <FilterField label="From date">
+                        <DatePicker
+                          value={fromApiDateString(filters.date_from)}
+                          onChange={(newValue) =>
+                            updateFilter("date_from", toApiDateString(newValue))
+                          }
+                          maxDate={fromApiDateString(filters.date_to) || undefined}
+                          slotProps={{
+                            textField: {
+                              size: "small",
+                              fullWidth: true,
+                              placeholder: "Select date",
+                              sx: muiDatePickerSx,
+                            },
+                          }}
+                        />
+                      </FilterField>
+                      <FilterField label="To date">
+                        <DatePicker
+                          value={fromApiDateString(filters.date_to)}
+                          onChange={(newValue) =>
+                            updateFilter("date_to", toApiDateString(newValue))
+                          }
+                          minDate={fromApiDateString(filters.date_from) || undefined}
+                          slotProps={{
+                            textField: {
+                              size: "small",
+                              fullWidth: true,
+                              placeholder: "Select date",
+                              sx: muiDatePickerSx,
+                            },
+                          }}
+                        />
+                      </FilterField>
+                    </LocalizationProvider>
                     <FilterField label="Min amount">
                       <input
                         type="number"

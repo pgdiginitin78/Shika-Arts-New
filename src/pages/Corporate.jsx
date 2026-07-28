@@ -175,6 +175,7 @@ export default function Corporate() {
               e.target.style.display = "none";
             }}
           />
+          
           <div className="absolute inset-0 bg-black/40 md:bg-gradient-to-b md:from-black/30 md:via-black/20 md:to-black/30" />
         </div>
         <div className=" md:hidden absolute inset-0 w-full h-full">

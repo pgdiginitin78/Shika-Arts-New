@@ -8,11 +8,12 @@ export default function GoogleAuthCallback() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const token    = params.get("google_token");
-    const email    = params.get("user_email");
-    const name     = params.get("display_name");
-    const userId   = params.get("user_id");
-    const error    = params.get("error");
+    const token = params.get("google_token");
+    const refreshToken = params.get("refresh_token");
+    const email = params.get("user_email");
+    const name = params.get("display_name");
+    const userId = params.get("user_id");
+    const error = params.get("error");
 
     if (error) {
       setStatus("Google sign-in failed. Redirecting...");
@@ -21,7 +22,6 @@ export default function GoogleAuthCallback() {
     }
 
     if (token) {
-      // Build the same shape your regular login uses
       const userData = {
         token,
         email,
@@ -30,13 +30,14 @@ export default function GoogleAuthCallback() {
         user_email: email,
       };
 
-      // Store exactly like customerLogin does
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(userData));
       localStorage.setItem("customerData", JSON.stringify(userData));
+      if (refreshToken) {
+        localStorage.setItem("refreshToken", refreshToken);
+      }
 
-      // Update Zustand store
-      useCustomerAuthStore.getState().login(token, userData, null);
+      useCustomerAuthStore.getState().login(token, userData, refreshToken || null);
 
       setStatus("Signed in! Redirecting...");
       setTimeout(() => navigate("/"), 500);
@@ -59,7 +60,6 @@ export default function GoogleAuthCallback() {
         color: "#555",
       }}
     >
-      {/* Spinner */}
       <div
         style={{
           width: 40,

@@ -2,12 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRazorpay } from "@/hooks/useRazorpay";
 import { formatPrice } from "@/lib/woocommerce";
-import {
-  cancelWooOrder,
-  clearWooCart,
-  createWooOrder,
-  markOrderPaid,
-} from "@/services/orderService";
+import { clearWooCart, createWooOrder, markOrderPaid } from "@/services/orderService";
 import { saveAddress } from "@/services/addressService";
 import { useCartStore } from "@/stores/cartStore";
 import { useCustomerAuthStore } from "@/stores/customerAuthStore";
@@ -232,8 +227,6 @@ export default function CheckoutPage() {
     }
 
     setIsCheckingOut(true);
-    let wooOrderId = null;
-    let wooOrderKey = null;
 
     try {
       toast.loading("Preparing your order...", { id: "checkout" });
@@ -249,29 +242,32 @@ export default function CheckoutPage() {
       };
 
       const order = await createWooOrder(items, customerData);
-      wooOrderId = order.orderId;
-      wooOrderKey = order.orderKey;
 
       toast.dismiss("checkout");
 
       openRazorpay({
-        wooOrderId: order.orderId,
+        receiptId: order.receiptId,
         razorpayOrderId: order.razorpayOrderId,
         amount: order.amount,
         currency: order.currency,
         name: "Shikaarts",
-        description: `Order #${order.orderId}`,
+        description: "Shikaarts Order",
         customerName: customerData.name,
         email: customerData.email,
         phone: customerData.phone,
         onSuccess: async ({
-          wooOrderId: paidOrderId,
+          receiptId: paidReceiptId,
           razorpayPaymentId,
           razorpayOrderId,
           razorpaySignature,
         }) => {
           try {
-            await markOrderPaid(paidOrderId, razorpayPaymentId, razorpayOrderId, razorpaySignature);
+            const result = await markOrderPaid(
+              paidReceiptId,
+              razorpayPaymentId,
+              razorpayOrderId,
+              razorpaySignature,
+            );
             await clearWooCart();
             resetCart();
             localStorage.removeItem("cart_token");
@@ -289,19 +285,16 @@ export default function CheckoutPage() {
             }
 
             setIsCheckingOut(false);
-            navigate(`/order-success/${paidOrderId}?key=${wooOrderKey ?? ""}`);
+            navigate(`/order-success/${result.order_id}`);
           } catch (err) {
             console.error("Payment verification failed:", err);
             setIsCheckingOut(false);
-            toast.error("We couldn't confirm your payment. Please contact support.", {
-              description: `Order #${paidOrderId}`,
-            });
+            toast.error("We couldn't confirm your payment. Please contact support.");
           }
         },
         onFailure: (err) => {
           setIsCheckingOut(false);
           toast.error(err?.message || "Payment failed or cancelled.");
-          if (wooOrderId) cancelWooOrder(wooOrderId);
         },
       });
     } catch (err) {
@@ -310,7 +303,6 @@ export default function CheckoutPage() {
       toast.error("Could not initiate checkout.", {
         description: err?.message || "Please try again.",
       });
-      if (wooOrderId) await cancelWooOrder(wooOrderId);
     }
   };
 

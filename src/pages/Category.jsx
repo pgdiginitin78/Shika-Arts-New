@@ -5,6 +5,7 @@ import { getCategoryBySlug } from "@/lib/categories";
 import { ProductCard, ProductSkeleton } from "@/components/ProductCard";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavbarMenus } from "../context/NavbarContext";
+import { getProductsByCategory, getProductsByParentCategory } from "../services/LoginServices";
 
 function CategoryPage() {
   const { slug } = useParams();
@@ -14,14 +15,40 @@ function CategoryPage() {
   const navbarMenus = useNavbarMenus();
 
   const [activeTag, setActiveTag] = useState(tagParam || "");
+  const [selectedSlug, setSelectedSlug] = useState(slug);
+  const [selectedId, setSelectedId] = useState(null);
+  const [filterMode, setFilterMode] = useState("parent");
+
+  const activeCategory = navbarMenus.find(
+    (c) => c.slug === slug || c.slug.toLowerCase() === slug.toLowerCase(),
+  );
+  const menuData = activeCategory?.children?.length ? activeCategory.children : null;
 
   useEffect(() => {
-    if (tagParam) {
-      setActiveTag(tagParam);
-    } else {
-      setActiveTag("");
+    setSelectedSlug(slug);
+    setSelectedId(null);
+    setFilterMode("parent");
+    setActiveTag("");
+  }, [slug]);
+
+  useEffect(() => {
+    if (!tagParam || !menuData) {
+      return;
     }
-  }, [tagParam, slug]);
+    let matched = null;
+    menuData.forEach((section) => {
+      const found = section.children?.find((item) => item.slug === tagParam);
+      if (found) {
+        matched = found;
+      }
+    });
+    if (matched) {
+      setActiveTag(matched.slug);
+      setSelectedSlug(matched.slug);
+      setSelectedId(matched.id);
+      setFilterMode("exact");
+    }
+  }, [tagParam, menuData]);
 
   useEffect(() => {
     if (activeTag) {
@@ -42,17 +69,18 @@ function CategoryPage() {
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(" ");
 
-  // Find this category's data from context; match by slug
-  const activeCategory = navbarMenus.find(
-    (c) => c.slug === slug || c.slug.toLowerCase() === slug.toLowerCase()
-  );
-  // menuData = array of sub-sections (level-2 children), each with their own children (level-3)
-  const menuData = activeCategory?.children?.length ? activeCategory.children : null;
-
   const { data: products = [], isLoading } = useQuery({
-    queryKey: ["products", "category", slug, activeTag],
+    queryKey: ["products", "category", selectedSlug, selectedId, filterMode],
     queryFn: async () => {
-      return [];
+      if (filterMode === "exact" && selectedId) {
+        const res = await getProductsByCategory(selectedId);
+        return Array.isArray(res) ? res : [];
+      }
+      if (!selectedSlug) {
+        return [];
+      }
+      const res = await getProductsByParentCategory(selectedSlug);
+      return res.products || [];
     },
   });
 
@@ -75,7 +103,6 @@ function CategoryPage() {
         </motion.div>
 
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-          {/* Sidebar */}
           {menuData && (
             <div className="w-full lg:w-1/4 flex-shrink-0">
               <motion.div
@@ -84,7 +111,12 @@ function CategoryPage() {
                 className="sticky top-24 bg-white p-6 shadow-sm border border-border"
               >
                 <button
-                  onClick={() => setActiveTag("")}
+                  onClick={() => {
+                    setActiveTag("");
+                    setSelectedSlug(slug);
+                    setSelectedId(null);
+                    setFilterMode("parent");
+                  }}
                   className={`w-full text-left font-serif text-xl md:text-2xl italic mb-6 transition-colors ${
                     activeTag === "" ? "text-destructive" : "text-foreground hover:text-destructive"
                   }`}
@@ -96,22 +128,27 @@ function CategoryPage() {
                   {menuData.map((section, idx) => (
                     <div key={idx} className="flex flex-col gap-3">
                       <h4 className="text-[14px] uppercase tracking-widest font-bold text-muted-foreground border-b border-border pb-2">
-                        {section.name.replace(/&amp;/g, '&')}
+                        {section.name.replace(/&amp;/g, "&")}
                       </h4>
                       <div className="flex flex-col gap-2">
                         {(section.children ?? []).map((item, i) => {
-                          const itemTag = item.slug.replace(/-/g, " ");
+                          const isActive = activeTag === item.slug;
                           return (
                             <button
                               key={i}
-                              onClick={() => setActiveTag(itemTag)}
+                              onClick={() => {
+                                setActiveTag(item.slug);
+                                setSelectedSlug(item.slug);
+                                setSelectedId(item.id);
+                                setFilterMode("exact");
+                              }}
                               className={`text-left text-[14px] uppercase tracking-wider transition-colors ${
-                                activeTag === itemTag
+                                isActive
                                   ? "text-destructive font-semibold"
                                   : "text-foreground hover:text-destructive"
                               }`}
                             >
-                              {item.name.replace(/&amp;/g, '&')}
+                              {item.name.replace(/&amp;/g, "&")}
                             </button>
                           );
                         })}
@@ -123,7 +160,6 @@ function CategoryPage() {
             </div>
           )}
 
-          {/* Product Grid */}
           <div className={`w-full ${menuData ? "lg:w-3/4" : ""} min-h-[50vh]`}>
             {isLoading ? (
               <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-8">
@@ -140,9 +176,6 @@ function CategoryPage() {
                 <p className="text-lg text-muted-foreground uppercase tracking-widest mb-4">
                   No products found in this collection yet.
                 </p>
-                <p className="text-sm text-muted-foreground uppercase tracking-widest">
-                  Connect to WooCommerce and add category and menu to show products proper.
-                </p>
               </motion.div>
             ) : (
               <AnimatePresence mode="wait">
@@ -153,11 +186,13 @@ function CategoryPage() {
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
                   className={`grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 ${
-                    menuData ? "md:grid-cols-3 lg:gap-x-8" : "md:grid-cols-3 lg:grid-cols-4 lg:gap-x-8"
+                    menuData
+                      ? "md:grid-cols-3 lg:gap-x-8"
+                      : "grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 lg:gap-4"
                   }`}
                 >
-                  {products.map((p) => (
-                    <ProductCard key={p.node.id} product={p} />
+                  {products.map((p, index) => (
+                    <ProductCard key={index} product={p} />
                   ))}
                 </motion.div>
               </AnimatePresence>

@@ -38,7 +38,7 @@ export function useRazorpay() {
 
   const openRazorpay = useCallback(
     async ({
-      wooOrderId,
+      receiptId,
       razorpayOrderId,
       amount,
       currency = "INR",
@@ -77,7 +77,7 @@ export function useRazorpay() {
           },
 
           notes: {
-            woo_order_id: wooOrderId,
+            receipt_id: receiptId,
           },
 
           theme: {
@@ -98,7 +98,7 @@ export function useRazorpay() {
             loadingRef.current = false;
 
             onSuccess?.({
-              wooOrderId,
+              receiptId,
 
               razorpayPaymentId:
                 response.razorpay_payment_id,

@@ -42,6 +42,9 @@ export default function PackagingStudio() {
   const [selectedId, setSelectedId] = useState(null);
   const [filterMode, setFilterMode] = useState("parent");
 
+  const requestIdRef = useRef(0);
+  const isFirstRender = useRef(true);
+
   useEffect(() => {
     if (navbarMenus?.length > 0) {
       const found = navbarMenus.find(
@@ -78,8 +81,6 @@ export default function PackagingStudio() {
     }
   }, [tagParam, packagingCat]);
 
-  const isFirstRender = useRef(true);
-
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
@@ -103,28 +104,32 @@ export default function PackagingStudio() {
   }, [activeTag, activeCategory]);
 
   useEffect(() => {
+    const currentRequestId = ++requestIdRef.current;
     setIsLoading(true);
+    setProducts([]);
+
+    const applyResult = (result) => {
+      if (currentRequestId !== requestIdRef.current) return;
+      setProducts(result);
+      setIsLoading(false);
+    };
+
+    const handleError = (err) => {
+      console.error(err);
+      if (currentRequestId === requestIdRef.current) {
+        setIsLoading(false);
+      }
+    };
+
     if (filterMode === "exact" && selectedId) {
       getProductsByCategory(selectedId)
-        .then((res) => {
-          setProducts(Array.isArray(res) ? res : []);
-          setIsLoading(false);
-        })
-        .catch((err) => {
-          console.error(err);
-          setIsLoading(false);
-        });
+        .then((res) => applyResult(Array.isArray(res) ? res : []))
+        .catch(handleError);
     } else {
-      const slug = packagingCat?.slug || "packaging-studio";
+      const slug = selectedSlug || packagingCat?.slug || "packaging-studio";
       getProductsByParentCategory(slug)
-        .then((res) => {
-          setProducts(res.products);
-          setIsLoading(false);
-        })
-        .catch((err) => {
-          console.error(err);
-          setIsLoading(false);
-        });
+        .then((res) => applyResult(res.products || []))
+        .catch(handleError);
     }
   }, [selectedSlug, selectedId, filterMode, packagingCat]);
 
@@ -144,7 +149,6 @@ export default function PackagingStudio() {
     const cls = active ? "text-[#C5A26F]" : "opacity-70 text-[#1e2321]";
     if (n.includes("all")) return <Grip size={15} strokeWidth={1.5} className={cls} />;
 
-    // Baskets
     if (n.includes("festive") && n.includes("basket"))
       return <Sparkles size={15} strokeWidth={1.5} className={cls} />;
     if (n.includes("premium cane") || n.includes("cane"))
@@ -152,14 +156,12 @@ export default function PackagingStudio() {
     if (n.includes("wicker")) return <Archive size={15} strokeWidth={1.5} className={cls} />;
     if (n.includes("basket")) return <Archive size={15} strokeWidth={1.5} className={cls} />;
 
-    // Boxes
     if (n.includes("acrylic")) return <Box size={15} strokeWidth={1.5} className={cls} />;
     if (n.includes("luxury box") || n.includes("luxury"))
       return <Gem size={15} strokeWidth={1.5} className={cls} />;
     if (n.includes("magnetic")) return <Stamp size={15} strokeWidth={1.5} className={cls} />;
     if (n.includes("box")) return <Box size={15} strokeWidth={1.5} className={cls} />;
 
-    // Finishing Touches
     if (n.includes("personalised note") || n.includes("note"))
       return <ScrollText size={15} strokeWidth={1.5} className={cls} />;
     if (n.includes("ribbon")) return <Ribbon size={15} strokeWidth={1.5} className={cls} />;
@@ -170,16 +172,13 @@ export default function PackagingStudio() {
     if (n.includes("finishing") || n.includes("touch"))
       return <Sparkles size={15} strokeWidth={1.5} className={cls} />;
 
-    // Wraps & Papers
     if (n.includes("festive") && (n.includes("wrap") || n.includes("paper")))
       return <Sparkles size={15} strokeWidth={1.5} className={cls} />;
     if (n.includes("floral")) return <Flower2 size={15} strokeWidth={1.5} className={cls} />;
-    if (n.includes("minimal") || n.includes("minimal"))
-      return <Feather size={15} strokeWidth={1.5} className={cls} />;
+    if (n.includes("minimal")) return <Feather size={15} strokeWidth={1.5} className={cls} />;
     if (n.includes("wrap") || n.includes("paper"))
       return <Layers size={15} strokeWidth={1.5} className={cls} />;
 
-    // General packaging
     if (n.includes("festive")) return <Sparkles size={15} strokeWidth={1.5} className={cls} />;
     if (n.includes("floral") || n.includes("flower"))
       return <Flower2 size={15} strokeWidth={1.5} className={cls} />;
@@ -371,7 +370,6 @@ export default function PackagingStudio() {
             </div>
           </aside>
 
-          {/* Product Grid */}
           <div className="flex-1 min-h-[50vh] min-w-0">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8">
               <p className="text-[13px] text-gray-500 font-medium">

@@ -20,6 +20,9 @@ export default function EarthWorth() {
   const [selectedId, setSelectedId] = useState(null);
   const [filterMode, setFilterMode] = useState("parent");
 
+  const isFirstRender = useRef(true);
+  const requestIdRef = useRef(0);
+
   useEffect(() => {
     if (navbarMenus?.length > 0) {
       const found = navbarMenus.find((menu) => menu?.name === "EarthWorth");
@@ -51,8 +54,6 @@ export default function EarthWorth() {
     }
   }, [tagParam, corporateCat]);
 
-  const isFirstRender = useRef(true);
-
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
@@ -76,32 +77,35 @@ export default function EarthWorth() {
   }, [activeTag, activeCategory]);
 
   useEffect(() => {
+    const currentRequestId = ++requestIdRef.current;
     setIsLoading(true);
+    setProducts([]);
+
+    const applyResult = (result) => {
+      if (currentRequestId !== requestIdRef.current) return;
+      setProducts(result);
+      setIsLoading(false);
+    };
+
+    const handleError = (err) => {
+      console.error(err);
+      if (currentRequestId === requestIdRef.current) {
+        setIsLoading(false);
+      }
+    };
 
     if (filterMode === "exact" && selectedId) {
       getProductsByCategory(selectedId)
-        .then((res) => {
-          setProducts(Array.isArray(res) ? res : []);
-          setIsLoading(false);
-        })
-        .catch((err) => {
-          console.error(err);
-          setIsLoading(false);
-        });
+        .then((res) => applyResult(Array.isArray(res) ? res : []))
+        .catch(handleError);
     } else {
       if (!selectedSlug) {
         setIsLoading(false);
         return;
       }
       getProductsByParentCategory(selectedSlug)
-        .then((res) => {
-          setProducts(res.products);
-          setIsLoading(false);
-        })
-        .catch((err) => {
-          console.error(err);
-          setIsLoading(false);
-        });
+        .then((res) => applyResult(res.products || []))
+        .catch(handleError);
     }
   }, [selectedSlug, selectedId, filterMode]);
 

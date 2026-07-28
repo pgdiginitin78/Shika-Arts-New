@@ -1,15 +1,6 @@
 import api from "./http-common";
 
-/**
- * Creates a WooCommerce order via the REST v3 API.
- * Requires a logged-in customer (JWT token in localStorage).
- *
- * @param {Array}  cartItems  - Items from useCartStore().items
- * @param {Object} customer   - { name, email, phone }
- * @returns {{ orderId: number, amount: number, currency: string, receiptId: string }}
- */
 export async function createWooOrder(cartItems = [], customer = {}) {
-  // Split name into first/last
   const nameParts = (customer.name || "").trim().split(" ");
   const firstName = nameParts[0] || "Guest";
   const lastName = nameParts.slice(1).join(" ") || ".";
@@ -17,12 +8,12 @@ export async function createWooOrder(cartItems = [], customer = {}) {
   const billingAddress = {
     first_name: firstName,
     last_name: lastName,
-    email: customer.email || "guest@shikaarts.com",
-    phone: customer.phone || "0000000000",
+    email: customer.email || "",
+    phone: customer.phone || "",
     address_1: customer.address || "N/A",
     city: customer.city || "N/A",
     state: customer.state || "MH",
-    postcode: customer.postcode || "400001",
+    postcode: customer.postcode || "",
     country: "IN",
   };
 
@@ -40,45 +31,33 @@ export async function createWooOrder(cartItems = [], customer = {}) {
 
   const { data } = await api.post("/wp-json/custom/v1/create-order", payload);
 
-  console.log("create-order Response:", data);
-
   if (!data?.success) {
     throw new Error(data?.message || "Failed to create order.");
   }
 
   return {
-    orderId: data.woo_order_id,
-    orderKey: data.order_key,
+    receiptId: data.receipt,
     razorpayOrderId: data.razorpay_order_id,
     amount: data.amount,
     currency: data.currency,
   };
 }
 
-/**
- * Mark an existing WooCommerce order as 'processing' after successful payment.
- * Also stores the Razorpay payment ID as order meta for reconciliation.
- *
- * @param {number} orderId
- * @param {string} razorpayPaymentId
- */
 export async function markOrderPaid(
-  orderId,
+  receiptId,
   razorpayPaymentId,
   razorpayOrderId,
   razorpaySignature,
 ) {
   try {
     const response = await api.post("/wp-json/custom/v1/verify-payment", {
-      order_id: orderId,
+      receipt: receiptId,
       razorpay_payment_id: razorpayPaymentId,
       razorpay_order_id: razorpayOrderId,
       razorpay_signature: razorpaySignature,
     });
-    console.log(`Payment verified and order marked as paid:`, response.data);
     return response.data;
   } catch (error) {
-    console.error("Failed to verify payment with backend:", error);
     throw error;
   }
 }
@@ -88,21 +67,14 @@ export async function clearWooCart() {
   return data;
 }
 
-/**
- * Cancel a pending order if payment was dismissed or failed.
- *
- * @param {number} orderId
- */
 export async function cancelWooOrder(orderId) {
   try {
     const { data } = await api.post("/wp-json/custom/v1/cancel-order", {
       order_id: orderId,
     });
-    console.log(`Order ${orderId} cancelled:`, data);
     return data;
   } catch (error) {
     console.error(`Failed to cancel order ${orderId}:`, error);
-    // Non-fatal: don't block the UI on cancellation failure
   }
 }
 
@@ -123,7 +95,6 @@ export async function cancelOrder(orderId) {
   return data;
 }
 
-// services/orderService.js
 export async function downloadInvoice(orderId) {
   const response = await fetch(
     `https://api.shikaarts.com/wp-json/custom/v1/download-invoice/${orderId}`,
@@ -136,16 +107,9 @@ export async function downloadInvoice(orderId) {
 
   const originalBlob = await response.blob();
   const pdfBlob = new Blob([originalBlob], { type: "application/pdf" });
-  return URL.createObjectURL(pdfBlob); // local blob: URL, not a real navigation
+  return URL.createObjectURL(pdfBlob);
 }
 
-/**
- * Fetch a WooCommerce order's details using the order ID and order_key.
- * The order_key is returned from the checkout response and acts as a secure token.
- *
- * @param {number} orderId
- * @param {string} orderKey
- */
 export async function getOrderDetails(orderId) {
   const { data } = await api.get(`/wp-json/custom/v1/order/${orderId}`, {});
 
@@ -192,8 +156,6 @@ export async function getWishlistItems() {
   return data;
 }
 
-//admin dashboard api
-
 export async function getAdminOrders(filters = {}) {
   const token = localStorage.getItem("token");
   const { data } = await api.get("/wp-json/custom/v1/admin/orders", {
@@ -220,9 +182,6 @@ export async function getAdminOrdersSummary(filters = {}) {
   return data;
 }
 
-/**
- * Search products by name using the custom search endpoint.
- */
 export async function searchProducts(name, page = 1, perPage = 20) {
   if (!name || !name.trim()) {
     return { products: [], total: 0, pages: 0 };
@@ -253,10 +212,7 @@ export async function downloadBrochure(dataObj) {
   return data;
 }
 
-
 export async function getBrochureDownloads() {
-  const { data } = await api.get(
-    "/wp-json/custom/v1/brochure-downloads"
-  );
+  const { data } = await api.get("/wp-json/custom/v1/brochure-downloads");
   return data;
 }

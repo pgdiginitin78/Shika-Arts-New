@@ -35,6 +35,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import ShippingPolicy from "./pages/ShippingPolicy";
 import { startTokenAutoRefresh } from "./services/http-common";
+import Delicacies from "./pages/Delicacies";
 const queryClient = new QueryClient();
 
 function getResetParams() {
@@ -106,6 +107,7 @@ function App() {
                 <Route path="/category/:slug" element={<Category />} />
                 <Route path="/product/:handle" element={<Product />} />
                 <Route path="/products" element={<Products />} />
+                <Route path="/category/delicacies" element={<Delicacies />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
                 <Route path="/my-orders" element={<MyOrdersPage />} />

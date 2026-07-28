@@ -15,7 +15,7 @@ import {
   RotateCcw,
   ShoppingBag,
   Sparkles,
-  XCircle
+  XCircle,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -49,19 +49,6 @@ const iconPop = {
 };
 
 const CANCELLABLE_STATUSES = ["pending", "pending-payment", "processing", "on-hold"];
-
-function statusLabel(status) {
-  const map = {
-    processing: { label: "Processing", color: "bg-blue-100 text-blue-800" },
-    "pending-payment": { label: "Pending Payment", color: "bg-[#f4ebd9] text-[#700c14]" },
-    pending: { label: "Pending Payment", color: "bg-[#f4ebd9] text-[#700c14]" },
-    completed: { label: "Completed", color: "bg-green-100 text-green-800" },
-    cancelled: { label: "Cancelled", color: "bg-red-100 text-red-800" },
-    refunded: { label: "Refunded", color: "bg-gray-100 text-gray-700" },
-    "on-hold": { label: "On Hold", color: "bg-orange-100 text-orange-800" },
-  };
-  return map[status] ?? { label: status || "Unknown", color: "bg-gray-100 text-gray-600" };
-}
 
 function statusHero(status) {
   const map = {
@@ -184,6 +171,10 @@ function stripHtml(html) {
   return html.replace(/<[^>]*>/g, "").trim();
 }
 
+function getErrorMessage(err, fallback) {
+  return err?.response?.data?.message || err?.data?.message || err?.message || fallback;
+}
+
 function Skeleton({ className = "" }) {
   return <div className={`animate-pulse rounded bg-gray-100 ${className}`} />;
 }
@@ -207,6 +198,8 @@ export default function OrderSuccessPage() {
   const [isCancelling, setIsCancelling] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const invoiceRef = useRef(null);
+
+  const isAuthenticated = Boolean(localStorage.getItem("token"));
 
   useEffect(() => {
     if (!orderId) {
@@ -294,9 +287,7 @@ export default function OrderSuccessPage() {
         navigate("/my-orders");
       }, 800);
     } catch (err) {
-      const message =
-        err?.response?.data?.message || "Could not cancel this order. Please contact support.";
-      toast.error(message);
+      toast.error(getErrorMessage(err, "Could not cancel this order. Please contact support."));
     } finally {
       setIsCancelling(false);
     }
@@ -349,7 +340,7 @@ export default function OrderSuccessPage() {
     (sum, item) => sum + Number(item?.price ?? 0) * Number(item?.quantity ?? 1),
     0,
   );
-  const canCancel = CANCELLABLE_STATUSES.includes(order?.status);
+  const canCancel = isAuthenticated && CANCELLABLE_STATUSES.includes(order?.status);
 
   return (
     <div className="min-h-screen bg-[#FAFAF8] py-10 px-4 sm:py-16">
@@ -690,7 +681,6 @@ export default function OrderSuccessPage() {
         </div>
       </div>
 
-      {/* Hidden Invoice Template — rendered off-screen for PDF capture */}
       <div
         style={{
           position: "fixed",
