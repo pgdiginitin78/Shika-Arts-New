@@ -78,13 +78,8 @@ export async function cancelWooOrder(orderId) {
   }
 }
 
-export async function getGuestOrders(customerId) {
-  const { data } = await api.get("/wp-json/custom/v1/guest-orders", {
-    params: {
-      customer_id: customerId,
-    },
-  });
-
+export async function getMyOrders() {
+  const { data } = await api.get("/wp-json/custom/v1/my-orders");
   return data;
 }
 

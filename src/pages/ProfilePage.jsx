@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import {
   getUserProfile,
-  getGuestOrders,
+  getMyOrders,
   getWishlistItems,
   removeFromWishlistApi,
 } from "@/services/orderService";
@@ -159,7 +159,7 @@ function EmptyState({ icon: Icon, title, sub }) {
   return (
     <div className="text-center py-14 px-4">
       <div className="w-16 h-16 rounded-full bg-[#F3E6C4] flex items-center justify-center mx-auto mb-4">
-        <Icon size={28} className="text-[#7B1E3D]" />
+        <Icon size={28} className="text-[#7B1E3D] animate-bounce" />
       </div>
       <p className="font-serif text-xl text-[#2B211B] mb-2">{title}</p>
       <p className="text-sm text-[#8A7A63]">{sub}</p>
@@ -238,7 +238,7 @@ export default function ProfilePage() {
     if (!userDetailsObj?.id) return;
     setOrdersLoading(true);
     setOrdersError(null);
-    getGuestOrders(userDetailsObj.id)
+    getMyOrders(userDetailsObj.id)
       .then((data) => setOrders(Array.isArray(data?.orders) ? data.orders : []))
       .catch(() => setOrdersError("Could not load your orders. Please try again."))
       .finally(() => setOrdersLoading(false));

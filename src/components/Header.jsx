@@ -723,7 +723,7 @@ export function Header() {
     <>
       <header className="sticky top-0 z-50 glass">
         <div className="mx-auto flex w-full items-center gap-2 md:gap-4 px-3 md:px-6 h-[58px] md:h-[70px] py-2">
-          <Link to="/" className="flex items-center shrink-0">
+          <Link to="/" className="flex items-center shrink-0 outline-none">
             <div className="relative">
               <span className="text-2xl md:text-3xl font-serif font-bold text-[#D4AF37]">
                 Shika
@@ -824,7 +824,7 @@ export function Header() {
           <div className="flex items-center gap-3 lg:gap-5 shrink-0">
             <button
               onClick={() => setWishlistOpen(true)}
-              className="group relative cursor-pointer flex-col items-center text-foreground hover:text-destructive transition-colors hidden sm:flex"
+              className="group relative cursor-pointer flex-col items-center text-foreground hover:text-destructive transition-colors hidden sm:flex outline-none"
               aria-label="Open wishlist"
             >
               <div className="relative">
@@ -847,7 +847,7 @@ export function Header() {
             <button
               id="cart-icon"
               onClick={() => setOpen(true)}
-              className="group relative flex-col items-center cursor-pointer text-foreground hover:text-destructive transition-colors flex"
+              className="group relative flex-col items-center cursor-pointer text-foreground hover:text-destructive transition-colors flex outline-none"
               aria-label="Open cart"
             >
               <div className="relative">
@@ -873,7 +873,7 @@ export function Header() {
             ) : (
               <button
                 onClick={handleLoginClick}
-                className="group relative flex-col items-start cursor-pointer text-foreground hover:text-destructive transition-colors hidden sm:flex"
+                className="group relative flex-col items-start cursor-pointer text-foreground hover:text-destructive transition-colors hidden sm:flex outline-none"
                 aria-label="Login / Account"
               >
                 <span className="text-[10px] leading-tight">Hello, sign in</span>
@@ -885,7 +885,7 @@ export function Header() {
             )}
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="lg:hidden text-foreground hover:text-destructive p-1 transition-colors"
+              className="lg:hidden text-foreground hover:text-destructive p-1 transition-colors outline-none"
               aria-label="Menu"
             >
               <Menu className="h-6 w-6" strokeWidth={1.5} />
@@ -902,7 +902,7 @@ export function Header() {
               to="/about-us"
               onMouseEnter={() => setActiveMenu(null)}
               className={({ isActive }) =>
-                `text-[10px] 2xl:text-[14px] uppercase tracking-wider font-semibold whitespace-nowrap transition-colors ${isActive ? "text-[#D4AF37]" : "text-white hover:text-[#D4AF37]"}`
+                `text-[10px] 2xl:text-[14px] uppercase tracking-wider font-semibold whitespace-nowrap transition-colors outline-none ${isActive ? "text-[#D4AF37]" : "text-white hover:text-[#D4AF37]"}`
               }
             >
               About Us
@@ -911,17 +911,17 @@ export function Header() {
             {navbarMenus.map((c) => (
               <div
                 key={c.slug}
-                onMouseEnter={() => setActiveMenu(c.slug)}
+                onMouseEnter={() => c.slug.toLowerCase() !== "delicacies" ? setActiveMenu(c.slug) : setActiveMenu(null)}
                 className="relative cursor-pointer"
               >
                 <NavLink
                   to={`/category/${c.slug}`}
                   className={({ isActive }) =>
-                    `flex items-center gap-1 text-[10px] 2xl:text-[14px] uppercase tracking-wider font-semibold whitespace-nowrap transition-colors ${isActive || activeMenu === c.slug ? "text-[#D4AF37]" : "text-white hover:text-[#D4AF37]"}`
+                    `flex items-center gap-1 text-[10px] 2xl:text-[14px] uppercase tracking-wider font-semibold whitespace-nowrap transition-colors outline-none ${isActive || activeMenu === c.slug ? "text-[#D4AF37]" : "text-white hover:text-[#D4AF37]"}`
                   }
                 >
                   {c.name.replace(/&amp;/g, "&")}
-                  {c.children && c.children.length > 0 && (
+                  {c.slug.toLowerCase() !== "delicacies" && c.children && c.children.length > 0 && (
                     <ChevronDown
                       size={12}
                       className={`transition-transform duration-300 ${activeMenu === c.slug ? "rotate-180" : ""}`}
@@ -1118,7 +1118,7 @@ export function Header() {
             className="fixed inset-0 z-[9999] bg-[#FAF7F2] lg:hidden flex flex-col shadow-2xl h-screen w-screen"
           >
             <div className="flex items-center justify-between px-4 py-2 border-b border-destructive/20 bg-white min-h-[64px]">
-              <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center">
+              <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center outline-none">
                 <img src={MainLogo} alt="Main Logo" className="w-16 h-16 object-contain" />
               </Link>
               <button
@@ -1142,7 +1142,7 @@ export function Header() {
                   to="/products"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={({ isActive }) =>
-                    `text-[16px] uppercase tracking-wider font-semibold transition-colors ${isActive ? "text-destructive" : "text-[#0f1716] hover:text-destructive"}`
+                    `text-[16px] uppercase tracking-wider font-semibold transition-colors outline-none ${isActive ? "text-destructive" : "text-[#0f1716] hover:text-destructive"}`
                   }
                 >
                   All Gifts
@@ -1152,14 +1152,14 @@ export function Header() {
                   to="/about-us"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={({ isActive }) =>
-                    `text-[16px] uppercase tracking-wider font-semibold transition-colors ${isActive ? "text-destructive" : "text-[#0f1716] hover:text-destructive"}`
+                    `text-[16px] uppercase tracking-wider font-semibold transition-colors outline-none ${isActive ? "text-destructive" : "text-[#0f1716] hover:text-destructive"}`
                   }
                 >
                   About Us
                 </NavLink>
 
                 {navbarMenus.map((c) => {
-                  const hasSubMenu = c.children && c.children.length > 0;
+                  const hasSubMenu = c.slug.toLowerCase() !== "delicacies" && c.children && c.children.length > 0;
                   const isExpanded = !!expandedCategories[c.slug];
 
                   return (
@@ -1169,7 +1169,7 @@ export function Header() {
                           to={`/category/${c.slug}`}
                           onClick={() => setIsMobileMenuOpen(false)}
                           className={({ isActive }) =>
-                            `text-[16px] uppercase tracking-wider font-semibold transition-colors ${isActive ? "text-destructive" : "text-[#0f1716] hover:text-destructive"}`
+                            `text-[16px] uppercase tracking-wider font-semibold transition-colors outline-none ${isActive ? "text-destructive" : "text-[#0f1716] hover:text-destructive"}`
                           }
                         >
                           {c.name.replace(/&amp;/g, "&")}

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/woocommerce";
-import { getGuestOrders } from "@/services/orderService";
+import { getMyOrders } from "@/services/orderService";
 import {
   AlertCircle,
   ChevronRight,
@@ -60,8 +60,9 @@ export default function MyOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
+useEffect(() => {
     const userDetailsObj = parseStoredUser(localStorage.getItem("customerData"));
+    console.log("userDetailsObj",userDetailsObj)
 
     if (!userDetailsObj?.id) {
       navigate("/");
@@ -71,7 +72,7 @@ export default function MyOrdersPage() {
     setLoading(true);
     setError(null);
 
-    getGuestOrders(userDetailsObj.id)
+    getMyOrders()
       .then((data) => setOrders(Array.isArray(data?.orders) ? data.orders : []))
       .catch(() => setError("Could not load your orders. Please try again."))
       .finally(() => setLoading(false));

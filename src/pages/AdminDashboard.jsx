@@ -17,6 +17,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { format, parse, isValid } from "date-fns";
+import gsap from "gsap";
 
 import {
   getAdminOrders,
@@ -1006,22 +1007,27 @@ function StatusMiniCard({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -2 }}
+      whileHover={{ y: -3 }}
       transition={{ duration: 0.35, delay, ease: [0.22, 1, 0.36, 1] }}
-      className="relative overflow-hidden rounded-xl border border-stone-200 bg-white p-3 shadow-sm transition-shadow hover:shadow-md sm:p-3.5"
+      className="group relative overflow-hidden rounded-xl border border-stone-200/70 bg-white/90 p-3 shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-stone-300 hover:shadow-[0_10px_24px_-10px_rgba(0,0,0,0.16)] sm:p-3.5"
     >
       <div
-        className="pointer-events-none absolute -right-5 -bottom-6 h-20 w-20 rounded-full opacity-[0.12]"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[2px] opacity-70"
+        style={{ background: `linear-gradient(90deg, transparent, ${palette.to}, transparent)` }}
+      />
+      <div
+        className="pointer-events-none absolute -right-6 -bottom-8 h-24 w-24 rounded-full opacity-[0.10] transition-opacity duration-300 group-hover:opacity-[0.2]"
         style={{ background: `radial-gradient(circle, ${palette.to}, transparent 70%)` }}
       />
       <div className="relative flex items-center gap-2.5">
         <div className="relative h-8 w-8 shrink-0 sm:h-9 sm:w-9">
           <div
-            className="absolute inset-0 rounded-lg"
+            className="absolute inset-0 rounded-xl"
             style={{ background: `linear-gradient(145deg, ${palette.from}, ${palette.to})` }}
           />
+          <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-white/30" />
           <div className="relative flex h-full w-full items-center justify-center">
-            <Icon size={14} className="text-white" />
+            <Icon size={14} className="text-white drop-shadow-sm" />
           </div>
         </div>
         <div className="min-w-0">
@@ -1032,7 +1038,7 @@ function StatusMiniCard({
         </div>
       </div>
       <p
-        className="relative mt-2 text-right text-sm font-bold text-stone-900 sm:text-base"
+        className="relative mt-2.5 border-t border-stone-100 pt-2 text-right text-sm font-bold text-stone-900 sm:text-base"
         style={{ fontVariantNumeric: "tabular-nums" }}
       >
         {formatMoney(total, currency)}
@@ -1080,16 +1086,25 @@ function ChartCard({ icon: Icon, title, subtitle, children, delay = 0, className
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay, ease: [0.22, 1, 0.36, 1] }}
-      className={`relative overflow-hidden rounded-2xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5 ${className}`}
+      className={`relative overflow-hidden rounded-2xl border border-stone-200/70 bg-gradient-to-b from-white to-stone-50/30 p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-shadow duration-300 hover:shadow-[0_12px_28px_-12px_rgba(0,0,0,0.14)] sm:p-5 ${className}`}
     >
-      <div className="flex items-center gap-2.5">
-        <div className="relative h-8 w-8 shrink-0">
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-[3px] opacity-80"
+        style={{ background: "linear-gradient(90deg, transparent, #7A2438, transparent)" }}
+      />
+      <div className="relative flex items-center gap-2.5">
+        <div className="relative h-9 w-9 shrink-0">
           <div
-            className="absolute inset-0 rounded-lg"
+            className="absolute inset-0 rounded-xl"
             style={{ background: "linear-gradient(145deg, #B4677C, #7A2438)" }}
           />
+          <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-white/30" />
+          <div
+            className="absolute -inset-1 rounded-xl opacity-30 blur-md"
+            style={{ background: "rgba(122,36,56,0.3)" }}
+          />
           <div className="relative flex h-full w-full items-center justify-center">
-            <Icon size={14} className="text-white" />
+            <Icon size={15} className="text-white drop-shadow-sm" />
           </div>
         </div>
         <div>
@@ -1097,7 +1112,7 @@ function ChartCard({ icon: Icon, title, subtitle, children, delay = 0, className
           {subtitle && <p className="text-[11px] text-stone-400">{subtitle}</p>}
         </div>
       </div>
-      <div className="mt-4">{children}</div>
+      <div className="relative mt-4">{children}</div>
     </motion.div>
   );
 }
@@ -1107,9 +1122,12 @@ function StatusDonutChart({ data }) {
 
   if (!data.length) {
     return (
-      <div className="flex h-52 flex-col items-center justify-center text-stone-300">
+      <div className="flex h-52 flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-stone-200 bg-stone-50/50 text-stone-300">
         <DonutIcon size={26} />
-        <p className="mt-2 text-xs text-stone-400">No status data yet</p>
+        <p className="text-xs font-semibold text-stone-400">Data not available</p>
+        <p className="text-[10px] text-stone-300">
+          Status breakdown will appear once orders are placed
+        </p>
       </div>
     );
   }
@@ -1168,9 +1186,12 @@ function StatusDonutChart({ data }) {
 function RevenueByStatusChart({ data }) {
   if (!data.length) {
     return (
-      <div className="flex h-52 flex-col items-center justify-center text-stone-300">
+      <div className="flex h-52 flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-stone-200 bg-stone-50/50 text-stone-300">
         <ChartIcon size={26} />
-        <p className="mt-2 text-xs text-stone-400">No revenue data yet</p>
+        <p className="text-xs font-semibold text-stone-400">Data not available</p>
+        <p className="text-[10px] text-stone-300">
+          Revenue by status will appear once orders are placed
+        </p>
       </div>
     );
   }
@@ -1482,48 +1503,259 @@ function OrderDetailModal({ orderId, onClose }) {
   );
 }
 
-function StatCard({ icon: Icon, label, value, format, accent = "gold", delay = 0, caption }) {
+// --- Decorative background patterns (GSAP-animated) ---
+
+function BlobDecoration({ color, size = 140 }) {
+  const blobRef = useRef(null);
+
+  useEffect(() => {
+    const el = blobRef.current;
+    if (!el) return;
+    const tl = gsap.timeline({ repeat: -1, yoyo: true, defaults: { ease: "sine.inOut" } });
+    tl.to(el, { scale: 1.15, x: -6, y: -6, opacity: 0.9, duration: 3.2 }, 0);
+    return () => tl.kill();
+  }, []);
+
+  return (
+    <svg
+      className="pointer-events-none absolute -bottom-6 -right-6 origin-bottom-right"
+      width={size}
+      height={size}
+      viewBox="0 0 200 200"
+    >
+      <defs>
+        <radialGradient id={`blob-${color.id}`} cx="70%" cy="70%" r="70%">
+          <stop offset="0%" stopColor={color.to} stopOpacity="0.55" />
+          <stop offset="60%" stopColor={color.to} stopOpacity="0.28" />
+          <stop offset="100%" stopColor={color.to} stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <circle ref={blobRef} cx="140" cy="140" r="120" fill={`url(#blob-${color.id})`} />
+    </svg>
+  );
+}
+
+function WavesDecoration({ color, size = 160 }) {
+  const groupRef = useRef(null);
+
+  useEffect(() => {
+    const el = groupRef.current;
+    if (!el) return;
+    const paths = el.querySelectorAll("path");
+    const tl = gsap.timeline({ repeat: -1, yoyo: true, defaults: { ease: "sine.inOut" } });
+    paths.forEach((p, i) => {
+      tl.to(p, { x: 6, strokeOpacity: `+=0.06`, duration: 2.6 + i * 0.15 }, i * 0.08);
+    });
+    return () => tl.kill();
+  }, []);
+
+  return (
+    <svg
+      className="pointer-events-none absolute -bottom-4 -right-2"
+      width={size}
+      height={size * 0.7}
+      viewBox="0 0 220 150"
+      fill="none"
+    >
+      <g ref={groupRef}>
+        {[0, 1, 2, 3, 4].map((i) => (
+          <path
+            key={i}
+            d={`M ${-10 + i * 6} 150 C 60 ${70 - i * 10}, 120 ${130 - i * 8}, 230 ${20 + i * 6}`}
+            stroke={color.to}
+            strokeWidth="1.4"
+            strokeOpacity={0.16 - i * 0.02}
+          />
+        ))}
+      </g>
+    </svg>
+  );
+}
+
+function DotsDecoration({ color, size = 120 }) {
+  const groupRef = useRef(null);
+  const cols = 6;
+  const rows = 6;
+  const spacing = 12;
+
+  useEffect(() => {
+    const el = groupRef.current;
+    if (!el) return;
+    const dots = el.querySelectorAll("circle");
+    const tl = gsap.timeline({ repeat: -1 });
+    tl.to(dots, {
+      opacity: (i) => 0.15 + Math.random() * 0.4,
+      scale: (i) => 0.8 + Math.random() * 0.6,
+      duration: 1.6,
+      stagger: { each: 0.04, from: "random" },
+      ease: "sine.inOut",
+      transformOrigin: "center",
+    }).to(dots, {
+      opacity: (i, t) => t.getAttribute("data-base"),
+      scale: 1,
+      duration: 1.6,
+      stagger: { each: 0.04, from: "random" },
+      ease: "sine.inOut",
+    });
+    return () => tl.kill();
+  }, []);
+
+  const dots = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const fade = 1 - (r + c) / (rows + cols - 2);
+      const base = Math.max(0.08, fade * 0.4);
+      dots.push(
+        <circle
+          key={`${r}-${c}`}
+          cx={c * spacing}
+          cy={r * spacing}
+          r="1.6"
+          fill={color.to}
+          fillOpacity={base}
+          data-base={base}
+        />,
+      );
+    }
+  }
+
+  return (
+    <svg
+      className="pointer-events-none absolute -bottom-2 -right-2"
+      width={size}
+      height={size}
+      viewBox={`0 0 ${cols * spacing} ${rows * spacing}`}
+    >
+      <g ref={groupRef}>{dots}</g>
+    </svg>
+  );
+}
+
+function CardDecoration({ pattern, palette, delay = 0 }) {
+  const color = { ...palette, id: pattern + palette.to };
+  const inner =
+    pattern === "waves" ? (
+      <WavesDecoration color={color} />
+    ) : pattern === "dots" ? (
+      <DotsDecoration color={color} />
+    ) : (
+      <BlobDecoration color={color} />
+    );
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.85 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.6, delay: delay + 0.15, ease: [0.22, 1, 0.36, 1] }}
+      className="absolute inset-0"
+    >
+      {inner}
+    </motion.div>
+  );
+}
+
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  format,
+  accent = "gold",
+  pattern = "blob",
+  delay = 0,
+  caption,
+}) {
   const palette = ACCENTS[accent] || ACCENTS.gold;
   const decimals = format ? 2 : 0;
   const animated = useCountUp(Number(value) || 0, { duration: 900, decimals });
   const display = format ? format(value) : animated;
+  const iconRef = useRef(null);
+
+  useEffect(() => {
+    if (!iconRef.current) return;
+    gsap.fromTo(
+      iconRef.current,
+      { rotate: -8, scale: 0.9 },
+      { rotate: 0, scale: 1, duration: 0.7, delay: delay + 0.1, ease: "back.out(2.2)" },
+    );
+  }, [delay]);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -3 }}
+      whileHover={{ y: -4 }}
       transition={{ duration: 0.38, delay, ease: [0.22, 1, 0.36, 1] }}
-      className="relative overflow-hidden rounded-2xl border border-stone-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-lg"
+      className="group relative overflow-hidden rounded-2xl border border-stone-200/70 bg-gradient-to-b from-white to-stone-50/40 p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-300 hover:border-stone-300 hover:shadow-[0_14px_30px_-10px_rgba(0,0,0,0.14)]"
     >
       <div
-        className="pointer-events-none absolute -right-6 -bottom-8 h-24 w-24 rounded-full opacity-[0.15]"
-        style={{ background: `radial-gradient(circle, ${palette.to}, transparent 70%)` }}
+        className="pointer-events-none absolute inset-x-0 top-0 h-[3px] opacity-80"
+        style={{ background: `linear-gradient(90deg, transparent, ${palette.to}, transparent)` }}
       />
 
-      <div className="relative mb-3 h-9 w-9">
-        <div
-          className="absolute inset-0 rounded-xl"
-          style={{ background: `linear-gradient(145deg, ${palette.from}, ${palette.to})` }}
-        />
-        <div
-          className="absolute inset-0 rounded-xl opacity-40"
-          style={{ boxShadow: `0 4px 12px ${palette.glow}` }}
-        />
-        <div className="relative flex h-full w-full items-center justify-center">
-          <Icon size={16} className="text-white" />
+      <CardDecoration pattern={pattern} palette={palette} delay={delay} />
+
+      <div className="relative flex items-start justify-between">
+        <div ref={iconRef} className="relative h-11 w-11">
+          <div
+            className="absolute inset-0 rounded-2xl"
+            style={{ background: `linear-gradient(145deg, ${palette.from}, ${palette.to})` }}
+          />
+          <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/40" />
+          <div
+            className="absolute -inset-1 rounded-2xl opacity-40 blur-md transition-opacity duration-300 group-hover:opacity-70"
+            style={{ background: palette.glow }}
+          />
+          <div className="relative flex h-full w-full items-center justify-center">
+            <Icon size={18} className="text-white drop-shadow-sm" />
+          </div>
         </div>
       </div>
 
       <p
-        className="relative text-xl font-bold tracking-tight text-stone-900 sm:text-2xl"
+        className="relative mt-5 text-[2.15rem] font-bold leading-none tracking-tight text-stone-900"
         style={{ fontVariantNumeric: "tabular-nums" }}
       >
         {display}
       </p>
 
-      <p className="mt-0.5 text-xs font-semibold uppercase tracking-wide text-stone-500">{label}</p>
-      {caption && <p className="mt-1 text-[10px] text-stone-400">{caption}</p>}
+      <p className="relative mt-3.5 text-[17px] font-bold leading-tight text-stone-900">{label}</p>
+
+      {caption && (
+        <p className="relative mt-1 text-[13px] font-normal leading-snug text-stone-400">
+          {caption}
+        </p>
+      )}
+    </motion.div>
+  );
+}
+
+function StatCardUnavailable({ icon: Icon, label, accent = "gold", delay = 0 }) {
+  const palette = ACCENTS[accent] || ACCENTS.gold;
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.38, delay, ease: [0.22, 1, 0.36, 1] }}
+      className="relative overflow-hidden rounded-2xl border border-dashed border-stone-200 bg-stone-50/60 p-4"
+    >
+      <div className="relative h-10 w-10 opacity-40">
+        <div
+          className="absolute inset-0 rounded-2xl"
+          style={{ background: `linear-gradient(145deg, ${palette.from}, ${palette.to})` }}
+        />
+        <div className="relative flex h-full w-full items-center justify-center">
+          <Icon size={17} className="text-white" />
+        </div>
+      </div>
+      <p className="relative mt-4 text-xl font-bold tracking-tight text-stone-300 sm:text-[1.7rem]">
+        —
+      </p>
+      <p className="relative mt-1 text-[11px] font-semibold uppercase tracking-wider text-stone-400">
+        {label}
+      </p>
+      <p className="relative mt-1.5 border-t border-stone-100 pt-1.5 text-[10.5px] text-stone-400">
+        Data not available
+      </p>
     </motion.div>
   );
 }
@@ -1750,7 +1982,7 @@ export default function AdminOrdersDashboard() {
             </div>
             <div className="mt-4 sm:mt-5">
               <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-stone-400 sm:text-[11px]">
-                Status
+                Status breakdown
               </p>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-2.5 lg:grid-cols-4">
                 {[...Array(4)].map((_, i) => (
@@ -1759,82 +1991,155 @@ export default function AdminOrdersDashboard() {
               </div>
             </div>
           </>
-        ) : summary ? (
+        ) : (
           <>
             <div className="mt-5 grid grid-cols-2 gap-2.5 sm:mt-6 sm:grid-cols-3 sm:gap-3 lg:grid-cols-6">
-              <StatCard
-                icon={CrateIcon}
-                label="Orders"
-                value={summary.total_orders}
-                accent="gold"
-                delay={0}
-                caption="All-time orders placed"
-              />
-              <StatCard
-                icon={RupeeIcon}
-                label="Revenue"
-                value={summary.total_revenue}
-                format={formatMoney}
-                accent="olive"
-                delay={0.03}
-                caption="Total paid revenue"
-              />
-              <StatCard
-                icon={CheckSealIcon}
-                label="Paid"
-                value={summary.paid_orders}
-                accent="slate"
-                delay={0.06}
-                caption="Successfully paid"
-              />
-              <StatCard
-                icon={ClockIcon}
-                label="Pending"
-                value={summary.pending_orders}
-                accent="terracotta"
-                delay={0.09}
-                caption="Awaiting payment"
-              />
-              <StatCard
-                icon={CancelSealIcon}
-                label="Cancelled"
-                value={summary.cancelled_orders}
-                accent="maroon"
-                delay={0.12}
-                caption="Orders cancelled"
-              />
-              <StatCard
-                icon={RefundIcon}
-                label="Refunded"
-                value={summary.refunded_orders}
-                accent="plum"
-                delay={0.15}
-                caption="Returned & refunded"
-              />
+              {summary ? (
+                <>
+                  <StatCard
+                    icon={CrateIcon}
+                    label="Orders"
+                    value={summary.total_orders}
+                    accent="gold"
+                    pattern="blob"
+                    delay={0}
+                    caption="All-time orders placed"
+                  />
+                  <StatCard
+                    icon={RupeeIcon}
+                    label="Revenue"
+                    value={summary.total_revenue}
+                    accent="olive"
+                    pattern="waves"
+                    delay={0.03}
+                    format={formatMoney}
+                    caption="Total paid revenue"
+                  />
+                  <StatCard
+                    icon={CheckSealIcon}
+                    label="Paid"
+                    value={summary.paid_orders}
+                    accent="slate"
+                    pattern="blob"
+                    delay={0.06}
+                    caption="Successfully paid"
+                  />
+                  <StatCard
+                    icon={ClockIcon}
+                    label="Pending"
+                    value={summary.pending_orders}
+                    accent="terracotta"
+                    pattern="dots"
+                    delay={0.09}
+                    caption="Awaiting payment"
+                  />
+                  <StatCard
+                    icon={CancelSealIcon}
+                    label="Cancelled"
+                    value={summary.cancelled_orders}
+                    accent="maroon"
+                    pattern="blob"
+                    delay={0.12}
+                    caption="Orders cancelled"
+                  />
+                  <StatCard
+                    icon={RefundIcon}
+                    label="Refunded"
+                    value={summary.refunded_orders}
+                    accent="plum"
+                    pattern="waves"
+                    delay={0.15}
+                    caption="Returned & refunded"
+                  />
+                </>
+              ) : (
+                <>
+                  <StatCardUnavailable icon={CrateIcon} label="Orders" accent="gold" delay={0} />
+                  <StatCardUnavailable
+                    icon={RupeeIcon}
+                    label="Revenue"
+                    accent="olive"
+                    delay={0.03}
+                  />
+                  <StatCardUnavailable
+                    icon={CheckSealIcon}
+                    label="Paid"
+                    accent="slate"
+                    delay={0.06}
+                  />
+                  <StatCardUnavailable
+                    icon={ClockIcon}
+                    label="Pending"
+                    accent="terracotta"
+                    delay={0.09}
+                  />
+                  <StatCardUnavailable
+                    icon={CancelSealIcon}
+                    label="Cancelled"
+                    accent="maroon"
+                    delay={0.12}
+                  />
+                  <StatCardUnavailable
+                    icon={RefundIcon}
+                    label="Refunded"
+                    accent="plum"
+                    delay={0.15}
+                  />
+                </>
+              )}
             </div>
 
-            {chartData.length > 0 && (
-              <div className="mt-4 grid gap-3 sm:mt-5 sm:grid-cols-2">
-                <ChartCard
-                  icon={DonutIcon}
-                  title="Order status split"
-                  subtitle="Share of orders by current status"
-                  delay={0.18}
-                >
-                  <StatusDonutChart data={chartData} />
-                </ChartCard>
-                <ChartCard
-                  icon={ChartIcon}
-                  title="Revenue by status"
-                  subtitle="Order value grouped by status"
-                  delay={0.21}
-                >
-                  <RevenueByStatusChart data={chartData} />
-                </ChartCard>
-              </div>
-            )}
+            <div className="mt-4 grid gap-3 sm:mt-5 sm:grid-cols-2">
+              <ChartCard
+                icon={DonutIcon}
+                title="Order status split"
+                subtitle="Share of orders by current status"
+                delay={0.18}
+              >
+                <StatusDonutChart data={chartData} />
+              </ChartCard>
+              <ChartCard
+                icon={ChartIcon}
+                title="Revenue by status"
+                subtitle="Order value grouped by status"
+                delay={0.21}
+              >
+                <RevenueByStatusChart data={chartData} />
+              </ChartCard>
+            </div>
+
+            <div className="mt-4 sm:mt-5">
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-stone-400 sm:text-[11px]">
+                Status breakdown
+              </p>
+              {breakdownEntries.length > 0 ? (
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-2.5 lg:grid-cols-4">
+                  {chartData.map((entry, idx) => {
+                    const StatusIcon = STATUS_ICON_MAP[entry.key] || ReceiptIcon;
+                    const accent = STATUS_ACCENT_MAP[entry.key] || "slate";
+                    return (
+                      <StatusMiniCard
+                        key={entry.key}
+                        icon={StatusIcon}
+                        label={entry.label}
+                        count={entry.count}
+                        total={entry.total}
+                        accent={accent}
+                        delay={idx * 0.03}
+                      />
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-stone-200 bg-stone-50/60 py-10 text-stone-300">
+                  <DonutIcon size={24} />
+                  <p className="text-xs font-semibold text-stone-400">Data not available</p>
+                  <p className="text-[10px] text-stone-300">No status breakdown to show yet</p>
+                </div>
+              )}
+            </div>
           </>
-        ) : null}
+        )}
 
         <div className="mt-5 rounded-2xl border border-stone-200 bg-white sm:mt-6">
           <div className="flex flex-wrap items-center gap-3 border-b border-stone-100 p-4">
@@ -2100,7 +2405,8 @@ export default function AdminOrdersDashboard() {
             {!loading && orders.length === 0 && !error && (
               <div className="flex h-40 flex-col items-center justify-center text-stone-400">
                 <CrateIcon size={28} className="mb-2 opacity-40" />
-                <p className="text-sm">No orders match these filters</p>
+                <p className="text-sm font-medium text-stone-400">Data not available</p>
+                <p className="mt-1 text-xs text-stone-300">No orders match these filters</p>
               </div>
             )}
           </div>
@@ -2127,7 +2433,8 @@ export default function AdminOrdersDashboard() {
             ) : orders.length === 0 ? (
               <div className="flex h-32 flex-col items-center justify-center text-stone-400">
                 <CrateIcon size={26} className="mb-2 opacity-40" />
-                <p className="text-sm">No orders match these filters</p>
+                <p className="text-sm font-medium text-stone-400">Data not available</p>
+                <p className="mt-1 text-xs text-stone-300">No orders match these filters</p>
               </div>
             ) : (
               orders.map((order, idx) => (

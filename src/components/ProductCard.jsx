@@ -80,8 +80,7 @@ const buildWishlistPayload = (node, variant, image, product, quantity = 1, produ
   };
 };
 
-// Reactive auth check (store) with a localStorage fallback, since
-// customerLogin() persists the token directly to localStorage as well.
+
 function useIsLoggedIn() {
   const storeToken = useCustomerAuthStore((s) => s.token ?? s.accessToken ?? null);
   if (storeToken) return true;
@@ -302,12 +301,11 @@ export function ProductCard({ product, lightMode = true }) {
               )}
             </button>
           ) : (
-            <Link
-              to={`/product/${node.handle || node.id}`}
+            <span
               className="w-full bg-primary text-primary-foreground py-3 rounded flex items-center justify-center gap-2 text-[10px] uppercase tracking-ultra hover:bg-accent hover:text-primary transition-colors text-center"
             >
               Contact Us
-            </Link>
+            </span>
           )}
         </div>
         <button

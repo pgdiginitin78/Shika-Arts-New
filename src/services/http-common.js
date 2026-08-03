@@ -80,7 +80,7 @@ function scheduleAutoRefresh(expiresInSeconds) {
     scheduledTimer = null;
   }
 
-  const bufferMs = 2 * 60 * 1000;
+  const bufferMs = 2 * 60 * 1000; // 2 minutes
   const delay = Math.max(expiresInSeconds * 1000 - bufferMs, 5000);
 
   scheduledTimer = setTimeout(() => {

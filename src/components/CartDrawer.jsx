@@ -153,7 +153,7 @@ const moveToWishlist = async (item) => {
                               {item?.name || ""}
                             </h4>
                             <p className="mt-0.5 text-xs text-muted-foreground">
-                              {getVariationLabel(item)}
+                              {getVariationLabel(item) ? `Qty  ${getVariationLabel(item)}` : ""}
                             </p>
                             <p className="mt-1 font-semibold">
                               {formatPrice(getUnitPrice(item), item?.prices?.currency_code || "INR")}
