@@ -668,6 +668,14 @@ export function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    const handleAuthFailed = () => {
+      setIsLoginOpen(true);
+    };
+    window.addEventListener("auth-failed", handleAuthFailed);
+    return () => window.removeEventListener("auth-failed", handleAuthFailed);
+  }, []);
+
   const toggleCategory = (slug, e) => {
     e.preventDefault();
     e.stopPropagation();

@@ -50,7 +50,7 @@ function refreshAccessToken() {
 
   if (!refresh_token) {
     clearTokens();
-    window.location.href = "/login";
+    window.dispatchEvent(new Event("auth-failed"));
     return Promise.reject(new Error("No refresh token available"));
   }
 
@@ -64,7 +64,7 @@ function refreshAccessToken() {
     })
     .catch((err) => {
       clearTokens();
-      window.location.href = "/login";
+      window.dispatchEvent(new Event("auth-failed"));
       throw err;
     })
     .finally(() => {
