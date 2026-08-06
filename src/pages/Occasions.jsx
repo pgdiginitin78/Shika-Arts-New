@@ -631,12 +631,12 @@ export default function Occasions() {
 
   return (
     <div className="min-h-screen bg-white font-sans text-[#0f1716]">
-      <div className="relative w-full h-[70vh] md:h-[80vh] lg:h-screen min-h-[400px] flex items-center justify-center md:justify-start overflow-hidden">
+      <div className="relative w-full h-[70dvh] sm:h-[65dvh] md:h-[80dvh] lg:h-[83dvh] 2xl:h-[86dvh] min-h-[400px] flex items-center justify-center md:justify-start overflow-hidden">
         <div className="hidden md:block absolute inset-0 w-full h-full">
           <img
             src={OccasionHero}
             alt="Occasions"
-            className="w-full h-full object-cover object-center md:object-top"
+            className="w-full h-full object-cover object-center "
           />
           <div className="absolute inset-0 bg-black/40 md:bg-gradient-to-b md:from-black/30 md:via-black/20 md:to-black/35" />
         </div>

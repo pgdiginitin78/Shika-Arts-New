@@ -137,12 +137,12 @@ export default function Delicacies() {
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] font-sans text-[#0f1716]">
-      <div className="relative   bg-[#7A1F3D]">
+      <div className="relative sm:h-[65dvh] md:h-[80dvh] lg:h-[83dvh] 2xl:h-[86dvh]  bg-[#7A1F3D]">
         <div className="hidden md:block inset-0 w-full h-full">
           <img
             src={DelicaciesBg}
             alt="Delicacies"
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full object-cover object-top"
           />
           {/* <div className="absolute inset-0 bg-black/40 md:bg-gradient-to-b md:from-black/30 md:via-black/20 md:to-black/40" /> */}
         </div>

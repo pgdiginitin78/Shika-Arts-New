@@ -165,7 +165,7 @@ export default function Corporate() {
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] font-sans text-[#0f1716]">
-      <div className="relative w-full h-[70vh] sm:h-[65vh] md:h-[80vh] lg:h-screen min-h-[400px] flex items-center justify-center md:justify-start overflow-hidden">
+      <div className="relative w-full h-[70dvh] sm:h-[65dvh] md:h-[80dvh] lg:h-[83dvh] 2xl:h-[86dvh] min-h-[400px] flex items-center justify-center md:justify-start overflow-hidden">
         <div className="hidden md:block absolute inset-0 w-full h-full">
           <img
             src={CorporateBg}
