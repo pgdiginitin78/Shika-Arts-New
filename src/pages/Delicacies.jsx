@@ -142,7 +142,7 @@ export default function Delicacies() {
           <img
             src={DelicaciesBg}
             alt="Delicacies"
-            className="w-full h-full object-cover object-top"
+            className="w-full h-full object-cover"
           />
           {/* <div className="absolute inset-0 bg-black/40 md:bg-gradient-to-b md:from-black/30 md:via-black/20 md:to-black/40" /> */}
         </div>
