@@ -480,12 +480,15 @@ function ProductDetailPage() {
   return (
     <div className="min-h-screen font-sans bg-[#FAF7F2]">
       <div className="px-3 pt-4 pb-2 mx-auto max-w-[1200px]">
-        <Link
-          to="/products"
-          className="inline-flex items-center gap-1.5 text-[10px] 2xl:text-[14px] text-gray-500 hover:text-[#1e2321] transition-colors uppercase tracking-widest"
+        <button
+          type="button"
+          onClick={() => {
+            navigate(-1);
+          }}
+          className="inline-flex cursor-pointer items-center gap-1.5 text-[10px] 2xl:text-[14px] text-gray-500 hover:text-[#1e2321] transition-colors uppercase tracking-widest"
         >
           <ArrowLeft /> Back to all gifts
-        </Link>
+        </button>
       </div>
       <div className="px-3 py-2 pb-8 mx-auto max-w-[1200px]">
         <div className="overflow-hidden bg-white rounded-[10px] shadow-sm border border-gray-100">

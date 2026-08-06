@@ -74,11 +74,11 @@ function HomePage() {
 
   return (
     <div ref={containerRef} className="bg-background text-foreground overflow-x-hidden">
-      <section className="relative md:min-h-[75vh] lg:min-h-[90vh] flex flex-col justify-end">
-        <div className="w-full h-full px-0">
+    
+      
           <HomeCarousel />
-        </div>
-      </section>
+      
+    
 
       <section className="py-12 md:py-16 lg:py-24 px-4 md:px-8 lg:px-12 bg-background">
         <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8 lg:gap-12">

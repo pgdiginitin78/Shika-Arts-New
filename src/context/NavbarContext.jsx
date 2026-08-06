@@ -18,7 +18,10 @@ export function NavbarProvider({ children }) {
           "customizedgifts", 
           "customization", 
           "packaging-studio",
-          "packagingstudio"
+          "packagingstudio",
+          "delicacies",
+          "premium-gifts",
+          "earth-worth"
         ];
 
         filteredCategories.sort((a, b) => {

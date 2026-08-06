@@ -29,6 +29,7 @@ import Products from "./pages/Products";
 import ProfilePage from "./pages/ProfilePage";
 import Wedding from "./pages/Wedding";
 import EarthWorth from "./pages/EarthWorth";
+import PremiumGifts from "./pages/PremiumGifts";
 import GoogleAuthCallback from "./pages/GoogleAuthCallback";
 import AboutUs from "./pages/AboutUs";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -99,6 +100,7 @@ function App() {
                 <Route path="/category/Occasions" element={<Occasions />} />
                 <Route path="/category/Corporate" element={<Corporate />} />
                 <Route path="/category/Wedding" element={<Wedding />} />
+                <Route path="/category/premium-gifts" element={<PremiumGifts />} />
                 <Route path="/category/customizedgifts" element={<CustomizedGifts />} />
                 <Route path="/category/customization" element={<CustomizedGifts />} />
                 <Route path="/category/packaging-studio" element={<PackagingStudio />} />

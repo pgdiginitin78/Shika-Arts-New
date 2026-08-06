@@ -597,6 +597,8 @@ import { LocationSelector } from "./LocationSelector";
 import { LoginModal } from "./LoginModal";
 import { UserMenu, UserMenuInline } from "./UserMenu";
 import { searchProducts } from "@/services/orderService";
+import PremiumBg from "../assets/premiumGift/Premium_Gifts.png";
+import DelicaciesBanner from "../assets/Delicacies/DelicaciesBanner.png";
 
 function getStoredUser() {
   try {
@@ -919,7 +921,7 @@ export function Header() {
             {navbarMenus.map((c) => (
               <div
                 key={c.slug}
-                onMouseEnter={() => c.slug.toLowerCase() !== "delicacies" ? setActiveMenu(c.slug) : setActiveMenu(null)}
+                onMouseEnter={() => setActiveMenu(c.slug)}
                 className="relative cursor-pointer"
               >
                 <NavLink
@@ -929,7 +931,7 @@ export function Header() {
                   }
                 >
                   {c.name.replace(/&amp;/g, "&")}
-                  {c.slug.toLowerCase() !== "delicacies" && c.children && c.children.length > 0 && (
+                  {c.children && c.children.length > 0 && (
                     <ChevronDown
                       size={12}
                       className={`transition-transform duration-300 ${activeMenu === c.slug ? "rotate-180" : ""}`}
@@ -985,41 +987,175 @@ export function Header() {
                     </div>
 
                     <div className="col-span-2 grid grid-cols-2 gap-8">
-                      {activeData.children.map((section, idx) => (
-                        <div key={idx} className="flex flex-col gap-4">
-                          <h4 className="text-[16px] 2xl:text-[18px] font-semibold  font-serif italic  text-destructive mb-1">
-                            {section.name.replace(/&amp;/g, "&")}
-                          </h4>
-                          <div className="flex flex-col gap-3">
-                            {section.children &&
-                              section.children.map((item, i) => (
-                                <Link
-                                  key={i}
-                                  to={`/category/${activeData.slug}?tag=${item.slug}`}
-                                  className="group flex flex-col"
-                                  onClick={() => setActiveMenu(null)}
-                                >
-                                  <span className="text-[12px] 2xl:text-[14px]  tracking-wider font-semibold text-foreground group-hover:text-destructive transition-colors">
-                                    {item.name.replace(/&amp;/g, "&")}
-                                  </span>
-                                </Link>
-                              ))}
+                      {activeData.slug === "premium-gifts" ? (
+                        <div className="col-span-2 flex justify-start gap-16 xl:gap-24">
+                          <div className="flex flex-col gap-4 w-48">
+                            <h4 className="text-[16px] 2xl:text-[18px] font-semibold font-serif italic text-destructive mb-1">
+                              Products
+                            </h4>
+                            <div className="grid gap-2">
+                              {activeData.children
+                                .filter((item) => (item.slug || "").toLowerCase() !== "handmade")
+                                .map((item, i) => (
+                                  <div key={i} className="flex flex-col gap-2">
+                                    <Link
+                                      to={`/category/${activeData.slug}?tag=${item.slug}`}
+                                      className="group flex flex-col"
+                                      onClick={() => setActiveMenu(null)}
+                                    >
+                                      <span className="text-[12px] 2xl:text-[14px] tracking-wider font-semibold text-foreground group-hover:text-destructive transition-colors">
+                                        {item.name.replace(/&amp;/g, "&")}
+                                      </span>
+                                    </Link>
+                                    {item.children && item.children.length > 0 && (
+                                      <div className="flex flex-col gap-2 pl-2 border-l border-destructive/20">
+                                        {item.children.map((child, j) => (
+                                          <div key={j} className="flex flex-col gap-2">
+                                            <Link
+                                              to={`/category/${activeData.slug}?tag=${child.slug}`}
+                                              className="group flex flex-col"
+                                              onClick={() => setActiveMenu(null)}
+                                            >
+                                              <span className="text-[12px] 2xl:text-[14px] tracking-wider font-semibold text-foreground/80 group-hover:text-destructive transition-colors">
+                                                {child.name.replace(/&amp;/g, "&")}
+                                              </span>
+                                            </Link>
+                                            {child.children && child.children.length > 0 && (
+                                              <div className="flex flex-col gap-2 pl-2 border-l border-destructive/20">
+                                                {child.children.map((grandchild, k) => (
+                                                  <Link
+                                                    key={k}
+                                                    to={`/category/${activeData.slug}?tag=${grandchild.slug}`}
+                                                    className="group flex flex-col"
+                                                    onClick={() => setActiveMenu(null)}
+                                                  >
+                                                    <span className="text-[11px] 2xl:text-[13px] tracking-wider font-semibold text-foreground/60 group-hover:text-destructive transition-colors">
+                                                      {grandchild.name.replace(/&amp;/g, "&")}
+                                                    </span>
+                                                  </Link>
+                                                ))}
+                                              </div>
+                                            )}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-4">
+                            <div className="flex flex-col gap-3">
+                              {activeData.children
+                                .filter((item) => (item.slug || "").toLowerCase() === "handmade")
+                                .map((handmadeItem, hIdx) => (
+                                  <div key={hIdx} className="flex flex-col gap-4">
+                                    <h4 className="text-[16px] 2xl:text-[18px] font-semibold font-serif italic text-destructive mb-1">
+                                      <Link
+                                        to={`/category/${activeData.slug}?tag=${handmadeItem.slug}`}
+                                        onClick={() => setActiveMenu(null)}
+                                        className="hover:underline"
+                                      >
+                                        {handmadeItem.name.replace(/&amp;/g, "&")}
+                                      </Link>
+                                    </h4>
+                                    <div className="flex flex-col gap-4">
+                                      {handmadeItem.children && handmadeItem.children.map((sub, i) => (
+                                        <div key={i} className="flex flex-col gap-2">
+                                          <Link
+                                            to={`/category/${activeData.slug}?tag=${sub.slug}`}
+                                            className="group flex flex-col"
+                                            onClick={() => setActiveMenu(null)}
+                                          >
+                                            <span className="text-[13px] 2xl:text-[15px] font-bold text-foreground group-hover:text-destructive transition-colors">
+                                              {sub.name.replace(/&amp;/g, "&")}
+                                            </span>
+                                          </Link>
+                                          {sub.children && sub.children.length > 0 && (
+                                            <div className="flex flex-col gap-2 pl-2 ">
+                                              {sub.children.map((child, j) => (
+                                                <Link
+                                                  key={j}
+                                                  to={`/category/${activeData.slug}?tag=${child.slug}`}
+                                                  className="group flex flex-col"
+                                                  onClick={() => setActiveMenu(null)}
+                                                >
+                                                  <span className="text-[12px] 2xl:text-[14px] tracking-wider font-semibold text-foreground/80 group-hover:text-destructive transition-colors">
+                                                    {child.name.replace(/&amp;/g, "&")}
+                                                  </span>
+                                                </Link>
+                                              ))}
+                                            </div>
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ))}
+                            </div>
                           </div>
                         </div>
-                      ))}
+                      ) : activeData.slug === "delicacies" ? (
+                        <div className="col-span-2 flex flex-col gap-4">
+                          <h4 className="text-[16px] 2xl:text-[18px] font-semibold font-serif italic text-destructive mb-1">
+                            Products
+                          </h4>
+                          <div className="flex flex-col gap-3">
+                            {activeData.children.map((item, i) => (
+                              <Link
+                                key={i}
+                                to={`/category/${activeData.slug}?tag=${item.slug}`}
+                                className="group flex flex-col"
+                                onClick={() => setActiveMenu(null)}
+                              >
+                                <span className="text-[12px] 2xl:text-[14px] tracking-wider font-semibold text-foreground group-hover:text-destructive transition-colors">
+                                  {item.name.replace(/&amp;/g, "&")}
+                                </span>
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        activeData.children.map((section, idx) => (
+                          <div key={idx} className="flex flex-col gap-4">
+                            <h4 className="text-[16px] 2xl:text-[18px] font-semibold  font-serif italic  text-destructive mb-1">
+                              {section.name.replace(/&amp;/g, "&")}
+                            </h4>
+                            <div className="flex flex-col gap-3">
+                              {section.children &&
+                                section.children.map((item, i) => (
+                                  <Link
+                                    key={i}
+                                    to={`/category/${activeData.slug}?tag=${item.slug}`}
+                                    className="group flex flex-col"
+                                    onClick={() => setActiveMenu(null)}
+                                  >
+                                    <span className="text-[12px] 2xl:text-[14px]  tracking-wider font-semibold text-foreground group-hover:text-destructive transition-colors">
+                                      {item.name.replace(/&amp;/g, "&")}
+                                    </span>
+                                  </Link>
+                                ))}
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
 
                     <div className="col-span-1">
                       <div className=" w-full bg-secondary overflow-hidden">
                         <img
                           src={
-                            CATEGORIES.find(
-                              (c) =>
-                                c.slug.toLowerCase().replace(/\s+/g, "") ===
-                                  activeData.slug.toLowerCase().replace(/\s+/g, "") ||
-                                c.slug.toLowerCase() ===
-                                  (activeData.slug === "customizedgifts" ? "customization" : ""),
-                            )?.image
+                            activeData.slug === "premium-gifts"
+                              ? PremiumBg
+                              : activeData.slug === "delicacies"
+                              ? DelicaciesBanner
+                              : CATEGORIES.find(
+                                  (c) =>
+                                    c.slug.toLowerCase().replace(/\s+/g, "") ===
+                                      activeData.slug.toLowerCase().replace(/\s+/g, "") ||
+                                    c.slug.toLowerCase() ===
+                                      (activeData.slug === "customizedgifts" ? "customization" : ""),
+                                )?.image
                           }
                           alt={activeData.name.replace(/&amp;/g, "&")}
                           className="w-full h-full object-cover grayscale-[0.2]"
@@ -1167,7 +1303,7 @@ export function Header() {
                 </NavLink>
 
                 {navbarMenus.map((c) => {
-                  const hasSubMenu = c.slug.toLowerCase() !== "delicacies" && c.children && c.children.length > 0;
+                  const hasSubMenu = c.children && c.children.length > 0;
                   const isExpanded = !!expandedCategories[c.slug];
 
                   return (
@@ -1203,26 +1339,123 @@ export function Header() {
                           transition={{ duration: 0.25, ease: "easeInOut" }}
                           className="overflow-hidden flex flex-col gap-4 pl-4 border-l border-destructive/20"
                         >
-                          {c.children.map((section, idx) => (
-                            <div key={idx} className="flex flex-col gap-2 mt-2">
-                              <span className="text-[12px] font-bold uppercase tracking-wider text-destructive">
-                                {section.name.replace(/&amp;/g, "&")}
-                              </span>
-                              <div className="flex flex-col gap-2 pl-2">
-                                {section.children &&
-                                  section.children.map((item, i) => (
-                                    <Link
-                                      key={i}
-                                      to={`/category/${c.slug}?tag=${item.slug}`}
-                                      onClick={() => setIsMobileMenuOpen(false)}
-                                      className="text-[14px] uppercase tracking-wider text-[#0f1716]/80 hover:text-destructive py-1 transition-colors"
-                                    >
-                                      {item.name.replace(/&amp;/g, "&")}
-                                    </Link>
+                          {c.slug === "premium-gifts" ? (
+                            <div className="flex flex-col gap-4 mt-2">
+                              <div className="flex flex-col gap-2">
+                                <span className="text-[12px] font-bold uppercase tracking-wider text-destructive">
+                                  Products
+                                </span>
+                                <div className="flex flex-row flex-wrap gap-4 pl-2">
+                                  {c.children
+                                    .filter((item) => (item.slug || "").toLowerCase() !== "handmade")
+                                    .map((item, i) => (
+                                      <div key={i} className="flex flex-col gap-2">
+                                        <Link
+                                          to={`/category/${c.slug}?tag=${item.slug}`}
+                                          onClick={() => setIsMobileMenuOpen(false)}
+                                          className="text-[14px] uppercase tracking-wider text-[#0f1716]/80 hover:text-destructive py-1 transition-colors"
+                                        >
+                                          {item.name.replace(/&amp;/g, "&")}
+                                        </Link>
+                                        {item.children && item.children.length > 0 && (
+                                          <div className="flex flex-col gap-2 pl-3 border-l border-destructive/20">
+                                            {item.children.map((child, j) => (
+                                              <div key={j} className="flex flex-col gap-2">
+                                                <Link
+                                                  to={`/category/${c.slug}?tag=${child.slug}`}
+                                                  onClick={() => setIsMobileMenuOpen(false)}
+                                                  className="text-[13px] uppercase tracking-wider text-[#0f1716]/70 hover:text-destructive py-1 transition-colors"
+                                                >
+                                                  {child.name.replace(/&amp;/g, "&")}
+                                                </Link>
+                                                {child.children && child.children.length > 0 && (
+                                                  <div className="flex flex-col gap-2 pl-3 border-l border-destructive/20">
+                                                    {child.children.map((grandchild, k) => (
+                                                      <Link
+                                                        key={k}
+                                                        to={`/category/${c.slug}?tag=${grandchild.slug}`}
+                                                        onClick={() => setIsMobileMenuOpen(false)}
+                                                        className="text-[12px] uppercase tracking-wider text-[#0f1716]/60 hover:text-destructive py-1 transition-colors"
+                                                      >
+                                                        {grandchild.name.replace(/&amp;/g, "&")}
+                                                      </Link>
+                                                    ))}
+                                                  </div>
+                                                )}
+                                              </div>
+                                            ))}
+                                          </div>
+                                        )}
+                                      </div>
+                                    ))}
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-2">
+                                {c.children
+                                  .filter((item) => (item.slug || "").toLowerCase() === "handmade")
+                                  .map((handmadeItem, hIdx) => (
+                                    <div key={hIdx} className="flex flex-col gap-2">
+                                      <span className="text-[12px] font-bold uppercase tracking-wider text-destructive">
+                                        <Link
+                                          to={`/category/${c.slug}?tag=${handmadeItem.slug}`}
+                                          onClick={() => setIsMobileMenuOpen(false)}
+                                        >
+                                          {handmadeItem.name.replace(/&amp;/g, "&")}
+                                        </Link>
+                                      </span>
+                                      <div className="flex flex-col gap-3 pl-2">
+                                        {handmadeItem.children && handmadeItem.children.map((sub, i) => (
+                                          <div key={i} className="flex flex-col gap-2">
+                                            <Link
+                                              to={`/category/${c.slug}?tag=${sub.slug}`}
+                                              onClick={() => setIsMobileMenuOpen(false)}
+                                              className="text-[14px] font-bold uppercase tracking-wider text-[#0f1716]/90 hover:text-destructive py-1 transition-colors"
+                                            >
+                                              {sub.name.replace(/&amp;/g, "&")}
+                                            </Link>
+                                            {sub.children && sub.children.length > 0 && (
+                                              <div className="flex flex-col gap-2 pl-3 border-l border-destructive/20">
+                                                {sub.children.map((child, j) => (
+                                                  <Link
+                                                    key={j}
+                                                    to={`/category/${c.slug}?tag=${child.slug}`}
+                                                    onClick={() => setIsMobileMenuOpen(false)}
+                                                    className="text-[13px] uppercase tracking-wider text-[#0f1716]/70 hover:text-destructive py-1 transition-colors"
+                                                  >
+                                                    {child.name.replace(/&amp;/g, "&")}
+                                                  </Link>
+                                                ))}
+                                              </div>
+                                            )}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
                                   ))}
                               </div>
                             </div>
-                          ))}
+                          ) : (
+                            c.children.map((section, idx) => (
+                              <div key={idx} className="flex flex-col gap-2 mt-2">
+                                <span className="text-[12px] font-bold uppercase tracking-wider text-destructive">
+                                  {section.name.replace(/&amp;/g, "&")}
+                                </span>
+                                <div className="flex flex-col gap-2 pl-2">
+                                  {section.children &&
+                                    section.children.map((item, i) => (
+                                      <Link
+                                        key={i}
+                                        to={`/category/${c.slug}?tag=${item.slug}`}
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        className="text-[14px] uppercase tracking-wider text-[#0f1716]/80 hover:text-destructive py-1 transition-colors"
+                                      >
+                                        {item.name.replace(/&amp;/g, "&")}
+                                      </Link>
+                                    ))}
+                                </div>
+                              </div>
+                            ))
+                          )}
                         </motion.div>
                       )}
                     </div>

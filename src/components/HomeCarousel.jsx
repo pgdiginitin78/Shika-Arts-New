@@ -109,7 +109,7 @@ export function HomeCarousel() {
 
   return (
     <section className="w-full">
-      <div className="relative h-[180px]  md:h-screen lg:h-[700px] 2xl:h-[900px] w-full overflow-hidden bg-primary">
+      <div className="relative h-[180px]  md:h-[75vh] xl:h-[82dvh] 2xl:h-[86dvh] w-full overflow-hidden bg-primary">
         <AnimatePresence initial={false} custom={direction} mode="popLayout">
           <motion.div
             key={index}
