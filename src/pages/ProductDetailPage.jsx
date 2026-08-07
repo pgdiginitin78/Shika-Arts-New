@@ -25,6 +25,7 @@ import {
   Sparkles,
   Truck,
   X,
+  CheckCircle2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -316,6 +317,7 @@ function ProductDetailPage() {
 
   const [showEnquiryModal, setShowEnquiryModal] = useState(false);
   const [submittingEnquiry, setSubmittingEnquiry] = useState(false);
+  const [enquirySuccessMessage, setEnquirySuccessMessage] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -571,7 +573,7 @@ function ProductDetailPage() {
         isVariable && selectedPack ? selectedPack.id : rawProduct?.id || node?.id || 0,
       );
 
-      await enquireNow({
+      const response = await enquireNow({
         product_id: productId,
         product_name: node.title,
         name: form.name,
@@ -582,9 +584,14 @@ function ProductDetailPage() {
         message: form.message,
       });
 
-      toast.success("Your enquiry has been submitted successfully");
-      setShowEnquiryModal(false);
-      return true;
+      if (response && response.success) {
+        setEnquirySuccessMessage(response.message || "Your enquiry has been submitted successfully. We will contact you shortly.");
+        setShowEnquiryModal(false);
+        return true;
+      } else {
+        toast.error("Something went wrong. Please try again.");
+        return false;
+      }
     } catch (err) {
       const message = err.response?.data?.message || "Something went wrong. Please try again.";
       toast.error(message);
@@ -977,6 +984,34 @@ function ProductDetailPage() {
         onSubmit={handleEnquirySubmit}
         submitting={submittingEnquiry}
       />
+
+      <Modal open={!!enquirySuccessMessage} onClose={() => setEnquirySuccessMessage("")} className="flex items-center justify-center px-3">
+        <Box
+          sx={{
+            width: { xs: "100%", sm: 400 },
+            bgcolor: "background.paper",
+            borderRadius: "12px",
+            boxShadow: 24,
+            outline: "none",
+            p: 4,
+            textAlign: "center"
+          }}
+        >
+          <div className="w-16 h-16 rounded-full bg-[#FDF8F1] border border-[#C5A26F]/30 text-[#C5A26F] flex items-center justify-center mx-auto mb-4">
+            <CheckCircle2 size={32} strokeWidth={1.5} /> 
+          </div>
+          <h2 className="font-serif text-2xl text-[#1e2321] mb-2">Thank You</h2>
+          <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+            {enquirySuccessMessage}
+          </p>
+          <button
+            onClick={() => setEnquirySuccessMessage("")}
+            className="w-full h-10 cursor-pointer flex items-center justify-center bg-[#1e2321] text-white rounded text-[10px] font-bold uppercase tracking-widest hover:bg-[#2d3532] transition-colors"
+          >
+            Close
+          </button>
+        </Box>
+      </Modal>
     </div>
   );
 }
