@@ -38,7 +38,7 @@ export default function PackagingStudio() {
   const tagParam = searchParams.get("tag");
   const [activeTag, setActiveTag] = useState(tagParam || "");
   const [activeCategory, setActiveCategory] = useState("All");
-  const [selectedSlug, setSelectedSlug] = useState("packaging-studio");
+  const [selectedSlug, setSelectedSlug] = useState("packagingstudio");
   const [selectedId, setSelectedId] = useState(null);
   const [filterMode, setFilterMode] = useState("parent");
 
@@ -75,7 +75,7 @@ export default function PackagingStudio() {
     } else {
       setActiveTag("");
       setActiveCategory("All");
-      setSelectedSlug(packagingCat?.slug || "packaging-studio");
+      setSelectedSlug(packagingCat?.slug || "packagingstudio");
       setSelectedId(null);
       setFilterMode("parent");
     }
@@ -126,12 +126,12 @@ export default function PackagingStudio() {
         .then((res) => applyResult(Array.isArray(res) ? res : []))
         .catch(handleError);
     } else {
-      const slug = selectedSlug || packagingCat?.slug || "packaging-studio";
+      const slug = selectedSlug || "packagingstudio";
       getProductsByParentCategory(slug)
         .then((res) => applyResult(res.products || []))
         .catch(handleError);
     }
-  }, [selectedSlug, selectedId, filterMode, packagingCat]);
+  }, [selectedSlug, selectedId, filterMode]);
 
   const subCategoriesToShow =
     activeCategory === "All"
@@ -204,7 +204,7 @@ export default function PackagingStudio() {
   const resetToAll = () => {
     setActiveTag("");
     setActiveCategory("All");
-    setSelectedSlug(packagingCat?.slug || "packaging-studio");
+    setSelectedSlug(packagingCat?.slug || "packagingstudio");
     setSelectedId(null);
     setFilterMode("parent");
     setSearchParams({});
@@ -389,8 +389,8 @@ export default function PackagingStudio() {
                             ? packagingCat?.children?.find((c) => c.name === activeCategory)
                                 ?.slug ||
                                 packagingCat?.slug ||
-                                "packaging-studio"
-                            : packagingCat?.slug || "packaging-studio",
+                                "packagingstudio"
+                            : packagingCat?.slug || "packagingstudio",
                         );
                         setSearchParams({});
                       }}

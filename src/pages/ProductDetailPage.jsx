@@ -1,10 +1,14 @@
 import { formatPrice, productToNode } from "@/lib/woocommerce";
 import { getProductBySlug } from "@/services/LoginServices";
-import { addToWishlistApi, removeFromWishlistApi } from "@/services/orderService";
+import { addToWishlistApi, removeFromWishlistApi,enquireNow } from "@/services/orderService";
 import { useCartStore } from "@/stores/cartStore";
 import { useCustomerAuthStore } from "@/stores/customerAuthStore";
 import { useWishlistStore } from "@/stores/wishlistStore";
 import { Skeleton } from "@/components/ui/skeleton";
+import Modal from "@mui/material/Modal";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import CircularProgress from "@mui/material/CircularProgress";
 import {
   ArrowLeft,
   ChevronDown,
@@ -20,6 +24,7 @@ import {
   ShoppingBag,
   Sparkles,
   Truck,
+  X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -171,6 +176,125 @@ function VariationPicker({ variationDetails, node, selectedPack, setSelectedPack
   );
 }
 
+function EnquiryModal({ open, onClose, productName, onSubmit, submitting }) {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    quantity: "",
+    customization: "",
+    message: "",
+  });
+
+  const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.name || !form.email || !form.phone) {
+      toast.error("Please fill in your name, email and phone number");
+      return;
+    }
+    const success = await onSubmit(form);
+    if (success) {
+      setForm({ name: "", email: "", phone: "", quantity: "", customization: "", message: "" });
+    }
+  };
+
+  return (
+    <Modal open={open} onClose={onClose} className="flex items-center justify-center px-3">
+      <Box
+        sx={{
+          width: { xs: "100%", sm: 440 },
+          maxHeight: { xs: "85vh", sm: "90vh" },
+          bgcolor: "background.paper",
+          borderRadius: "12px",
+          boxShadow: 24,
+          overflowY: "auto",
+          outline: "none",
+        }}
+      >
+        <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+          <h2 className="font-serif text-lg text-[#1e2321]">Enquire Now</h2>
+          <button
+            onClick={onClose}
+            className="cursor-pointer text-gray-400 hover:text-gray-600"
+            type="button"
+          >
+            <X size={18} />
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="px-5 py-4">
+          <p className="text-xs text-gray-500 mb-3">{productName}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <TextField
+              label="Name"
+              value={form.name}
+              onChange={update("name")}
+              required
+              fullWidth
+              size="small"
+              sx={{ gridColumn: { xs: "1 / -1", sm: "auto" } }}
+            />
+            <TextField
+              label="Phone"
+              value={form.phone}
+              onChange={update("phone")}
+              required
+              fullWidth
+              size="small"
+            />
+            <TextField
+              label="Email"
+              type="email"
+              value={form.email}
+              onChange={update("email")}
+              required
+              fullWidth
+              size="small"
+              sx={{ gridColumn: { xs: "1 / -1", sm: "1 / -1" } }}
+            />
+            <TextField
+              label="Quantity"
+              value={form.quantity}
+              onChange={update("quantity")}
+              fullWidth
+              size="small"
+              sx={{ gridColumn: { xs: "1 / -1", sm: "auto" } }}
+            />
+          </div>
+          <TextField
+            label="Customization Details"
+            value={form.customization}
+            onChange={update("customization")}
+            fullWidth
+            multiline
+            minRows={2}
+            size="small"
+            sx={{ mt: 1.5 }}
+          />
+          <TextField
+            label="Message"
+            value={form.message}
+            onChange={update("message")}
+            fullWidth
+            multiline
+            minRows={2}
+            size="small"
+            sx={{ mt: 1.5 }}
+          />
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full h-10 mt-4 cursor-pointer flex items-center justify-center gap-1.5 bg-[#1e2321] text-white rounded text-[10px] font-bold uppercase tracking-widest hover:bg-[#2d3532] transition-colors disabled:opacity-50"
+          >
+            {submitting ? <CircularProgress size={16} sx={{ color: "#fff" }} /> : "Submit Enquiry"}
+          </button>
+        </form>
+      </Box>
+    </Modal>
+  );
+}
+
 function ProductDetailPage() {
   const { handle } = useParams();
   const addItem = useCartStore((s) => s.addItem);
@@ -189,6 +313,9 @@ function ProductDetailPage() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
+
+  const [showEnquiryModal, setShowEnquiryModal] = useState(false);
+  const [submittingEnquiry, setSubmittingEnquiry] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -434,6 +561,36 @@ function ProductDetailPage() {
       toast.error("Couldn't update wishlist. Please try again.");
     } finally {
       setIsWishlisting(false);
+    }
+  };
+
+  const handleEnquirySubmit = async (form) => {
+    setSubmittingEnquiry(true);
+    try {
+      const productId = Number(
+        isVariable && selectedPack ? selectedPack.id : rawProduct?.id || node?.id || 0,
+      );
+
+      await enquireNow({
+        product_id: productId,
+        product_name: node.title,
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        quantity: form.quantity,
+        customization: form.customization,
+        message: form.message,
+      });
+
+      toast.success("Your enquiry has been submitted successfully");
+      setShowEnquiryModal(false);
+      return true;
+    } catch (err) {
+      const message = err.response?.data?.message || "Something went wrong. Please try again.";
+      toast.error(message);
+      return false;
+    } finally {
+      setSubmittingEnquiry(false);
     }
   };
 
@@ -726,15 +883,14 @@ function ProductDetailPage() {
                 </>
               )}
               {displayPrice <= 0 && (
-                <a
-                  href={`mailto:hello@shikaarts.com?subject=${encodeURIComponent(
-                    `Pricing enquiry: ${node.title}`,
-                  )}`}
-                  className="w-full h-9 flex items-center justify-center gap-1.5 bg-[#1e2321] text-white rounded text-[10px] font-bold uppercase tracking-widest hover:bg-[#2d3532] transition-colors mb-4"
+                <button
+                  type="button"
+                  onClick={() => setShowEnquiryModal(true)}
+                  className="w-full h-9 cursor-pointer flex items-center justify-center gap-1.5 bg-[#1e2321] text-white rounded text-[10px] font-bold uppercase tracking-widest hover:bg-[#2d3532] transition-colors mb-4"
                 >
                   <Sparkles size={14} />
                   Enquire Now
-                </a>
+                </button>
               )}
               <button
                 onClick={handleWishlist}
@@ -814,6 +970,13 @@ function ProductDetailPage() {
           </div>
         </div>
       </div>
+      <EnquiryModal
+        open={showEnquiryModal}
+        onClose={() => setShowEnquiryModal(false)}
+        productName={node.title}
+        onSubmit={handleEnquirySubmit}
+        submitting={submittingEnquiry}
+      />
     </div>
   );
 }

@@ -231,3 +231,5 @@ export async function updateAddress(payload) {
   });
   return data;
 }
+
+//wp-json/custom/v1/enquire-now 

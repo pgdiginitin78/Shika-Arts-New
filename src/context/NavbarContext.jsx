@@ -1,10 +1,12 @@
 import { createContext, useContext, useLayoutEffect, useState } from "react";
 import { getCategories } from "../services/LoginServices";
+import { Loader2 } from "lucide-react";
 
 const NavbarContext = createContext([]);
 
 export function NavbarProvider({ children }) {
   const [navbarMenus, setNavbarMenus] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useLayoutEffect(() => {
     getCategories()
@@ -38,8 +40,20 @@ export function NavbarProvider({ children }) {
       })
       .catch((err) => {
         console.error("Failed to load navbar categories:", err);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="h-screen w-screen flex flex-col items-center justify-center bg-[#FAF7F2]">
+        <Loader2 className="h-12 w-12 animate-spin text-destructive" />
+        <p className="mt-4 text-sm uppercase tracking-widest text-destructive font-semibold">Loading...</p>
+      </div>
+    );
+  }
 
   return <NavbarContext.Provider value={navbarMenus}>{children}</NavbarContext.Provider>;
 }
