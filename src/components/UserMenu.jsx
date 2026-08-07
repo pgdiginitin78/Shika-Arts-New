@@ -3,6 +3,7 @@ import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 import ShoppingBagRoundedIcon from "@mui/icons-material/ShoppingBagRounded";
+import ForumRoundedIcon from "@mui/icons-material/ForumRounded";
 import {
   Avatar,
   Box,
@@ -26,6 +27,7 @@ const ACCENT = "#7A1F3D";
 const MENU_ITEM_STYLES = {
   dashboard: { color: "#2F6FED", bg: "#EAF1FE" },
   brochure: { color: "#B4790F", bg: "#FBF1DD" },
+  enquiries: { color: "#E05A12", bg: "#FCEFE8" },
   orders: { color: "#1E9E6C", bg: "#E6F7EF" },
   account: { color: "#7A5CC0", bg: "#F1EDFB" },
   signout: { color: "#D1414B", bg: "#FCEAEB" },
@@ -262,6 +264,23 @@ export function UserMenu() {
             />
           </MenuItem>
         )}
+        {isSuperAdmin && (
+          <MenuItem
+            onClick={() => {
+              setAnchorEl(null);
+              navigate("/admin/enquiries");
+            }}
+            sx={{ px: 2.25, py: 1.1, gap: 1.5 }}
+          >
+            <ListItemIcon sx={{ minWidth: "auto" }}>
+              <IconChip tone="enquiries" icon={<ForumRoundedIcon sx={{ fontSize: 17 }} />} />
+            </ListItemIcon>
+            <ListItemText
+              primary="Enquiries"
+              primaryTypographyProps={{ fontSize: 14, fontWeight: 500 }}
+            />
+          </MenuItem>
+        )}
         <MenuItem
           onClick={() => {
             setAnchorEl(null);
@@ -391,6 +410,18 @@ export function UserMenuInline({ onAfter }) {
         >
           <IconChip tone="brochure" icon={<BookmarkRoundedIcon sx={{ fontSize: 17 }} />} />
           <span className="uppercase tracking-wider">Brochure Downloads</span>
+        </button>
+      )}
+      {isSuperAdmin && (
+        <button
+          onClick={() => {
+            onAfter?.();
+            navigate("/admin/enquiries");
+          }}
+          className="flex items-center gap-3 text-[13px] font-semibold text-[#0f1716] hover:bg-black/[0.03] rounded-lg py-2 px-1.5 cursor-pointer transition-colors"
+        >
+          <IconChip tone="enquiries" icon={<ForumRoundedIcon sx={{ fontSize: 17 }} />} />
+          <span className="uppercase tracking-wider">Enquiries</span>
         </button>
       )}
       <button

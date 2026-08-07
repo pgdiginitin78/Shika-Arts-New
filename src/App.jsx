@@ -15,6 +15,7 @@ import { ResetPasswordModal } from "./components/ResetPasswordModal";
 
 import AdminDashboard from "./pages/AdminDashboard";
 import BrochureDownloads from "./pages/BrochureDownloads";
+import EnquiriesAdminPage from "./pages/EnquiriesAdminPage";
 import Category from "./pages/Category";
 import CheckoutPage from "./pages/CheckoutPage";
 import Corporate from "./pages/Corporate";
@@ -116,6 +117,9 @@ function App() {
                 {isSuperAdmin && <Route path="/admin" element={<AdminDashboard />} />}
                 {isSuperAdmin && (
                   <Route path="/admin/brochure-downloads" element={<BrochureDownloads />} />
+                )}
+                {isSuperAdmin && (
+                  <Route path="/admin/enquiries" element={<EnquiriesAdminPage />} />
                 )}
                 <Route path="/profilePage" element={<ProfilePage />} />
                 <Route path="/auth/callback" element={<GoogleAuthCallback />} />
