@@ -1,6 +1,6 @@
 import { formatPrice, productToNode } from "@/lib/woocommerce";
 import { getProductBySlug } from "@/services/LoginServices";
-import { addToWishlistApi, removeFromWishlistApi,enquireNow } from "@/services/orderService";
+import { addToWishlistApi, removeFromWishlistApi, enquireNow } from "@/services/orderService";
 import { useCartStore } from "@/stores/cartStore";
 import { useCustomerAuthStore } from "@/stores/customerAuthStore";
 import { useWishlistStore } from "@/stores/wishlistStore";
@@ -202,20 +202,21 @@ function EnquiryModal({ open, onClose, productName, onSubmit, submitting }) {
   };
 
   return (
-    <Modal open={open} onClose={onClose} className="flex items-center justify-center px-3">
+    <Modal open={open} onClose={onClose} className="flex items-center justify-center px-4">
       <Box
         sx={{
-          width: { xs: "100%", sm: 440 },
-          maxHeight: { xs: "85vh", sm: "90vh" },
+          width: "100%",
+          maxWidth: { xs: "100%", sm: 440 },
+          maxHeight: { xs: "90vh", sm: "90vh" },
           bgcolor: "background.paper",
-          borderRadius: "12px",
+          borderRadius: { xs: "10px", sm: "12px" },
           boxShadow: 24,
           overflowY: "auto",
           outline: "none",
         }}
       >
-        <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
-          <h2 className="font-serif text-lg text-[#1e2321]">Enquire Now</h2>
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white px-4 py-3 sm:px-5 sm:py-4">
+          <h2 className="font-serif text-base text-[#1e2321] sm:text-lg">Enquire Now</h2>
           <button
             onClick={onClose}
             className="cursor-pointer text-gray-400 hover:text-gray-600"
@@ -224,26 +225,34 @@ function EnquiryModal({ open, onClose, productName, onSubmit, submitting }) {
             <X size={18} />
           </button>
         </div>
-        <form onSubmit={handleSubmit} className="px-5 py-4">
-          <p className="text-xs text-gray-500 mb-3">{productName}</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <form onSubmit={handleSubmit} className="px-4 py-4 sm:px-5">
+          <p className="mb-4 text-xs text-gray-500">{productName}</p>
+          <div className="flex flex-col gap-3">
             <TextField
-              label="Name"
+              label="Full Name"
               value={form.name}
               onChange={update("name")}
               required
               fullWidth
               size="small"
-              sx={{ gridColumn: { xs: "1 / -1", sm: "auto" } }}
             />
-            <TextField
-              label="Phone"
-              value={form.phone}
-              onChange={update("phone")}
-              required
-              fullWidth
-              size="small"
-            />
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <TextField
+                label="Phone"
+                value={form.phone}
+                onChange={update("phone")}
+                required
+                fullWidth
+                size="small"
+              />
+              <TextField
+                label="Quantity"
+                value={form.quantity}
+                onChange={update("quantity")}
+                fullWidth
+                size="small"
+              />
+            </div>
             <TextField
               label="Email"
               type="email"
@@ -252,41 +261,30 @@ function EnquiryModal({ open, onClose, productName, onSubmit, submitting }) {
               required
               fullWidth
               size="small"
-              sx={{ gridColumn: { xs: "1 / -1", sm: "1 / -1" } }}
             />
             <TextField
-              label="Quantity"
-              value={form.quantity}
-              onChange={update("quantity")}
+              label="Customization Details"
+              value={form.customization}
+              onChange={update("customization")}
               fullWidth
+              multiline
+              minRows={2}
               size="small"
-              sx={{ gridColumn: { xs: "1 / -1", sm: "auto" } }}
+            />
+            <TextField
+              label="Message"
+              value={form.message}
+              onChange={update("message")}
+              fullWidth
+              multiline
+              minRows={2}
+              size="small"
             />
           </div>
-          <TextField
-            label="Customization Details"
-            value={form.customization}
-            onChange={update("customization")}
-            fullWidth
-            multiline
-            minRows={2}
-            size="small"
-            sx={{ mt: 1.5 }}
-          />
-          <TextField
-            label="Message"
-            value={form.message}
-            onChange={update("message")}
-            fullWidth
-            multiline
-            minRows={2}
-            size="small"
-            sx={{ mt: 1.5 }}
-          />
           <button
             type="submit"
             disabled={submitting}
-            className="w-full h-10 mt-4 cursor-pointer flex items-center justify-center gap-1.5 bg-[#1e2321] text-white rounded text-[10px] font-bold uppercase tracking-widest hover:bg-[#2d3532] transition-colors disabled:opacity-50"
+            className="mt-5 flex h-11 w-full cursor-pointer items-center justify-center gap-1.5 rounded bg-[#1e2321] text-[10px] font-bold uppercase tracking-widest text-white transition-colors hover:bg-[#2d3532] disabled:opacity-50 sm:h-10"
           >
             {submitting ? <CircularProgress size={16} sx={{ color: "#fff" }} /> : "Submit Enquiry"}
           </button>
@@ -585,7 +583,10 @@ function ProductDetailPage() {
       });
 
       if (response && response.success) {
-        setEnquirySuccessMessage(response.message || "Your enquiry has been submitted successfully. We will contact you shortly.");
+        setEnquirySuccessMessage(
+          response.message ||
+            "Your enquiry has been submitted successfully. We will contact you shortly.",
+        );
         setShowEnquiryModal(false);
         return true;
       } else {
@@ -985,7 +986,11 @@ function ProductDetailPage() {
         submitting={submittingEnquiry}
       />
 
-      <Modal open={!!enquirySuccessMessage} onClose={() => setEnquirySuccessMessage("")} className="flex items-center justify-center px-3">
+      <Modal
+        open={!!enquirySuccessMessage}
+        onClose={() => setEnquirySuccessMessage("")}
+        className="flex items-center justify-center px-3"
+      >
         <Box
           sx={{
             width: { xs: "100%", sm: 400 },
@@ -994,16 +999,14 @@ function ProductDetailPage() {
             boxShadow: 24,
             outline: "none",
             p: 4,
-            textAlign: "center"
+            textAlign: "center",
           }}
         >
           <div className="w-16 h-16 rounded-full bg-[#FDF8F1] border border-[#C5A26F]/30 text-[#C5A26F] flex items-center justify-center mx-auto mb-4">
-            <CheckCircle2 size={32} strokeWidth={1.5} /> 
+            <CheckCircle2 size={32} strokeWidth={1.5} />
           </div>
           <h2 className="font-serif text-2xl text-[#1e2321] mb-2">Thank You</h2>
-          <p className="text-sm text-gray-600 mb-6 leading-relaxed">
-            {enquirySuccessMessage}
-          </p>
+          <p className="text-sm text-gray-600 mb-6 leading-relaxed">{enquirySuccessMessage}</p>
           <button
             onClick={() => setEnquirySuccessMessage("")}
             className="w-full h-10 cursor-pointer flex items-center justify-center bg-[#1e2321] text-white rounded text-[10px] font-bold uppercase tracking-widest hover:bg-[#2d3532] transition-colors"
