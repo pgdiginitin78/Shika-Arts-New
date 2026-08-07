@@ -46,16 +46,17 @@ export function NavbarProvider({ children }) {
       });
   }, []);
 
-  if (isLoading) {
-    return (
-      <div className="h-screen w-screen flex flex-col items-center justify-center bg-[#FAF7F2]">
-        <Loader2 className="h-12 w-12 animate-spin text-destructive" />
-        <p className="mt-4 text-sm uppercase tracking-widest text-destructive font-semibold">Loading...</p>
-      </div>
-    );
-  }
-
-  return <NavbarContext.Provider value={navbarMenus}>{children}</NavbarContext.Provider>;
+  return (
+    <NavbarContext.Provider value={navbarMenus}>
+      {isLoading && (
+        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#FAF7F2]/60 backdrop-blur-md">
+          <Loader2 className="h-12 w-12 animate-spin text-destructive" />
+          <p className="mt-4 text-sm uppercase tracking-widest text-destructive font-semibold">Loading...</p>
+        </div>
+      )}
+      {children}
+    </NavbarContext.Provider>
+  );
 }
 
 export const useNavbarMenus = () => useContext(NavbarContext);
