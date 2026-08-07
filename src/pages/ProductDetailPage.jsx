@@ -32,7 +32,6 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
-// Your WhatsApp business number (with country code, no + or spaces)
 const WHATSAPP_NUMBER = "919145547554";
 
 function AccordionItem({ icon, label, children }) {
