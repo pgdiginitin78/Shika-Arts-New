@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useCustomerAuthStore } from "@/stores/customerAuthStore";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Mail, Phone, Search, Package, RefreshCcw, Inbox } from "lucide-react";
+import { getEnquires } from "@/services/orderService";
 
-// Point this at your WP REST base
-const API_BASE = import.meta.env.VITE_WP_API_URL || "https://shikaarts.com/wp-json";
+
 
 function EnquiryCard({ enquiry }) {
   const date = enquiry.created_at
@@ -94,21 +94,10 @@ function EnquiriesAdminPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE}/custom/v1/enquiries`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
-
-      if (res.status === 401 || res.status === 403) {
-        throw new Error("You don't have permission to view enquiries. Please log in as an admin.");
-      }
-      if (!res.ok) {
-        throw new Error("Failed to load enquiries.");
-      }
-
-      const json = await res.json();
-      setEnquiries(json.data || []);
+      const response = await getEnquires();
+      setEnquiries(response.data || response || []);
     } catch (err) {
-      setError(err.message || "Something went wrong.");
+      setError(err.response?.data?.message || err.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }

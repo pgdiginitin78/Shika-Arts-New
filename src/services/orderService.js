@@ -223,6 +223,10 @@ export async function getBrochureDownloads() {
   const { data } = await api.get("/wp-json/custom/v1/brochure-downloads");
   return data;
 }
+export async function getEnquires() {
+  const { data } = await api.get("/wp-json/custom/v1/enquiries");
+  return data;
+}
 
 // wp-json/custom/v1/enquire-now
 
