@@ -9,6 +9,7 @@ import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import CircularProgress from "@mui/material/CircularProgress";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import {
   ArrowLeft,
   ChevronDown,
@@ -30,6 +31,9 @@ import {
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
+
+// Your WhatsApp business number (with country code, no + or spaces)
+const WHATSAPP_NUMBER = "919145547554";
 
 function AccordionItem({ icon, label, children }) {
   const [open, setOpen] = useState(false);
@@ -602,6 +606,19 @@ function ProductDetailPage() {
     }
   };
 
+  const handleWhatsApp = () => {
+    const productUrl =
+      rawProduct?.permalink || `${window.location.origin}/product/${node?.handle}/`;
+    const message =
+      `Hi, I'm interested in "${node.title}"` +
+      (selectedPack?.attributes?.length
+        ? ` (${selectedPack.attributes.map((a) => a.value || a.option).join(", ")})`
+        : "") +
+      `.\n${productUrl}`;
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
   const prevImage = () => setActiveImg((i) => (i === 0 ? allImages.length - 1 : i - 1));
   const nextImage = () => setActiveImg((i) => (i === allImages.length - 1 ? 0 : i + 1));
 
@@ -900,22 +917,32 @@ function ProductDetailPage() {
                   Enquire Now
                 </button>
               )}
-              <button
-                onClick={handleWishlist}
-                disabled={isWishlisting}
-                className={`flex items-center cursor-pointer justify-center gap-1.5 w-full py-2 rounded text-[11px] font-medium border transition-all duration-200 mb-4 disabled:opacity-60 ${
-                  isInWishlist
-                    ? "border-red-200 bg-red-50 text-red-500"
-                    : "border-gray-200 text-gray-500 hover:border-gray-300 hover:bg-gray-50"
-                }`}
-              >
-                {isWishlisting ? (
-                  <Loader2 size={12} className="animate-spin" />
-                ) : (
-                  <Heart size={12} className={isInWishlist ? "fill-red-500 text-red-500" : ""} />
-                )}
-                {isInWishlist ? "Saved to Wishlist" : "Add to Wishlist"}
-              </button>
+              <div className="grid grid-cols-2 gap-2 mb-4">
+                <button
+                  onClick={handleWishlist}
+                  disabled={isWishlisting}
+                  className={`flex items-center cursor-pointer justify-center gap-1.5 w-full py-2 rounded text-[11px] font-medium border transition-all duration-200 disabled:opacity-60 ${
+                    isInWishlist
+                      ? "border-red-200 bg-red-50 text-red-500"
+                      : "border-gray-200 text-gray-500 hover:border-gray-300 hover:bg-gray-50"
+                  }`}
+                >
+                  {isWishlisting ? (
+                    <Loader2 size={12} className="animate-spin" />
+                  ) : (
+                    <Heart size={12} className={isInWishlist ? "fill-red-500 text-red-500" : ""} />
+                  )}
+                  {isInWishlist ? "Saved to Wishlist" : "Add to Wishlist"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleWhatsApp}
+                  className="flex items-center cursor-pointer justify-center gap-1.5 w-full py-2 rounded text-[11px] font-medium border border-[#25D366]/30 bg-[#25D366]/10 text-[#128C7E] hover:bg-[#25D366]/20 transition-all duration-200"
+                >
+                  <WhatsAppIcon sx={{ fontSize: 14 }} />
+                  WhatsApp Us
+                </button>
+              </div>
               <div className="border-b border-gray-100">
                 <AccordionItem icon={<ShoppingBag size={14} />} label="Description">
                   {node.description ||
