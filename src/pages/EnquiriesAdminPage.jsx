@@ -1,11 +1,8 @@
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useCustomerAuthStore } from "@/stores/customerAuthStore";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Mail, Phone, Search, Package, RefreshCcw, Inbox } from "lucide-react";
 import { getEnquires } from "@/services/orderService";
-import Lenis from "lenis";
-
-
 
 function EnquiryCard({ enquiry }) {
   const date = enquiry.created_at
@@ -85,7 +82,6 @@ function EnquiryCard({ enquiry }) {
 
 function EnquiriesAdminPage() {
   const token = useCustomerAuthStore((s) => s.customer?.token);
-  const scrollRef = useRef(null);
 
   const [enquiries, setEnquiries] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -109,29 +105,6 @@ function EnquiriesAdminPage() {
     loadEnquiries();
   }, [token]);
 
-  useEffect(() => {
-    if (!scrollRef.current) return;
-    
-    const lenis = new Lenis({
-      wrapper: scrollRef.current,
-      content: scrollRef.current.firstElementChild,
-      lerp: 0.1,
-      duration: 1.2,
-      smoothWheel: true,
-    });
-
-    function raf(time) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-    const rafId = requestAnimationFrame(raf);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      lenis.destroy();
-    };
-  }, [loading, search, enquiries]);
-
   const filtered = useMemo(() => {
     if (!search.trim()) return enquiries;
     const q = search.toLowerCase();
@@ -151,7 +124,9 @@ function EnquiriesAdminPage() {
           <div>
             <h1 className="font-serif text-xl sm:text-2xl text-[#1e2321]">Product Enquiries</h1>
             <p className="text-xs text-gray-500 mt-1">
-              {loading ? "Loading..." : `${filtered.length} enquir${filtered.length === 1 ? "y" : "ies"}`}
+              {loading
+                ? "Loading..."
+                : `${filtered.length} enquir${filtered.length === 1 ? "y" : "ies"}`}
             </p>
           </div>
           <button
@@ -199,12 +174,10 @@ function EnquiriesAdminPage() {
         )}
 
         {!loading && !error && filtered.length > 0 && (
-          <div ref={scrollRef} className="max-h-[600px] overflow-y-auto pr-1">
-            <div className="space-y-3">
-              {filtered.map((enquiry) => (
-                <EnquiryCard key={enquiry.id} enquiry={enquiry} />
-              ))}
-            </div>
+          <div className="space-y-3 max-h-[650px] overflow-y-auto" data-lenis-prevent={true}>
+            {filtered.map((enquiry) => (
+              <EnquiryCard key={enquiry.id} enquiry={enquiry} />
+            ))}
           </div>
         )}
       </div>
