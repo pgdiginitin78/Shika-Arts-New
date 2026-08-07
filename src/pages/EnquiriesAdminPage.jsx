@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useCustomerAuthStore } from "@/stores/customerAuthStore";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Mail, Phone, Search, Package, RefreshCcw, Inbox } from "lucide-react";
 import { getEnquires } from "@/services/orderService";
+import Lenis from "lenis";
 
 
 
@@ -84,6 +85,7 @@ function EnquiryCard({ enquiry }) {
 
 function EnquiriesAdminPage() {
   const token = useCustomerAuthStore((s) => s.customer?.token);
+  const scrollRef = useRef(null);
 
   const [enquiries, setEnquiries] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -106,6 +108,29 @@ function EnquiriesAdminPage() {
   useEffect(() => {
     loadEnquiries();
   }, [token]);
+
+  useEffect(() => {
+    if (!scrollRef.current) return;
+    
+    const lenis = new Lenis({
+      wrapper: scrollRef.current,
+      content: scrollRef.current.firstElementChild,
+      lerp: 0.1,
+      duration: 1.2,
+      smoothWheel: true,
+    });
+
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    const rafId = requestAnimationFrame(raf);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      lenis.destroy();
+    };
+  }, [loading, search, enquiries]);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return enquiries;
@@ -174,10 +199,12 @@ function EnquiriesAdminPage() {
         )}
 
         {!loading && !error && filtered.length > 0 && (
-          <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
-            {filtered.map((enquiry) => (
-              <EnquiryCard key={enquiry.id} enquiry={enquiry} />
-            ))}
+          <div ref={scrollRef} className="max-h-[600px] overflow-y-auto pr-1">
+            <div className="space-y-3">
+              {filtered.map((enquiry) => (
+                <EnquiryCard key={enquiry.id} enquiry={enquiry} />
+              ))}
+            </div>
           </div>
         )}
       </div>
