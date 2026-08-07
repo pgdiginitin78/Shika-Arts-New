@@ -105,7 +105,6 @@ function EnquiriesAdminPage() {
 
   useEffect(() => {
     loadEnquiries();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   const filtered = useMemo(() => {
@@ -175,7 +174,7 @@ function EnquiriesAdminPage() {
         )}
 
         {!loading && !error && filtered.length > 0 && (
-          <div className="space-y-3">
+          <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
             {filtered.map((enquiry) => (
               <EnquiryCard key={enquiry.id} enquiry={enquiry} />
             ))}
