@@ -72,6 +72,7 @@ export default function Corporate() {
   }, [tagParam, corporateCat]);
 
   const isFirstRender = useRef(true);
+  const lastFetchKey = useRef(null);
 
   useEffect(() => {
     if (isFirstRender.current) {
@@ -96,7 +97,16 @@ export default function Corporate() {
   }, [activeTag, activeCategory]);
 
   useEffect(() => {
+    const fetchKey = filterMode === "exact" && selectedId
+      ? `exact_${selectedId}`
+      : selectedSlug ? `parent_${selectedSlug}` : null;
+
+    if (!fetchKey) return;
+    if (lastFetchKey.current === fetchKey) return;
+    lastFetchKey.current = fetchKey;
+
     setIsLoading(true);
+    setProducts([]);
 
     if (filterMode === "exact" && selectedId) {
       getProductsByCategory(selectedId)
@@ -109,13 +119,9 @@ export default function Corporate() {
           setIsLoading(false);
         });
     } else {
-      if (!selectedSlug) {
-        setIsLoading(false);
-        return;
-      }
       getProductsByParentCategory(selectedSlug)
         .then((res) => {
-          setProducts(res.products);
+          setProducts(res.products || []);
           setIsLoading(false);
         })
         .catch((err) => {

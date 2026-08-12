@@ -11,6 +11,17 @@ import OccasionsImage from "../assets/homePage/OccasionImage.webp";
 import WeddingGift from "../assets/homePage/WeddingGiftImage.webp";
 import { getHomeProducts } from "@/services/orderService";
 
+let homeProductsPromise = null;
+
+function fetchHomeProductsOnce() {
+  if (homeProductsPromise) return homeProductsPromise;
+  homeProductsPromise = getHomeProducts().then((data) => {
+    homeProductsPromise = null;
+    return data;
+  });
+  return homeProductsPromise;
+}
+
 const CATEGORIES = [
   {
     slug: "corporate",
@@ -58,7 +69,7 @@ function HomePage() {
 
   useEffect(() => {
     setLoading(true);
-    getHomeProducts()
+    fetchHomeProductsOnce()
       .then((res) => {
         setHomeProducts(res);
       })
@@ -74,11 +85,7 @@ function HomePage() {
 
   return (
     <div ref={containerRef} className="bg-background text-foreground overflow-x-hidden">
-    
-      
-          <HomeCarousel />
-      
-    
+      <HomeCarousel />
 
       <section className="py-12 md:py-16 lg:py-24 px-4 md:px-8 lg:px-12 bg-background">
         <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8 lg:gap-12">
@@ -238,21 +245,19 @@ function HomePage() {
             </motion.p>
 
             <div className="grid grid-cols-2 gap-3 md:gap-4 lg:gap-6 mb-10 md:mb-12 lg:mb-16">
-              {isLoading ? (
-                Array.from({ length: 4 }).map((_, i) => <ProductSkeleton key={i} />)
-              ) : (
-                homeProducts?.customized?.map((p, idx) => (
-                  <motion.div
-                    key={p?.node?.id || p?.id || idx}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: idx * 0.1 }}
-                  >
-                    <ProductCard product={p} />
-                  </motion.div>
-                ))
-              )}
+              {isLoading
+                ? Array.from({ length: 4 }).map((_, i) => <ProductSkeleton key={i} />)
+                : homeProducts?.customized?.map((p, idx) => (
+                    <motion.div
+                      key={p?.node?.id || p?.id || idx}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: idx * 0.1 }}
+                    >
+                      <ProductCard product={p} />
+                    </motion.div>
+                  ))}
             </div>
 
             <Link to="/products" className="cursor-pointer flex justify-end">
@@ -289,21 +294,19 @@ function HomePage() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 lg:gap-8">
-            {isLoading ? (
-              Array.from({ length: 4 }).map((_, i) => <ProductSkeleton key={i} />)
-            ) : (
-              homeProducts?.wedding?.map((p, idx) => (
-                <motion.div
-                  key={p?.node?.id || p?.id || idx}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: idx * 0.1 }}
-                >
-                  <ProductCard product={p} lightMode={false} />
-                </motion.div>
-              ))
-            )}
+            {isLoading
+              ? Array.from({ length: 4 }).map((_, i) => <ProductSkeleton key={i} />)
+              : homeProducts?.wedding?.map((p, idx) => (
+                  <motion.div
+                    key={p?.node?.id || p?.id || idx}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: idx * 0.1 }}
+                  >
+                    <ProductCard product={p} lightMode={false} />
+                  </motion.div>
+                ))}
           </div>
         </div>
       </section>
@@ -333,21 +336,19 @@ function HomePage() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 lg:gap-8 xl:gap-10">
-            {isLoading ? (
-              Array.from({ length: 4 }).map((_, i) => <ProductSkeleton key={i} />)
-            ) : (
-              homeProducts?.corporate?.map((p, idx) => (
-                <motion.div
-                  key={p?.node?.id || p?.id || idx}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: idx * 0.1 }}
-                >
-                  <ProductCard product={p} />
-                </motion.div>
-              ))
-            )}
+            {isLoading
+              ? Array.from({ length: 4 }).map((_, i) => <ProductSkeleton key={i} />)
+              : homeProducts?.corporate?.map((p, idx) => (
+                  <motion.div
+                    key={p?.node?.id || p?.id || idx}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: idx * 0.1 }}
+                  >
+                    <ProductCard product={p} />
+                  </motion.div>
+                ))}
           </div>
         </div>
       </section>
@@ -373,22 +374,20 @@ function HomePage() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 lg:gap-8 xl:gap-12">
-            {isLoading ? (
-              Array.from({ length: 4 }).map((_, i) => <ProductSkeleton key={i} />)
-            ) : (
-              homeProducts?.occasions?.map((p, idx) => (
-                <motion.div
-                  key={p?.node?.id || p?.id || idx}
-                  initial={{ opacity: 0, y: 40 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ duration: 0.8, delay: (idx % 4) * 0.1 }}
-                  className={idx % 2 !== 0 ? "md:mt-12" : ""}
-                >
-                  <ProductCard product={p} />
-                </motion.div>
-              ))
-            )}
+            {isLoading
+              ? Array.from({ length: 4 }).map((_, i) => <ProductSkeleton key={i} />)
+              : homeProducts?.occasions?.map((p, idx) => (
+                  <motion.div
+                    key={p?.node?.id || p?.id || idx}
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ duration: 0.8, delay: (idx % 4) * 0.1 }}
+                    className={idx % 2 !== 0 ? "md:mt-12" : ""}
+                  >
+                    <ProductCard product={p} />
+                  </motion.div>
+                ))}
           </div>
 
           <div className="mt-14 md:mt-18 lg:mt-24 text-center">

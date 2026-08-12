@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+
 import { toast } from "sonner";
 import { getWishlistItems } from "@/services/orderService";
 
@@ -11,9 +11,7 @@ const getProductKey = (product) => {
 
 const getProductTitle = (product) => product?.name || "";
 
-export const useWishlistStore = create()(
-  persist(
-    (set, get) => ({
+export const useWishlistStore = create((set, get) => ({
       items: [],
       isOpen: false,
       isLoading: false,
@@ -83,12 +81,6 @@ export const useWishlistStore = create()(
           set({ isLoading: false });
         }
       },
-    }),
-    {
-      name: "shika-wishlist",
-      storage: createJSONStorage(() => localStorage),
-    }
-  )
-);
+}));
 
 export { getProductKey };

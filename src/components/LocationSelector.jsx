@@ -22,10 +22,10 @@ export function LocationSelector() {
   return (
     <>
       <div
-        className="flex items-center gap-2 cursor-pointer group hover:bg-secondary/20 w-full sm:w-auto min-w-0 sm:min-w-[200px] md:min-w-[240px] 2xl:min-w-[280px] px-3 py-2 sm:px-4 sm:py-[7px] 2xl:py-[10px] 2xl:px-[16px] transition-colors rounded border border-border"
+        className="flex items-center gap-2 cursor-pointer group hover:bg-secondary/20 w-full sm:w-auto min-w-0 sm:min-w-50 md:min-w-60 2xl:min-w-70 px-3 py-2 sm:px-4 sm:py-1 xl:py-[6.8px] 2xl:py-2.5 2xl:px-4 transition-colors rounded border border-border"
         onClick={() => setIsModalOpen(true)}
       >
-        <MapPin className="h-4 w-4 sm:h-5 sm:w-5 2xl:w-[20px] 2xl:h-[20px] text-destructive shrink-0" />
+        <MapPin className="h-4 w-4 sm:h-5 sm:w-5 2xl:w-5 2xl:h-5 text-destructive shrink-0" />
 
         <div className="flex flex-col leading-none min-w-0 flex-1">
           <span className="text-[10px] sm:text-[11px] 2xl:text-[14px] uppercase tracking-wider font-bold text-foreground/60 whitespace-nowrap">

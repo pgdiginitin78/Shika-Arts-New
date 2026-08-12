@@ -47,6 +47,7 @@ export default function PremiumGifts() {
   }, [tagParam, premiumCat]);
 
   const isFirstRender = useRef(true);
+  const lastFetchKey = useRef(null);
 
   useEffect(() => {
     if (isFirstRender.current) {
@@ -71,7 +72,17 @@ export default function PremiumGifts() {
   }, [activeTag]);
 
   useEffect(() => {
+    const fetchKey = filterMode === "exact" && selectedId
+      ? `exact_${selectedId}`
+      : selectedSlug ? `parent_${selectedSlug}` : null;
+
+    if (!fetchKey) return;
+
+    if (lastFetchKey.current === fetchKey) return;
+    lastFetchKey.current = fetchKey;
+
     setIsLoading(true);
+    setProducts([]);
 
     if (filterMode === "exact" && selectedId) {
       getProductsByCategory(selectedId)
@@ -84,10 +95,6 @@ export default function PremiumGifts() {
           setIsLoading(false);
         });
     } else {
-      if (!selectedSlug) {
-        setIsLoading(false);
-        return;
-      }
       getProductsByParentCategory(selectedSlug)
         .then((res) => {
           setProducts(res.products || []);

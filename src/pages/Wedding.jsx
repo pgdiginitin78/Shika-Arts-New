@@ -43,7 +43,9 @@ export default function Wedding() {
   const [filterMode, setFilterMode] = useState("parent");
 
   const isFirstRender = useRef(true);
-  const requestIdRef = useRef(0);
+  // Tracks what we last fetched — same key = StrictMode remount or no-op, skip.
+  // Different key (filter change) or null (navigated back) = fresh fetch.
+  const lastFetchKey = useRef(null);
 
   useEffect(() => {
     if (navbarMenus?.length > 0) {
@@ -102,35 +104,40 @@ export default function Wedding() {
   }, [activeTag, activeCategory]);
 
   useEffect(() => {
-    const currentRequestId = ++requestIdRef.current;
+    const fetchKey = filterMode === "exact" && selectedId
+      ? `exact_${selectedId}`
+      : selectedSlug ? `parent_${selectedSlug}` : null;
+
+    if (!fetchKey) return;
+
+    // Skip if already fetched with same params (StrictMode double-mount or cascading no-op).
+    // Ref resets to null on real unmount, so navigating back always re-fetches.
+    if (lastFetchKey.current === fetchKey) return;
+    lastFetchKey.current = fetchKey;
+
     setIsLoading(true);
     setProducts([]);
 
-    const applyResult = (result) => {
-      if (currentRequestId !== requestIdRef.current) return;
-      setProducts(result);
-      setIsLoading(false);
-    };
-
-    const handleError = (err) => {
-      console.error(err);
-      if (currentRequestId === requestIdRef.current) {
-        setIsLoading(false);
-      }
-    };
-
     if (filterMode === "exact" && selectedId) {
       getProductsByCategory(selectedId)
-        .then((res) => applyResult(Array.isArray(res) ? res : []))
-        .catch(handleError);
+        .then((res) => {
+          setProducts(Array.isArray(res) ? res : []);
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          console.error(err);
+          setIsLoading(false);
+        });
     } else {
-      if (!selectedSlug) {
-        setIsLoading(false);
-        return;
-      }
       getProductsByParentCategory(selectedSlug)
-        .then((res) => applyResult(res.products || []))
-        .catch(handleError);
+        .then((res) => {
+          setProducts(res.products || []);
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          console.error(err);
+          setIsLoading(false);
+        });
     }
   }, [selectedSlug, selectedId, filterMode]);
 

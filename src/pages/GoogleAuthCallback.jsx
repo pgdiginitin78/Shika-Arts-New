@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCustomerAuthStore } from "@/stores/customerAuthStore";
+import { useAuth } from "@/context/AuthContext";
 
 export default function GoogleAuthCallback() {
   const navigate = useNavigate();
   const [status, setStatus] = useState("Signing you in with Google...");
+  const { login } = useAuth();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -30,14 +31,11 @@ export default function GoogleAuthCallback() {
         user_email: email,
       };
 
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(userData));
-      localStorage.setItem("customerData", JSON.stringify(userData));
       if (refreshToken) {
-        localStorage.setItem("refreshToken", refreshToken);
+        localStorage.setItem("refresh_token", refreshToken);
       }
 
-      useCustomerAuthStore.getState().login(token, userData, refreshToken || null);
+      login(token, userData);
 
       setStatus("Signed in! Redirecting...");
       setTimeout(() => navigate("/"), 500);

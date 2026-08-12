@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useCustomerAuthStore } from "@/stores/customerAuthStore";
+import { useAuth } from "@/context/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Mail, Phone, Search, Package, RefreshCcw, Inbox } from "lucide-react";
 import { getEnquires } from "@/services/orderService";
@@ -81,14 +81,17 @@ function EnquiryCard({ enquiry }) {
 }
 
 function EnquiriesAdminPage() {
-  const token = useCustomerAuthStore((s) => s.customer?.token);
+  const { token } = useAuth();
 
   const [enquiries, setEnquiries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
 
-  const loadEnquiries = async () => {
+  const loadEnquiries = async (force = false) => {
+    if (!force && window.__enquiriesInFlight) return;
+    window.__enquiriesInFlight = true;
+
     setLoading(true);
     setError(null);
     try {
@@ -97,6 +100,7 @@ function EnquiriesAdminPage() {
     } catch (err) {
       setError(err.response?.data?.message || err.message || "Something went wrong.");
     } finally {
+      window.__enquiriesInFlight = false;
       setLoading(false);
     }
   };
@@ -130,7 +134,7 @@ function EnquiriesAdminPage() {
             </p>
           </div>
           <button
-            onClick={loadEnquiries}
+            onClick={() => loadEnquiries(true)}
             disabled={loading}
             className="flex items-center gap-1.5 h-9 px-3 rounded border border-gray-200 text-[10px] font-bold uppercase tracking-widest text-gray-600 hover:border-[#C5A26F]/50 hover:text-[#C5A26F] transition-colors disabled:opacity-50 cursor-pointer"
           >

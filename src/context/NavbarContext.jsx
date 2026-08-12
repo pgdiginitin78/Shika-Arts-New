@@ -1,4 +1,4 @@
-import { createContext, useContext, useLayoutEffect, useState } from "react";
+import { createContext, useContext, useLayoutEffect, useRef, useState } from "react";
 import { getCategories } from "../services/LoginServices";
 import { Loader2 } from "lucide-react";
 
@@ -8,7 +8,14 @@ export function NavbarProvider({ children }) {
   const [navbarMenus, setNavbarMenus] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const hasFetched = useRef(false);
+
   useLayoutEffect(() => {
+    // useRef value persists across StrictMode's fake unmount/remount cycle.
+    // On the second mount the guard returns early → only ONE network request fires.
+    if (hasFetched.current) return;
+    hasFetched.current = true;
+
     getCategories()
       .then((res) => {
         const filteredCategories = res.filter((category) => category.slug !== "uncategorized");

@@ -21,7 +21,7 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useEffect, useRef, useState } from "react";
-import { useCustomerAuthStore } from "@/stores/customerAuthStore";
+import { useAuth } from "@/context/AuthContext";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import {
   customerLogin,
@@ -50,6 +50,7 @@ export function LoginModal({ isOpen, onClose }) {
   const [forgotOpen, setForgotOpen] = useState(false);
   const [otpOpen, setOtpOpen] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
+  const { login } = useAuth();
 
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
@@ -99,12 +100,8 @@ export function LoginModal({ isOpen, onClose }) {
     setLoading(true);
     try {
       const res = await customerLogin(email, password);
-      const profile = await getCurrentUser(res.token);
-      const customerData = profile.account || profile;
-
-      localStorage.setItem("user", JSON.stringify(customerData));
-      localStorage.setItem("customerData", JSON.stringify(customerData));
-      useCustomerAuthStore.getState().login(res.token, customerData, null);
+      const customerData = res.user;
+      login(res.token, customerData);
       notifyUserChanged();
       toast.success("Login successful!");
       setLoading(false);
@@ -197,9 +194,7 @@ export function LoginModal({ isOpen, onClose }) {
       localStorage.setItem("token", data.token);
       localStorage.setItem("refresh_token", data.refresh_token);
       localStorage.setItem("token_expires_at", Date.now() + data.access_token_expires_in * 1000);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      localStorage.setItem("customerData", JSON.stringify(data.user));
-      useCustomerAuthStore.getState().login(data.token, data.user, null);
+      login(data.token, data.user);
       startTokenAutoRefresh();
       toast.success("Login successful!");
       setLoading(false);

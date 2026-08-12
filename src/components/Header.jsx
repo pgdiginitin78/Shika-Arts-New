@@ -1,6 +1,8 @@
 import { CATEGORIES } from "@/lib/categories";
 import { useCartStore } from "@/stores/cartStore";
 import { useWishlistStore } from "@/stores/wishlistStore";
+import { useAuth } from "@/context/AuthContext";
+import { clearTokens } from "@/services/http-common";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Heart, Loader2, Menu, Search, ShoppingCart, User, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -15,21 +17,13 @@ import { searchProducts } from "@/services/orderService";
 import PremiumBg from "../assets/premiumGift/Premium_Gifts.png";
 import DelicaciesBanner from "../assets/Delicacies/DelicaciesBanner.png";
 
-function getStoredUser() {
-  try {
-    const raw = localStorage.getItem("user");
-    if (!raw || raw === "undefined") return null;
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
-}
 
 export function Header() {
   const setOpen = useCartStore((s) => s.setOpen);
   const totalItems = useCartStore((s) => s.items?.length);
   const wishlistItems = useWishlistStore((s) => s.items);
   const setWishlistOpen = useWishlistStore((s) => s.setOpen);
+  const { user: customer, logout: authLogout } = useAuth();
   const [activeMenu, setActiveMenu] = useState(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -87,6 +81,8 @@ export function Header() {
 
   useEffect(() => {
     const handleAuthFailed = () => {
+      clearTokens();
+      authLogout();
       setIsLoginOpen(true);
     };
     window.addEventListener("auth-failed", handleAuthFailed);
@@ -137,8 +133,6 @@ export function Header() {
   };
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-
-  const customer = getStoredUser();
 
   const handleLoginClick = () => {
     setIsLoginOpen(true);

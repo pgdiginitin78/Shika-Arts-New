@@ -21,7 +21,8 @@ import {
   removeFromWishlistApi,
 } from "@/services/orderService";
 import { updateAddress } from "@/services/LoginServices";
-import { useCustomerAuthStore } from "@/stores/customerAuthStore";
+import { useAuth } from "@/context/AuthContext";
+import { logoutApi } from "@/services/LoginServices";
 import { useWishlistStore } from "@/stores/wishlistStore";
 import { useCartStore } from "@/stores/cartStore";
 import { productToNode, formatPrice } from "@/lib/woocommerce";
@@ -191,16 +192,17 @@ export default function ProfilePage() {
   const [billingForm, setBillingForm] = useState({});
   const [isUpdatingAddress, setIsUpdatingAddress] = useState(false);
 
-  const logout = useCustomerAuthStore((s) => s.logout);
+  const { user: customerData, logout: authLogout } = useAuth();
   const addItemToCart = useCartStore((s) => s.addItem);
   const setCartOpen = useCartStore((s) => s.setOpen);
   const navigate = useNavigate();
 
   useEffect(() => {
-    let alive = true;
+    if (window.__profileInFlight) return;
+    window.__profileInFlight = true;
+    
     getUserProfile()
       .then((data) => {
-        if (!alive) return;
         if (data && data.success) {
           setProfile(data);
           setBillingForm({
@@ -217,39 +219,45 @@ export default function ProfilePage() {
         } else setStatus("error");
       })
       .catch(() => {
-        if (alive) setStatus("error");
+        setStatus("error");
+      })
+      .finally(() => {
+        window.__profileInFlight = false;
       });
-    return () => {
-      alive = false;
-    };
   }, []);
 
   const fetchOrders = useCallback(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    const userDetailsObj = (() => {
-      try {
-        return JSON.parse(localStorage.getItem("customerData"));
-      } catch {
-        return null;
-      }
-    })();
-    if (!userDetailsObj?.id) return;
+    if (!customerData?.id) return;
+
+    if (window.__profileOrdersInFlight) return;
+    window.__profileOrdersInFlight = true;
+
     setOrdersLoading(true);
     setOrdersError(null);
-    getMyOrders(userDetailsObj.id)
+    getMyOrders(customerData.id)
       .then((data) => setOrders(Array.isArray(data?.orders) ? data.orders : []))
       .catch(() => setOrdersError("Could not load your orders. Please try again."))
-      .finally(() => setOrdersLoading(false));
+      .finally(() => {
+        window.__profileOrdersInFlight = false;
+        setOrdersLoading(false);
+      });
   }, []);
 
   const fetchWishlist = useCallback(() => {
+    if (window.__profileWishlistInFlight) return;
+    window.__profileWishlistInFlight = true;
+
     setWishlistLoading(true);
     getWishlistItems()
       .then((data) => setWishlistItems(Array.isArray(data?.items) ? data.items : []))
       .catch(() => toast.error("Could not load wishlist."))
-      .finally(() => setWishlistLoading(false));
+      .finally(() => {
+        window.__profileWishlistInFlight = false;
+        setWishlistLoading(false);
+      });
   }, []);
 
   useEffect(() => {
@@ -258,9 +266,8 @@ export default function ProfilePage() {
   }, [tab, fetchOrders, fetchWishlist]);
 
   function handleLogout() {
-    logout();
-    localStorage.removeItem("token");
-    localStorage.removeItem("customerData");
+    logoutApi();
+    authLogout();
     useWishlistStore.getState().clearWishlist();
     window.location.href = "/";
   }

@@ -63,12 +63,13 @@ export default function BrochureDownloads() {
   const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    let cancelled = false;
+    if (window.__brochuresInFlight) return;
+    window.__brochuresInFlight = true;
+
     setLoading(true);
     setError("");
     getBrochureDownloads()
       .then((data) => {
-        if (cancelled) return;
         const list = Array.isArray(data)
           ? data
           : Array.isArray(data?.data)
@@ -79,14 +80,12 @@ export default function BrochureDownloads() {
         setRows(list);
       })
       .catch(() => {
-        if (!cancelled) setError("Could not load brochure downloads. Please try again.");
+        setError("Could not load brochure downloads. Please try again.");
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        window.__brochuresInFlight = false;
+        setLoading(false);
       });
-    return () => {
-      cancelled = true;
-    };
   }, [reloadKey]);
 
   const filteredRows = useMemo(() => {
@@ -117,7 +116,7 @@ export default function BrochureDownloads() {
   const fieldSx = {
     "& .MuiOutlinedInput-root": {
       height: 42,
-      borderRadius: 999,
+      borderRadius: 2,
       bgcolor: "#fff",
       "& fieldset": { borderColor: "#E7E1D6" },
       "&:hover fieldset": { borderColor: "#C9AE8C" },
@@ -165,7 +164,7 @@ export default function BrochureDownloads() {
                 sx={{
                   height: 42,
                   bgcolor: "#1c1a17",
-                  borderRadius: 2.5,
+                  borderRadius: 2,
                   textTransform: "none",
                   fontWeight: 500,
                   fontSize: 13.5,

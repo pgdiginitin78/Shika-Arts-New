@@ -23,17 +23,39 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+api.interceptors.response.use(
+  (response) => {
+    const incomingCartToken = response.headers?.["cart-token"] || response.headers?.["Cart-Token"];
+
+    if (incomingCartToken) {
+      localStorage.setItem("cart_token", incomingCartToken);
+    }
+
+    return response;
+  },
+  (error) => {
+    const incomingCartToken =
+      error.response?.headers?.["cart-token"] || error.response?.headers?.["Cart-Token"];
+
+    if (incomingCartToken) {
+      localStorage.setItem("cart_token", incomingCartToken);
+    }
+
+    return Promise.reject(error);
+  },
+);
+
 let refreshPromise = null;
 let scheduledTimer = null;
 
-function saveTokens(data) {
+export function saveTokens(data) {
   localStorage.setItem("token", data.token);
   localStorage.setItem("refresh_token", data.refresh_token);
   localStorage.setItem("token_expires_at", Date.now() + data.access_token_expires_in * 1000);
   scheduleAutoRefresh(data.access_token_expires_in);
 }
 
-function clearTokens() {
+export function clearTokens() {
   localStorage.removeItem("token");
   localStorage.removeItem("refresh_token");
   localStorage.removeItem("token_expires_at");
@@ -41,6 +63,10 @@ function clearTokens() {
     clearTimeout(scheduledTimer);
     scheduledTimer = null;
   }
+}
+
+export function clearCartToken() {
+  localStorage.removeItem("cart_token");
 }
 
 function refreshAccessToken() {
@@ -55,14 +81,25 @@ function refreshAccessToken() {
   }
 
   refreshPromise = axios
-    .post("https://api.shikaarts.com/wp-json/custom/v1/refresh-token", {
-      refresh_token,
-    })
+    .post(
+      "https://api.shikaarts.com/wp-json/custom/v1/refresh-token",
+      { refresh_token },
+      { withCredentials: true },
+    )
     .then(({ data }) => {
       saveTokens(data);
       return data.token;
     })
     .catch((err) => {
+      const code = err.response?.data?.code;
+
+      if (code === "refresh_token_in_use") {
+        const latestToken = localStorage.getItem("token");
+        if (latestToken) {
+          return latestToken;
+        }
+      }
+
       clearTokens();
       window.dispatchEvent(new Event("auth-failed"));
       throw err;
@@ -80,7 +117,7 @@ function scheduleAutoRefresh(expiresInSeconds) {
     scheduledTimer = null;
   }
 
-  const bufferMs = 2 * 60 * 1000; // 2 minutes
+  const bufferMs = 2 * 60 * 1000;
   const delay = Math.max(expiresInSeconds * 1000 - bufferMs, 5000);
 
   scheduledTimer = setTimeout(() => {
@@ -110,6 +147,12 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
+
+      if (originalRequest.url?.includes("refresh-token")) {
+        clearTokens();
+        window.dispatchEvent(new Event("auth-failed"));
+        return Promise.reject(error);
+      }
 
       try {
         const newToken = await refreshAccessToken();

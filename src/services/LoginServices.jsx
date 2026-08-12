@@ -1,14 +1,11 @@
-import { useCustomerAuthStore } from "@/stores/customerAuthStore";
-import api, { startTokenAutoRefresh } from "./http-common";
+import api, { startTokenAutoRefresh, saveTokens, clearTokens } from "./http-common";
 
 export const customerLogin = async (username, password) => {
   const { data } = await api.post("/wp-json/custom/v1/login", {
     username,
     password,
   });
-  localStorage.setItem("token", data.token);
-  localStorage.setItem("refresh_token", data.refresh_token);
-  localStorage.setItem("token_expires_at", Date.now() + data.access_token_expires_in * 1000);
+  saveTokens(data);
   startTokenAutoRefresh();
   return data;
 };
@@ -28,9 +25,8 @@ export const resendOtp = async (payload) => {
   return data;
 };
 
-export const logout = async () => {
+export const logoutApi = async () => {
   const refresh_token = localStorage.getItem("refresh_token");
-
   if (refresh_token) {
     try {
       await api.post("/wp-json/custom/v1/logout", { refresh_token });
@@ -39,13 +35,7 @@ export const logout = async () => {
     }
   }
 
-  localStorage.removeItem("token");
-  localStorage.removeItem("refresh_token");
-  localStorage.removeItem("token_expires_at");
-  localStorage.removeItem("user");
-  localStorage.removeItem("customerData");
-  localStorage.removeItem("cart_token");
-  useCustomerAuthStore.getState().logout();
+  clearTokens();
 };
 
 export const getCurrentUser = async (token) => {
@@ -114,11 +104,11 @@ export const getCart = async () => {
   const response = await api.get("/wp-json/wc/store/v1/cart");
 
   const incomingToken = response.headers["cart-token"];
-  const existingToken = localStorage.getItem("cart_token");
+  const existingToken = localStorage.getItem("token");
 
   if (incomingToken) {
     if (!existingToken || existingToken === incomingToken) {
-      localStorage.setItem("cart_token", incomingToken);
+      localStorage.setItem("token", incomingToken);
     } else {
       console.warn(
         "[Cart] Server returned a DIFFERENT token — keeping existing token to preserve cart session.",
@@ -144,7 +134,7 @@ export const addToCart = async (
   const cartToken = response.headers["cart-token"];
 
   if (cartToken) {
-    localStorage.setItem("cart_token", cartToken);
+    localStorage.setItem("token", cartToken);
   }
 
   return response.data;
@@ -158,7 +148,7 @@ export const updateCartItem = async (cartItemKey, quantity) => {
 
   const cartToken = response.headers["cart-token"];
   if (cartToken) {
-    localStorage.setItem("cart_token", cartToken);
+    localStorage.setItem("token", cartToken);
   }
 
   return response.data;
@@ -171,7 +161,7 @@ export const removeCartItem = async (cartItemKey) => {
 
   const cartToken = response.headers["cart-token"];
   if (cartToken) {
-    localStorage.setItem("cart_token", cartToken);
+    localStorage.setItem("token", cartToken);
   }
 
   return response.data;
@@ -232,4 +222,4 @@ export async function updateAddress(payload) {
   return data;
 }
 
-//wp-json/custom/v1/enquire-now 
+//wp-json/custom/v1/enquire-now

@@ -10,12 +10,14 @@ import { NavbarProvider } from "./context/NavbarContext";
 import { CartAnimationProvider } from "./context/CartAnimationContext";
 import { useCartSync } from "./hooks/useCartSync";
 import { useWishlistSync } from "./hooks/useWishlistSync";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import { useState, useEffect } from "react";
 import { ResetPasswordModal } from "./components/ResetPasswordModal";
 
 import AdminDashboard from "./pages/AdminDashboard";
 import BrochureDownloads from "./pages/BrochureDownloads";
 import EnquiriesAdminPage from "./pages/EnquiriesAdminPage";
+
 import Category from "./pages/Category";
 import CheckoutPage from "./pages/CheckoutPage";
 import Corporate from "./pages/Corporate";
@@ -51,36 +53,12 @@ function getResetParams() {
   return null;
 }
 
-function App() {
+function AppContent() {
   useCartSync();
   useWishlistSync();
 
-  const [isSuperAdmin, setIsSuperAdmin] = useState(() => {
-    try {
-      const d = JSON.parse(localStorage.getItem("customerData") || "{}");
-      console.log("jsonData",d)
-      return d?.is_super_admin === true;
-    } catch {
-      return false;
-    }
-  });
+  const { isSuperAdmin } = useAuth();
 
-  useEffect(() => {
-    const sync = () => {
-      try {
-        const d = JSON.parse(localStorage.getItem("customerData") || "{}");
-        setIsSuperAdmin(d?.is_super_admin === true);
-      } catch {
-        setIsSuperAdmin(false);
-      }
-    };
-    window.addEventListener("user-changed", sync);
-    window.addEventListener("storage", sync);
-    return () => {
-      window.removeEventListener("user-changed", sync);
-      window.removeEventListener("storage", sync);
-    };
-  }, []);
   const resetParams = getResetParams();
   const [resetModalOpen, setResetModalOpen] = useState(!!resetParams);
 
@@ -145,6 +123,14 @@ function App() {
         </NavbarProvider>
       </CartAnimationProvider>
     </QueryClientProvider>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 

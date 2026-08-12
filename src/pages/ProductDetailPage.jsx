@@ -2,7 +2,7 @@ import { formatPrice, productToNode } from "@/lib/woocommerce";
 import { getProductBySlug } from "@/services/LoginServices";
 import { addToWishlistApi, removeFromWishlistApi, enquireNow } from "@/services/orderService";
 import { useCartStore } from "@/stores/cartStore";
-import { useCustomerAuthStore } from "@/stores/customerAuthStore";
+import { useAuth } from "@/context/AuthContext";
 import { useWishlistStore } from "@/stores/wishlistStore";
 import { Skeleton } from "@/components/ui/skeleton";
 import Modal from "@mui/material/Modal";
@@ -32,7 +32,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
-const WHATSAPP_NUMBER = "919145547554";
+const WHATSAPP_NUMBER = "919370440001";
 
 function AccordionItem({ icon, label, children }) {
   const [open, setOpen] = useState(false);
@@ -304,7 +304,7 @@ function ProductDetailPage() {
   const isLoading = useCartStore((s) => s.isLoading);
   const navigate = useNavigate();
 
-  const customer = useCustomerAuthStore((s) => s.customer);
+  const { user: customer } = useAuth();
   const isLoggedIn = !!customer;
 
   const [qty, setQty] = useState(1);

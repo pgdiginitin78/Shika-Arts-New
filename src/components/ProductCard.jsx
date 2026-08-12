@@ -3,7 +3,7 @@ import { formatPrice, productToNode } from "@/lib/woocommerce";
 import { getProductBySlug } from "@/services/LoginServices";
 import { addToWishlistApi, removeFromWishlistApi } from "@/services/orderService";
 import { useCartStore } from "@/stores/cartStore";
-import { useCustomerAuthStore } from "@/stores/customerAuthStore";
+import { useAuth } from "@/context/AuthContext";
 import { useWishlistStore } from "@/stores/wishlistStore";
 import { useCartAnimation } from "@/context/CartAnimationContext";
 import { motion } from "framer-motion";
@@ -82,8 +82,8 @@ const buildWishlistPayload = (node, variant, image, product, quantity = 1, produ
 
 
 function useIsLoggedIn() {
-  const storeToken = useCustomerAuthStore((s) => s.token ?? s.accessToken ?? null);
-  if (storeToken) return true;
+  const { token } = useAuth();
+  if (token) return true;
   if (typeof window !== "undefined") {
     return Boolean(localStorage.getItem("token"));
   }

@@ -56,6 +56,7 @@ export default function Delicacies() {
   }, [tagParam, delicaciesCat]);
 
   const isFirstRender = useRef(true);
+  const lastFetchKey = useRef(null);
 
   useEffect(() => {
     if (isFirstRender.current) {
@@ -80,7 +81,20 @@ export default function Delicacies() {
   }, [activeTag, activeCategory]);
 
   useEffect(() => {
+    const fetchKey =
+      filterMode === "exact" && selectedId
+        ? `exact_${selectedId}`
+        : selectedSlug
+          ? `parent_${selectedSlug}`
+          : null;
+
+    if (!fetchKey) return;
+
+    if (lastFetchKey.current === fetchKey) return;
+    lastFetchKey.current = fetchKey;
+
     setIsLoading(true);
+    setProducts([]);
 
     if (filterMode === "exact" && selectedId) {
       getProductsByCategory(selectedId)
@@ -93,13 +107,9 @@ export default function Delicacies() {
           setIsLoading(false);
         });
     } else {
-      if (!selectedSlug) {
-        setIsLoading(false);
-        return;
-      }
       getProductsByParentCategory(selectedSlug)
         .then((res) => {
-          setProducts(res.products);
+          setProducts(res.products || []);
           setIsLoading(false);
         })
         .catch((err) => {
@@ -139,11 +149,7 @@ export default function Delicacies() {
     <div className="min-h-screen bg-[#FAF7F2] font-sans text-[#0f1716]">
       <div className="relative sm:h-[65dvh] md:h-[80dvh] lg:h-[83dvh] 2xl:h-[86dvh]  bg-[#7A1F3D]">
         <div className="hidden md:block inset-0 w-full h-full">
-          <img
-            src={DelicaciesBg}
-            alt="Delicacies"
-            className="w-full h-full object-cover"
-          />
+          <img src={DelicaciesBg} alt="Delicacies" className="w-full h-full object-cover" />
           {/* <div className="absolute inset-0 bg-black/40 md:bg-gradient-to-b md:from-black/30 md:via-black/20 md:to-black/40" /> */}
         </div>
         <div className=" md:hidden absolute inset-0 w-full h-full">
@@ -159,9 +165,9 @@ export default function Delicacies() {
         </div>
       </div>
 
-   <div className="w-full flex justify-center mt-5 px-4">
-  <div
-    className="
+      <div className="w-full flex justify-center mt-5 px-4">
+        <div
+          className="
       inline-flex flex-wrap items-center justify-center gap-2
       p-2
       rounded-[12px]
@@ -171,11 +177,11 @@ export default function Delicacies() {
       shadow-[0_20px_60px_rgba(0,0,0,0.12)]
       ring-1 ring-black/5
     "
-  >
-    {/* All */}
-    <button
-      onClick={() => handleTabClick("All", "delicacies")}
-      className={`cursor-pointer rounded px-7 py-3
+        >
+          {/* All */}
+          <button
+            onClick={() => handleTabClick("All", "delicacies")}
+            className={`cursor-pointer rounded px-7 py-3
       text-[13px] font-semibold tracking-wide
       transition-all duration-300 ease-out
       ${
@@ -183,18 +189,18 @@ export default function Delicacies() {
           ? "bg-black text-white shadow-lg"
           : "bg-transparent text-gray-800 hover:bg-white/70 hover:shadow-md"
       }`}
-    >
-      All
-    </button>
+          >
+            All
+          </button>
 
-    {categoryTabs.map((cat) => {
-      const isActive = activeCategory === cat.name;
+          {categoryTabs.map((cat) => {
+            const isActive = activeCategory === cat.name;
 
-      return (
-        <button
-          key={cat.slug}
-          onClick={() => handleTabClick(cat.name, cat.slug)}
-          className={`cursor-pointer rounded px-7 py-3
+            return (
+              <button
+                key={cat.slug}
+                onClick={() => handleTabClick(cat.name, cat.slug)}
+                className={`cursor-pointer rounded px-7 py-3
           text-[13px] font-semibold tracking-wide
           transition-all duration-300 ease-out
           ${
@@ -202,13 +208,13 @@ export default function Delicacies() {
               ? "bg-black text-white shadow-lg"
               : "bg-transparent text-gray-800 hover:bg-white/70 hover:shadow-md"
           }`}
-        >
-          {decodeHtml(cat.name)}
-        </button>
-      );
-    })}
-  </div>
-</div>
+              >
+                {decodeHtml(cat.name)}
+              </button>
+            );
+          })}
+        </div>
+      </div>
       <div
         id="product-grid"
         className="mx-auto w-full max-w-[1440px] 2xl:max-w-[1620px] px-4 md:px-6 2xl:px-12 py-6"

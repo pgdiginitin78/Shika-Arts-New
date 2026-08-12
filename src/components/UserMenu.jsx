@@ -1,9 +1,11 @@
+import { useCartStore } from "@/stores/cartStore";
+import { useWishlistStore } from "@/stores/wishlistStore";
 import BookmarkRoundedIcon from "@mui/icons-material/BookmarkRounded";
 import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
+import ForumRoundedIcon from "@mui/icons-material/ForumRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 import ShoppingBagRoundedIcon from "@mui/icons-material/ShoppingBagRounded";
-import ForumRoundedIcon from "@mui/icons-material/ForumRounded";
 import {
   Avatar,
   Box,
@@ -15,12 +17,11 @@ import {
   MenuItem,
   Typography,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { logout } from "../services/LoginServices";
-import { useCartStore } from "@/stores/cartStore";
-import { useWishlistStore } from "@/stores/wishlistStore";
 import { toast } from "sonner";
+import { logoutApi } from "../services/LoginServices";
+import { useAuth } from "@/context/AuthContext";
 
 const ACCENT = "#7A1F3D";
 
@@ -53,71 +54,17 @@ function IconChip({ icon, tone }) {
   );
 }
 
-function getStoredUser() {
-  try {
-    const raw = localStorage.getItem("user");
-    return raw ? JSON.parse(raw) : null;
-  } catch (e) {
-    console.warn("Failed to parse stored user, clearing it", e);
-    localStorage.removeItem("user");
-    return null;
-  }
-}
-
-function getCustomerData() {
-  try {
-    const raw = localStorage.getItem("customerData");
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
-function useStoredCustomerData() {
-  const [data, setData] = useState(getCustomerData);
-
-  useEffect(() => {
-    const sync = () => setData(getCustomerData());
-    window.addEventListener("user-changed", sync);
-    window.addEventListener("storage", sync);
-    return () => {
-      window.removeEventListener("user-changed", sync);
-      window.removeEventListener("storage", sync);
-    };
-  }, []);
-
-  return data;
-}
-
 export function notifyUserChanged() {
   window.dispatchEvent(new Event("user-changed"));
 }
 
-function useStoredUser() {
-  const [customer, setCustomer] = useState(getStoredUser);
-
-  useEffect(() => {
-    const sync = () => setCustomer(getStoredUser());
-    window.addEventListener("user-changed", sync);
-    window.addEventListener("storage", sync);
-    return () => {
-      window.removeEventListener("user-changed", sync);
-      window.removeEventListener("storage", sync);
-    };
-  }, []);
-
-  return customer;
-}
-
 export function UserMenu() {
   const navigate = useNavigate();
-  const [anchorEl, setAnchorEl] = useState(null);
-  const customer = useStoredUser();
-  const customerData = useStoredCustomerData();
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const { user: customer, logout: authLogout, isSuperAdmin } = useAuth();
+  const customerData = customer;
   const resetCart = useCartStore((s) => s.resetCart);
   const clearWishlist = useWishlistStore((s) => s.clearWishlist);
-
-  const isSuperAdmin = customerData?.is_super_admin === true;
 
   const accountInfo = customer?.account || customerData?.account || customer;
   const email = accountInfo?.email || accountInfo?.user_email || "";
@@ -129,14 +76,14 @@ export function UserMenu() {
     : (accountInfo?.display_name || accountInfo?.user_display_name || accountInfo?.user_nicename || "");
 
   const initials = (firstName?.[0] || displayName?.[0] || email?.[0] || "U").toUpperCase();
-  const avatarUrl = accountInfo?.avatar_url || customer?.imageUrl || undefined;
+  const avatarUrl = customer?.imageUrl || undefined;
 
   const handleLogout = async () => {
     setAnchorEl(null);
-    logout();
+    logoutApi();
+    authLogout();
     resetCart();
     clearWishlist();
-    localStorage.clear();
     notifyUserChanged();
     navigate("/");
     toast.success("Logged out successfully!");
@@ -332,11 +279,10 @@ export function UserMenu() {
 
 export function UserMenuInline({ onAfter }) {
   const navigate = useNavigate();
-  const customer = useStoredUser();
-  const customerData = useStoredCustomerData();
+  const { user: customer, logout: authLogout, isSuperAdmin } = useAuth();
+  const customerData = customer;
   const resetCart = useCartStore((s) => s.resetCart);
   const clearWishlist = useWishlistStore((s) => s.clearWishlist);
-  const isSuperAdmin = customerData?.is_super_admin === true;
 
   if (!customer) return null;
 
@@ -350,14 +296,14 @@ export function UserMenuInline({ onAfter }) {
     : (accountInfo?.display_name || accountInfo?.user_display_name || accountInfo?.user_nicename || email || "Account");
 
   const initials = (firstName?.[0] || displayName?.[0] || email?.[0] || "U").toUpperCase();
-  const avatarUrl = accountInfo?.avatar_url || customer?.imageUrl || undefined;
+  const avatarUrl = customer?.imageUrl || undefined;
 
   const handleLogout = async () => {
     onAfter?.();
-    logout();
+    logoutApi();
+    authLogout();
     resetCart();
     clearWishlist();
-    localStorage.clear();
     notifyUserChanged();
     navigate("/");
   };

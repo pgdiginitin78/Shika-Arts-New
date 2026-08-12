@@ -5,7 +5,7 @@ import { formatPrice } from "@/lib/woocommerce";
 import { clearWooCart, createWooOrder, markOrderPaid } from "@/services/orderService";
 import { saveAddress } from "@/services/addressService";
 import { useCartStore } from "@/stores/cartStore";
-import { useCustomerAuthStore } from "@/stores/customerAuthStore";
+import { useAuth } from "@/context/AuthContext";
 import {
   AlertCircle,
   ArrowLeft,
@@ -52,7 +52,7 @@ async function validatePincode(pin) {
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const { items, resetCart } = useCartStore();
-  const { customer, token } = useCustomerAuthStore();
+  const { user: customer, token } = useAuth();
   const { openRazorpay } = useRazorpay();
 
   const [isCheckingOut, setIsCheckingOut] = useState(false);
@@ -270,8 +270,8 @@ export default function CheckoutPage() {
             );
             await clearWooCart();
             resetCart();
-            localStorage.removeItem("cart_token");
-            localStorage.removeItem("wc_cart_token");
+            localStorage.removeItem("token");
+            localStorage.removeItem("wc_token");
 
             if (authToken) {
               saveAddress(authToken, {

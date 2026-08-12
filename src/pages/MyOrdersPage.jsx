@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 function StatusBadge({ status }) {
   const map = {
@@ -45,14 +46,6 @@ function SkeletonRow() {
   );
 }
 
-function parseStoredUser(raw) {
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
-}
 
 export default function MyOrdersPage() {
   const navigate = useNavigate();
@@ -60,14 +53,18 @@ export default function MyOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-useEffect(() => {
-    const userDetailsObj = parseStoredUser(localStorage.getItem("customerData"));
-    console.log("userDetailsObj",userDetailsObj)
+  const { user: customerData, isRestoring } = useAuth();
 
-    if (!userDetailsObj?.id) {
+  useEffect(() => {
+    if (isRestoring) return;
+
+    if (!customerData?.id) {
       navigate("/");
       return;
     }
+
+    if (window.__myOrdersInFlight) return;
+    window.__myOrdersInFlight = true;
 
     setLoading(true);
     setError(null);
@@ -75,8 +72,11 @@ useEffect(() => {
     getMyOrders()
       .then((data) => setOrders(Array.isArray(data?.orders) ? data.orders : []))
       .catch(() => setError("Could not load your orders. Please try again."))
-      .finally(() => setLoading(false));
-  }, [navigate]);
+      .finally(() => {
+        window.__myOrdersInFlight = false;
+        setLoading(false);
+      });
+  }, [navigate, customerData, isRestoring]);
 
   if (loading) {
     return (

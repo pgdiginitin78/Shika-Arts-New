@@ -1830,8 +1830,12 @@ export default function AdminOrdersDashboard() {
 
   const requestId = useRef(0);
 
-  const loadOrders = useCallback(() => {
+  const loadOrders = useCallback((force = false) => {
     const id = ++requestId.current;
+
+    if (!force && window.__adminOrdersInFlight) return;
+    window.__adminOrdersInFlight = true;
+
     setLoading(true);
     setError("");
 
@@ -1859,12 +1863,16 @@ export default function AdminOrdersDashboard() {
         setError("Couldn't load orders. Check your connection and try again.");
       })
       .finally(() => {
+        window.__adminOrdersInFlight = false;
         if (id !== requestId.current) return;
         setLoading(false);
       });
   }, [page, perPage, filters]);
 
-  const loadSummary = useCallback(() => {
+  const loadSummary = useCallback((force = false) => {
+    if (!force && window.__adminSummaryInFlight) return;
+    window.__adminSummaryInFlight = true;
+
     setSummaryLoading(true);
     getAdminOrdersSummary({
       date_from: filters.date_from,
@@ -1872,7 +1880,10 @@ export default function AdminOrdersDashboard() {
     })
       .then((data) => setSummary(data.summary))
       .catch(() => {})
-      .finally(() => setSummaryLoading(false));
+      .finally(() => {
+        window.__adminSummaryInFlight = false;
+        setSummaryLoading(false);
+      });
   }, [filters.date_from, filters.date_to]);
 
   useEffect(() => {
@@ -1954,19 +1965,21 @@ export default function AdminOrdersDashboard() {
     <div className="min-h-screen bg-stone-50 px-3 py-5 sm:px-6 sm:py-6 lg:px-10 ">
       <div className="mx-auto w-full">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="text-xl font-semibold text-stone-900 sm:text-2xl">Orders</h1>
+          <div className="flex items-center gap-3">
+            <div>
+              <h1 className="text-xl font-semibold text-stone-900 sm:text-2xl">Orders</h1>
+            </div>
+            <button
+              onClick={() => {
+                loadOrders(true);
+                loadSummary(true);
+              }}
+              className="inline-flex items-center gap-2 rounded-lg border border-stone-200 bg-white px-3.5 py-2 text-sm font-medium text-stone-600 transition hover:bg-amber-50 hover:text-rose-900"
+            >
+              <RefreshIcon size={14} className={loading ? "animate-spin" : ""} />
+              Refresh
+            </button>
           </div>
-          <button
-            onClick={() => {
-              loadOrders();
-              loadSummary();
-            }}
-            className="inline-flex items-center gap-2 rounded-lg border border-stone-200 bg-white px-3.5 py-2 text-sm font-medium text-stone-600 transition hover:bg-amber-50 hover:text-rose-900"
-          >
-            <RefreshIcon size={14} className={loading ? "animate-spin" : ""} />
-            Refresh
-          </button>
         </div>
 
         {summaryLoading && !summary ? (
