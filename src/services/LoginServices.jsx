@@ -102,20 +102,10 @@ export const getProductsByCategory = async (categorySlug, page = 1, perPage = 10
 
 export const getCart = async () => {
   const response = await api.get("/wp-json/wc/store/v1/cart");
-
   const incomingToken = response.headers["cart-token"];
-  const existingToken = localStorage.getItem("token");
-
   if (incomingToken) {
-    if (!existingToken || existingToken === incomingToken) {
-      localStorage.setItem("token", incomingToken);
-    } else {
-      console.warn(
-        "[Cart] Server returned a DIFFERENT token — keeping existing token to preserve cart session.",
-      );
-    }
+    localStorage.setItem("token", incomingToken);
   }
-
   return response.data;
 };
 
@@ -130,13 +120,10 @@ export const addToCart = async (
   const body = { id: idToSend, quantity };
 
   const response = await api.post("/wp-json/wc/store/v1/cart/add-item", body);
-
   const cartToken = response.headers["cart-token"];
-
   if (cartToken) {
     localStorage.setItem("token", cartToken);
   }
-
   return response.data;
 };
 
@@ -145,12 +132,10 @@ export const updateCartItem = async (cartItemKey, quantity) => {
     key: cartItemKey,
     quantity,
   });
-
   const cartToken = response.headers["cart-token"];
   if (cartToken) {
     localStorage.setItem("token", cartToken);
   }
-
   return response.data;
 };
 
@@ -158,12 +143,10 @@ export const removeCartItem = async (cartItemKey) => {
   const response = await api.post("/wp-json/wc/store/v1/cart/remove-item", {
     key: cartItemKey,
   });
-
   const cartToken = response.headers["cart-token"];
   if (cartToken) {
     localStorage.setItem("token", cartToken);
   }
-
   return response.data;
 };
 
@@ -221,5 +204,3 @@ export async function updateAddress(payload) {
   });
   return data;
 }
-
-//wp-json/custom/v1/enquire-now
