@@ -60,7 +60,7 @@ export const searchProducts = async (search) => {
 };
 
 export const getCategories = async () => {
-  const { data } = await api.get("/wp-json/custom/v1/all-categories");
+  const { data } = await api.get("https://api.shikaarts.com/wp-json/custom/v1/all-categories");
   return data;
 };
 

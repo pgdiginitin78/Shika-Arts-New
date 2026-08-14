@@ -27,17 +27,19 @@ api.interceptors.request.use((config) => {
   if (publicRequest) {
     delete config.headers.Authorization;
     delete config.headers.authorization;
+    delete config.headers["Cart-Token"];
+    delete config.headers["cart-token"];
     config._isPublic = true;
   } else {
     const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-  }
 
-  const cartToken = localStorage.getItem("cart_token");
-  if (cartToken) {
-    config.headers["Cart-Token"] = cartToken;
+    const cartToken = localStorage.getItem("cart_token");
+    if (cartToken) {
+      config.headers["Cart-Token"] = cartToken;
+    }
   }
 
   return config;
