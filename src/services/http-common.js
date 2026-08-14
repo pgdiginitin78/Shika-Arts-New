@@ -1,5 +1,18 @@
 import axios from "axios";
 
+const PUBLIC_GET_PATHS = [
+  "/wp-json/custom/v1/all-categories",
+  "/wp-json/custom/v1/home-products",
+  "/wp-json/custom/v1/all-products",
+  "/wp-json/custom/v1/products-by-parent/",
+  "/wp-json/custom/v1/search-products",
+];
+
+function isPublicEndpoint(url = "", method = "") {
+  if (method.toLowerCase() !== "get") return false;
+  return PUBLIC_GET_PATHS.some((path) => url.includes(path));
+}
+
 const api = axios.create({
   baseURL: "https://api.shikaarts.com",
   withCredentials: true,
@@ -9,13 +22,20 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  const cartToken = localStorage.getItem("cart_token");
+  const publicRequest = isPublicEndpoint(config.url, config.method);
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  if (publicRequest) {
+    delete config.headers.Authorization;
+    delete config.headers.authorization;
+    config._isPublic = true;
+  } else {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
 
+  const cartToken = localStorage.getItem("cart_token");
   if (cartToken) {
     config.headers["Cart-Token"] = cartToken;
   }
@@ -144,6 +164,10 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    if (originalRequest?._isPublic) {
+      return Promise.reject(error);
+    }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;

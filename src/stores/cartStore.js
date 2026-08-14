@@ -7,7 +7,7 @@ import {
   removeCartItem,
   searchProducts,
   updateCartItem,
-} from "../services/LoginServices";
+} from "../services/LoginServices.jsx";
 import { productToNode } from "@/lib/woocommerce";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
