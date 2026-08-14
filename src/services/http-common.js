@@ -81,6 +81,13 @@ export function clearTokens() {
   localStorage.removeItem("token");
   localStorage.removeItem("refresh_token");
   localStorage.removeItem("token_expires_at");
+  localStorage.removeItem("cart_token");
+  localStorage.removeItem("wc_token");
+  localStorage.removeItem("user");
+  localStorage.removeItem("customerData");
+  localStorage.removeItem("shika-customer-auth");
+  localStorage.removeItem("shika-wishlist");
+  localStorage.removeItem("shika_cart_items");
   if (scheduledTimer) {
     clearTimeout(scheduledTimer);
     scheduledTimer = null;
