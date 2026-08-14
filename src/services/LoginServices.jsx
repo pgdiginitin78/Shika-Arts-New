@@ -1,206 +1,194 @@
-import api, { startTokenAutoRefresh, saveTokens, clearTokens } from "./http-common";
+import axios from "axios";
 
-export const customerLogin = async (username, password) => {
-  const { data } = await api.post("/wp-json/custom/v1/login", {
-    username,
-    password,
-  });
-  saveTokens(data);
-  startTokenAutoRefresh();
-  return data;
-};
+const PUBLIC_GET_PATHS = [
+  "/wp-json/custom/v1/all-categories",
+  "/wp-json/custom/v1/home-products",
+  "/wp-json/custom/v1/all-products",
+  "/wp-json/custom/v1/products-by-parent/",
+  "/wp-json/custom/v1/search-products",
+];
 
-export const registerCustomer = async (payload) => {
-  const { data } = await api.post("/wp-json/custom/v1/register", payload);
-  return data;
-};
+function isPublicEndpoint(url = "", method = "") {
+  if (method.toLowerCase() !== "get") return false;
+  return PUBLIC_GET_PATHS.some((path) => url.includes(path));
+}
 
-export const verifyEmailOtp = async (payload) => {
-  const { data } = await api.post("/wp-json/custom/v1/verify-email", payload);
-  return data;
-};
+const api = axios.create({
+  baseURL: "https://api.shikaarts.com",
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
-export const resendOtp = async (payload) => {
-  const { data } = await api.post("/wp-json/custom/v1/resend-otp", payload);
-  return data;
-};
+api.interceptors.request.use((config) => {
+  const publicRequest = isPublicEndpoint(config.url, config.method);
 
-export const logoutApi = async () => {
-  const refresh_token = localStorage.getItem("refresh_token");
-  if (refresh_token) {
-    try {
-      await api.post("/wp-json/custom/v1/logout", { refresh_token });
-    } catch (e) {
-      console.error("Logout API call failed:", e);
+  if (publicRequest) {
+    delete config.headers.Authorization;
+    delete config.headers.authorization;
+    config._isPublic = true;
+  } else {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
   }
 
-  clearTokens();
-};
+  const cartToken = localStorage.getItem("cart_token");
+  if (cartToken) {
+    config.headers["Cart-Token"] = cartToken;
+  }
 
-export const getCurrentUser = async (token) => {
-  const { data } = await api.get("/wp-json/custom/v1/user-profile", {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return data;
-};
+  return config;
+});
 
-export const getProducts = async (params = {}) => {
-  const { data } = await api.get("/wp-json/custom/v1/all-products", {
-    params,
-  });
-  return data.products;
-};
+api.interceptors.response.use(
+  (response) => {
+    const incomingCartToken = response.headers?.["cart-token"] || response.headers?.["Cart-Token"];
 
-export const searchProducts = async (search) => {
-  const { data } = await api.get("/wp-json/custom/v1/all-products", {
-    params: { search, per_page: 100 },
-  });
-  return data.products;
-};
+    if (incomingCartToken) {
+      localStorage.setItem("cart_token", incomingCartToken);
+    }
 
-export const getCategories = async () => {
-  const { data } = await api.get("/wp-json/custom/v1/all-categories");
-  return data;
-};
+    return response;
+  },
+  (error) => {
+    const incomingCartToken =
+      error.response?.headers?.["cart-token"] || error.response?.headers?.["Cart-Token"];
 
-export const getProductsByParentCategory = async (categorySlug, perPage = -1) => {
-  const { data } = await api.get(`/wp-json/custom/v1/products-by-parent/${categorySlug}`, {
-    params: {
-      per_page: perPage,
-    },
-  });
-  return data;
-};
+    if (incomingCartToken) {
+      localStorage.setItem("cart_token", incomingCartToken);
+    }
 
-export const getProductsByCategory = async (categorySlug, page = 1, perPage = 100) => {
-  const effectivePerPage = perPage === 100 ? -1 : perPage;
-  const { data } = await api.get("/wp-json/custom/v1/all-products", {
-    params: { category: categorySlug, page, per_page: effectivePerPage },
-  });
+    return Promise.reject(error);
+  },
+);
 
-  let allProducts = Array.isArray(data?.products) ? [...data.products] : [];
-  const totalPages = Number(data?.pages || 1);
+let refreshPromise = null;
+let scheduledTimer = null;
 
-  if (totalPages > 1 && page === 1 && (perPage === 100 || perPage === -1)) {
-    for (let p = 2; p <= totalPages; p++) {
-      try {
-        const { data: pageData } = await api.get("/wp-json/custom/v1/all-products", {
-          params: { category: categorySlug, page: p, per_page: 100 },
-        });
-        if (Array.isArray(pageData?.products) && pageData.products.length > 0) {
-          allProducts.push(...pageData.products);
+export function saveTokens(data) {
+  localStorage.setItem("token", data.token);
+  localStorage.setItem("refresh_token", data.refresh_token);
+  localStorage.setItem("token_expires_at", Date.now() + data.access_token_expires_in * 1000);
+  scheduleAutoRefresh(data.access_token_expires_in);
+}
+
+export function clearTokens() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("refresh_token");
+  localStorage.removeItem("token_expires_at");
+  if (scheduledTimer) {
+    clearTimeout(scheduledTimer);
+    scheduledTimer = null;
+  }
+}
+
+export function clearCartToken() {
+  localStorage.removeItem("cart_token");
+}
+
+function refreshAccessToken() {
+  if (refreshPromise) return refreshPromise;
+
+  const refresh_token = localStorage.getItem("refresh_token");
+
+  if (!refresh_token) {
+    clearTokens();
+    window.dispatchEvent(new Event("auth-failed"));
+    return Promise.reject(new Error("No refresh token available"));
+  }
+
+  refreshPromise = axios
+    .post(
+      "https://api.shikaarts.com/wp-json/custom/v1/refresh-token",
+      { refresh_token },
+      { withCredentials: true },
+    )
+    .then(({ data }) => {
+      saveTokens(data);
+      return data.token;
+    })
+    .catch((err) => {
+      const code = err.response?.data?.code;
+
+      if (code === "refresh_token_in_use") {
+        const latestToken = localStorage.getItem("token");
+        if (latestToken) {
+          return latestToken;
         }
-      } catch (e) {
-        console.error(`[getProductsByCategory] Error fetching page ${p}:`, e);
+      }
+
+      clearTokens();
+      window.dispatchEvent(new Event("auth-failed"));
+      throw err;
+    })
+    .finally(() => {
+      refreshPromise = null;
+    });
+
+  return refreshPromise;
+}
+
+function scheduleAutoRefresh(expiresInSeconds) {
+  if (scheduledTimer) {
+    clearTimeout(scheduledTimer);
+    scheduledTimer = null;
+  }
+
+  const bufferMs = 2 * 60 * 1000;
+  const delay = Math.max(expiresInSeconds * 1000 - bufferMs, 5000);
+
+  scheduledTimer = setTimeout(() => {
+    refreshAccessToken().catch(() => {});
+  }, delay);
+}
+
+export function startTokenAutoRefresh() {
+  const token = localStorage.getItem("token");
+  const expiresAt = Number(localStorage.getItem("token_expires_at") || 0);
+
+  if (!token) return;
+
+  if (!expiresAt || Date.now() >= expiresAt) {
+    refreshAccessToken().catch(() => {});
+    return;
+  }
+
+  const remainingSeconds = (expiresAt - Date.now()) / 1000;
+  scheduleAutoRefresh(remainingSeconds);
+}
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (originalRequest?._isPublic) {
+      return Promise.reject(error);
+    }
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      if (originalRequest.url?.includes("refresh-token")) {
+        clearTokens();
+        window.dispatchEvent(new Event("auth-failed"));
+        return Promise.reject(error);
+      }
+
+      try {
+        const newToken = await refreshAccessToken();
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        return api(originalRequest);
+      } catch (refreshError) {
+        return Promise.reject(refreshError);
       }
     }
-  }
 
-  return allProducts;
-};
+    return Promise.reject(error);
+  },
+);
 
-export const getCart = async () => {
-  const response = await api.get("/wp-json/wc/store/v1/cart");
-  const incomingToken = response.headers["cart-token"];
-  if (incomingToken) {
-    localStorage.setItem("token", incomingToken);
-  }
-  return response.data;
-};
-
-export const addToCart = async (
-  productId,
-  quantity = 1,
-  variationAttributes = [],
-  variationId = null,
-) => {
-  const idToSend = variationId || productId;
-
-  const body = { id: idToSend, quantity };
-
-  const response = await api.post("/wp-json/wc/store/v1/cart/add-item", body);
-  const cartToken = response.headers["cart-token"];
-  if (cartToken) {
-    localStorage.setItem("token", cartToken);
-  }
-  return response.data;
-};
-
-export const updateCartItem = async (cartItemKey, quantity) => {
-  const response = await api.post("/wp-json/wc/store/v1/cart/update-item", {
-    key: cartItemKey,
-    quantity,
-  });
-  const cartToken = response.headers["cart-token"];
-  if (cartToken) {
-    localStorage.setItem("token", cartToken);
-  }
-  return response.data;
-};
-
-export const removeCartItem = async (cartItemKey) => {
-  const response = await api.post("/wp-json/wc/store/v1/cart/remove-item", {
-    key: cartItemKey,
-  });
-  const cartToken = response.headers["cart-token"];
-  if (cartToken) {
-    localStorage.setItem("token", cartToken);
-  }
-  return response.data;
-};
-
-const getVariationPrice = async (productId, variationId) => {
-  try {
-    const { data } = await api.get(`/wp-json/wc/store/v1/products/${variationId}`);
-    return data || null;
-  } catch {
-    try {
-      const { data } = await api.get(
-        `/wp-json/wc/v2/products/${productId}/variations/${variationId}`,
-      );
-      return data || null;
-    } catch {
-      return null;
-    }
-  }
-};
-
-export const getProductBySlug = async (slug) => {
-  const { data } = await api.get("/wp-json/wc/store/v1/products", {
-    params: { slug },
-  });
-
-  const product = data?.[0] || null;
-  if (!product) return null;
-
-  if (product.type === "variable" && product.variations?.length > 0) {
-    const results = await Promise.allSettled(
-      product.variations.map(async (v) => {
-        const vd = await getVariationPrice(product.id, v.id);
-        if (vd) {
-          vd.attributes = v.attributes && v.attributes.length > 0 ? v.attributes : vd.attributes;
-        }
-        return vd;
-      }),
-    );
-
-    product._variationDetails = results
-      .filter((r) => r.status === "fulfilled" && r.value)
-      .map((r) => r.value);
-
-    results
-      .filter((r) => r.status === "rejected")
-      .forEach((r) => console.error("[getProductBySlug] variation fetch failed:", r.reason));
-  }
-
-  return product;
-};
-
-export async function updateAddress(payload) {
-  const token = localStorage.getItem("token");
-  const { data } = await api.post("/wp-json/custom/v1/update-address", payload, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
-  return data;
-}
+export default api;
