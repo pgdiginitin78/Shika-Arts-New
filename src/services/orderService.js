@@ -1,4 +1,4 @@
-import api from "./http-common";
+import api, { publicApi } from "./http-common";
 
 export async function createWooOrder(cartItems = [], customer = {}) {
   const nameParts = (customer.name || "").trim().split(" ");
@@ -193,7 +193,7 @@ export async function searchProducts(name, page = 1, perPage = 20) {
     return { products: [], total: 0, pages: 0 };
   }
 
-  const { data } = await api.get("/wp-json/custom/v1/search-products", {
+  const { data } = await publicApi.get("/wp-json/custom/v1/search-products", {
     params: { name: name.trim(), page, per_page: perPage },
   });
 
@@ -210,7 +210,7 @@ export async function getUserProfile() {
 }
 
 export async function getHomeProducts() {
-  const { data } = await api.get("/wp-json/custom/v1/home-products");
+  const { data } = await publicApi.get("/wp-json/custom/v1/home-products");
   return data;
 }
 

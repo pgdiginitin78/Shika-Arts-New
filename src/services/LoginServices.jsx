@@ -1,4 +1,4 @@
-import api, { startTokenAutoRefresh, saveTokens, clearTokens } from "./http-common";
+import api, { startTokenAutoRefresh, saveTokens, clearTokens, publicApi } from "./http-common";
 
 export const customerLogin = async (username, password) => {
   const { data } = await api.post("/wp-json/custom/v1/login", {
@@ -46,26 +46,26 @@ export const getCurrentUser = async (token) => {
 };
 
 export const getProducts = async (params = {}) => {
-  const { data } = await api.get("/wp-json/custom/v1/all-products", {
+  const { data } = await publicApi.get("/wp-json/custom/v1/all-products", {
     params,
   });
   return data.products;
 };
 
 export const searchProducts = async (search) => {
-  const { data } = await api.get("/wp-json/custom/v1/all-products", {
-    params: { search, per_page: 100 },
+  const { data } = await publicApi.get("/wp-json/custom/v1/all-products", {
+    params: { search, per_page: 20 },
   });
   return data.products;
 };
 
 export const getCategories = async () => {
-  const { data } = await api.get("https://api.shikaarts.com/wp-json/custom/v1/all-categories");
+  const { data } = await publicApi.get("https://api.shikaarts.com/wp-json/custom/v1/all-categories");
   return data;
 };
 
-export const getProductsByParentCategory = async (categorySlug, perPage = -1) => {
-  const { data } = await api.get(`/wp-json/custom/v1/products-by-parent/${categorySlug}`, {
+export const getProductsByParentCategory = async (categorySlug, perPage = 24) => {
+  const { data } = await publicApi.get(`/wp-json/custom/v1/products-by-parent/${categorySlug}`, {
     params: {
       per_page: perPage,
     },
@@ -73,20 +73,19 @@ export const getProductsByParentCategory = async (categorySlug, perPage = -1) =>
   return data;
 };
 
-export const getProductsByCategory = async (categorySlug, page = 1, perPage = 100) => {
-  const effectivePerPage = perPage === 100 ? -1 : perPage;
-  const { data } = await api.get("/wp-json/custom/v1/all-products", {
-    params: { category: categorySlug, page, per_page: effectivePerPage },
+export const getProductsByCategory = async (categorySlug, page = 1, perPage = 24) => {
+  const { data } = await publicApi.get("/wp-json/custom/v1/all-products", {
+    params: { category: categorySlug, page, per_page: perPage },
   });
 
   let allProducts = Array.isArray(data?.products) ? [...data.products] : [];
   const totalPages = Number(data?.pages || 1);
 
-  if (totalPages > 1 && page === 1 && (perPage === 100 || perPage === -1)) {
+  if (totalPages > 1 && page === 1 && perPage === 100) {
     for (let p = 2; p <= totalPages; p++) {
       try {
-        const { data: pageData } = await api.get("/wp-json/custom/v1/all-products", {
-          params: { category: categorySlug, page: p, per_page: 100 },
+        const { data: pageData } = await publicApi.get("/wp-json/custom/v1/all-products", {
+          params: { category: categorySlug, page: p, per_page: 24 },
         });
         if (Array.isArray(pageData?.products) && pageData.products.length > 0) {
           allProducts.push(...pageData.products);
