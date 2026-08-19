@@ -52,6 +52,14 @@ export const getProducts = async (params = {}) => {
   return data.products;
 };
 
+export const getProductsPage = async ({ page = 1, per_page = 50 } = {}) => {
+  const { data } = await publicApi.get("/wp-json/custom/v1/all-products", {
+    params: { page, per_page },
+  });
+  // data = { total, pages, products }
+  return data;
+};
+
 export const searchProducts = async (search) => {
   const { data } = await publicApi.get("/wp-json/custom/v1/all-products", {
     params: { search, per_page: 20 },
@@ -70,6 +78,22 @@ export const getProductsByParentCategory = async (categorySlug, perPage = 24) =>
       per_page: perPage,
     },
   });
+  return data;
+};
+
+export const getProductsByParentCategoryPage = async (categorySlug, page = 1, perPage = 50) => {
+  const { data } = await publicApi.get(`/wp-json/custom/v1/products-by-parent/${categorySlug}`, {
+    params: { page, per_page: perPage },
+  });
+  // Expected: { products: [...], total: N, pages: N }
+  return data;
+};
+
+export const getProductsByCategoryPage = async (categoryId, page = 1, perPage = 50) => {
+  const { data } = await publicApi.get("/wp-json/custom/v1/all-products", {
+    params: { category: categoryId, page, per_page: perPage },
+  });
+  // Expected: { products: [...], total: N, pages: N }
   return data;
 };
 

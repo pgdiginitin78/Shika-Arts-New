@@ -28,7 +28,7 @@ import Occasions from "./pages/Occasions";
 import OrderSuccessPage from "./pages/OrderSuccessPage";
 import PackagingStudio from "./pages/PackagingStudio";
 import Product from "./pages/ProductDetailPage";
-import Products from "./pages/Products";
+import Products from "./pages/AllProducts";
 import ProfilePage from "./pages/ProfilePage";
 import Wedding from "./pages/Wedding";
 import EarthWorth from "./pages/EarthWorth";

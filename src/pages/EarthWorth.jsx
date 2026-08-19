@@ -1,16 +1,14 @@
-import { ProductCard } from "@/components/ProductCard";
+import { ProductCard, ProductSkeleton } from "@/components/ProductCard";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import EarthWorthBanner from "../assets/EarthWorthBanner.webp";
 import { useNavbarMenus } from "../context/NavbarContext";
-import { getProductsByCategory, getProductsByParentCategory } from "../services/LoginServices";
+import { useInfiniteProducts } from "../hooks/useInfiniteProducts";
 
 export default function EarthWorth() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [corporateCat, setCorporateCat] = useState(null);
-  const [products, setProducts] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
   const navbarMenus = useNavbarMenus();
 
   const tagParam = searchParams.get("tag");
@@ -21,7 +19,6 @@ export default function EarthWorth() {
   const [filterMode, setFilterMode] = useState("parent");
 
   const isFirstRender = useRef(true);
-  const lastFetchKey = useRef(null);
 
   useEffect(() => {
     if (navbarMenus?.length > 0) {
@@ -76,41 +73,8 @@ export default function EarthWorth() {
     }
   }, [activeTag, activeCategory]);
 
-  useEffect(() => {
-    const fetchKey = filterMode === "exact" && selectedId
-      ? `exact_${selectedId}`
-      : selectedSlug ? `parent_${selectedSlug}` : null;
-
-    if (!fetchKey) return;
-
-    if (lastFetchKey.current === fetchKey) return;
-    lastFetchKey.current = fetchKey;
-
-    setIsLoading(true);
-    setProducts([]);
-
-    if (filterMode === "exact" && selectedId) {
-      getProductsByCategory(selectedId)
-        .then((res) => {
-          setProducts(Array.isArray(res) ? res : []);
-          setIsLoading(false);
-        })
-        .catch((err) => {
-          console.error(err);
-          setIsLoading(false);
-        });
-    } else {
-      getProductsByParentCategory(selectedSlug)
-        .then((res) => {
-          setProducts(res.products || []);
-          setIsLoading(false);
-        })
-        .catch((err) => {
-          console.error(err);
-          setIsLoading(false);
-        });
-    }
-  }, [selectedSlug, selectedId, filterMode]);
+  const { products, total, isLoading, isFetchingNextPage, hasNextPage, sentinelRef } =
+    useInfiniteProducts(filterMode, selectedSlug, selectedId);
 
   const subCategoriesToShow =
     activeCategory === "All"
@@ -136,7 +100,7 @@ export default function EarthWorth() {
         <div className="flex-1 min-h-[50vh]">
           <div className="flex flex-col sm:flex-row sm:items-center  gap-4 mb-8">
             <p className="text-[13px] text-gray-500 font-medium">
-              Showing 1–{products.length} of {products.length} results
+              Showing {products.length} of {total || products.length} results
             </p>
             <div className="flex space-x-2 items-center">
               {activeTag && (
@@ -185,9 +149,9 @@ export default function EarthWorth() {
           </div>
 
           {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="aspect-[4/5] animate-pulse rounded-sm bg-gray-200" />
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 gap-y-10">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <ProductSkeleton key={i} />
               ))}
             </div>
           ) : products.length === 0 ? (
@@ -201,20 +165,32 @@ export default function EarthWorth() {
               </p>
             </motion.div>
           ) : (
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeCategory + activeTag}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5  gap-3 gap-y-10"
-              >
-                {products.map((p, index) => (
-                  <ProductCard key={index} product={p} />
-                ))}
-              </motion.div>
-            </AnimatePresence>
+            <>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeCategory + activeTag}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 gap-y-10"
+                >
+                  {products.map((p, index) => (
+                    <ProductCard key={p.id || index} product={p} />
+                  ))}
+                  {isFetchingNextPage &&
+                    Array.from({ length: 12 }).map((_, i) => <ProductSkeleton key={`sk-${i}`} />)}
+                </motion.div>
+              </AnimatePresence>
+
+              <div ref={sentinelRef} className="h-1" aria-hidden="true" />
+
+              {!hasNextPage && products.length > 0 && (
+                <p className="mt-10 text-center text-xs text-muted-foreground uppercase tracking-widest">
+                  You&#39;ve seen all {products.length} pieces ✦
+                </p>
+              )}
+            </>
           )}
         </div>
       </div>
