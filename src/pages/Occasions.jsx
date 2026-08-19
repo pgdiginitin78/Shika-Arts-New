@@ -484,17 +484,31 @@ export default function Occasions() {
     }
   }, [navbarMenus]);
 
+  // Deep recursive search: finds a category node by slug at any nesting level
+  const findCategoryBySlug = (nodes, slug) => {
+    if (!nodes) return null;
+    for (const node of nodes) {
+      if (node.slug === slug) return node;
+      const found = findCategoryBySlug(node.children, slug);
+      if (found) return found;
+    }
+    return null;
+  };
+
   useEffect(() => {
     if (tagParam && occasionCat) {
       setActiveTag(tagParam);
-      occasionCat?.children?.forEach((menu) => {
-        const matched = menu.children?.find((s) => s.slug === tagParam);
-        if (matched) {
-          setSelectedSlug(matched.slug);
-          setSelectedId(matched.id);
-          setFilterMode("exact");
-        }
-      });
+      const matched = findCategoryBySlug(occasionCat?.children, tagParam);
+      if (matched) {
+        setSelectedSlug(matched.slug);
+        setSelectedId(matched.id);
+        setFilterMode("exact");
+      } else {
+        // Tag not found in tree — reset to parent so stale data is not shown
+        setSelectedSlug("occasions");
+        setSelectedId(null);
+        setFilterMode("parent");
+      }
     } else {
       setActiveTag("");
       setActiveCategory("All");

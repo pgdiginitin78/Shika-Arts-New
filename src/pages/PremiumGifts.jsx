@@ -29,14 +29,30 @@ export default function PremiumGifts() {
     }
   }, [navbarMenus]);
 
+  // Deep recursive search: finds a category node by slug at any nesting level
+  const findCategoryBySlug = (nodes, slug) => {
+    if (!nodes) return null;
+    for (const node of nodes) {
+      if (node.slug === slug) return node;
+      const found = findCategoryBySlug(node.children, slug);
+      if (found) return found;
+    }
+    return null;
+  };
+
   useEffect(() => {
     if (tagParam && premiumCat) {
       setActiveTag(tagParam);
-      const matched = premiumCat?.children?.find((s) => s.slug === tagParam);
+      const matched = findCategoryBySlug(premiumCat?.children, tagParam);
       if (matched) {
         setSelectedSlug(matched.slug);
         setSelectedId(matched.id);
         setFilterMode("exact");
+      } else {
+        // Tag not found in tree — reset to parent so stale data is not shown
+        setSelectedSlug("premium-gifts");
+        setSelectedId(null);
+        setFilterMode("parent");
       }
     } else {
       setActiveTag("");
@@ -78,6 +94,8 @@ export default function PremiumGifts() {
 
     if (!fetchKey) return;
 
+    // Reset lastFetchKey when navigating back (component remounts)
+    // so the guard only de-dupes within a single page session
     if (lastFetchKey.current === fetchKey) return;
     lastFetchKey.current = fetchKey;
 
