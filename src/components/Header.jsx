@@ -17,7 +17,6 @@ import { searchProducts } from "@/services/orderService";
 import PremiumBg from "../assets/premiumGift/Premium_Gifts.png";
 import DelicaciesBanner from "../assets/Delicacies/DelicaciesBanner.png";
 
-
 export function Header() {
   const setOpen = useCartStore((s) => s.setOpen);
   const totalItems = useCartStore((s) => s.items?.length);
@@ -140,19 +139,8 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 glass">
+      <header className="sticky top-0 z-50 glass" data-lenis-prevent="true">
         <div className="mx-auto flex w-full items-center gap-2 md:gap-4 px-3 md:px-6 h-[58px] md:h-[70px] py-2">
-          <Link to="/" className="flex items-center shrink-0 outline-none">
-            <div className="relative">
-              <span className="text-2xl md:text-3xl font-serif font-bold text-[#D4AF37]">
-                Shika
-              </span>
-              <span className="absolute -bottom-2 -right-3 text-[9px] uppercase tracking-[0.3em] font-semibold text-[#7A1F3D]">
-                Arts
-              </span>
-            </div>
-          </Link>
-
           <div className="hidden md:flex items-center border-l border-border/60 pl-3 ml-1 shrink-0">
             <LocationSelector />
           </div>
@@ -261,8 +249,6 @@ export function Header() {
               <span className="text-[10px] font-semibold leading-tight mt-0.5">Wishlist</span>
             </button>
 
-           
-
             <button
               id="cart-icon"
               onClick={() => setOpen(true)}
@@ -285,7 +271,7 @@ export function Header() {
                 Cart
               </span>
             </button>
- {customer ? (
+            {customer ? (
               <div className="hidden sm:flex items-center text-foreground">
                 <UserMenu />
               </div>
@@ -417,7 +403,7 @@ export function Header() {
                                       </span>
                                     </Link>
                                     {item.children && item.children.length > 0 && (
-                                      <div className="flex flex-col gap-2 pl-2 border-l border-destructive/20">
+                                      <div className="flex flex-col gap-2 pl-2 ">
                                         {item.children.map((child, j) => (
                                           <div key={j} className="flex flex-col gap-2">
                                             <Link
@@ -430,7 +416,7 @@ export function Header() {
                                               </span>
                                             </Link>
                                             {child.children && child.children.length > 0 && (
-                                              <div className="flex flex-col gap-2 pl-2 border-l border-destructive/20">
+                                              <div className="flex flex-col gap-2 pl-2 ">
                                                 {child.children.map((grandchild, k) => (
                                                   <Link
                                                     key={k}
@@ -469,35 +455,36 @@ export function Header() {
                                       </Link>
                                     </h4>
                                     <div className="flex flex-col gap-4">
-                                      {handmadeItem.children && handmadeItem.children.map((sub, i) => (
-                                        <div key={i} className="flex flex-col gap-2">
-                                          <Link
-                                            to={`/category/${activeData.slug}?tag=${sub.slug}`}
-                                            className="group flex flex-col"
-                                            onClick={() => setActiveMenu(null)}
-                                          >
-                                            <span className="text-[13px] 2xl:text-[15px] font-bold text-foreground group-hover:text-destructive transition-colors">
-                                              {sub.name.replace(/&amp;/g, "&")}
-                                            </span>
-                                          </Link>
-                                          {sub.children && sub.children.length > 0 && (
-                                            <div className="flex flex-col gap-2 pl-2 ">
-                                              {sub.children.map((child, j) => (
-                                                <Link
-                                                  key={j}
-                                                  to={`/category/${activeData.slug}?tag=${child.slug}`}
-                                                  className="group flex flex-col"
-                                                  onClick={() => setActiveMenu(null)}
-                                                >
-                                                  <span className="text-[12px] 2xl:text-[14px] tracking-wider font-semibold text-foreground/80 group-hover:text-destructive transition-colors">
-                                                    {child.name.replace(/&amp;/g, "&")}
-                                                  </span>
-                                                </Link>
-                                              ))}
-                                            </div>
-                                          )}
-                                        </div>
-                                      ))}
+                                      {handmadeItem.children &&
+                                        handmadeItem.children.map((sub, i) => (
+                                          <div key={i} className="flex flex-col gap-2">
+                                            <Link
+                                              to={`/category/${activeData.slug}?tag=${sub.slug}`}
+                                              className="group flex flex-col"
+                                              onClick={() => setActiveMenu(null)}
+                                            >
+                                              <span className="text-[13px] 2xl:text-[15px] font-bold text-foreground group-hover:text-destructive transition-colors">
+                                                {sub.name.replace(/&amp;/g, "&")}
+                                              </span>
+                                            </Link>
+                                            {sub.children && sub.children.length > 0 && (
+                                              <div className="flex flex-col gap-2 pl-2 ">
+                                                {sub.children.map((child, j) => (
+                                                  <Link
+                                                    key={j}
+                                                    to={`/category/${activeData.slug}?tag=${child.slug}`}
+                                                    className="group flex flex-col"
+                                                    onClick={() => setActiveMenu(null)}
+                                                  >
+                                                    <span className="text-[12px] 2xl:text-[14px] tracking-wider font-semibold text-foreground/80 group-hover:text-destructive transition-colors">
+                                                      {child.name.replace(/&amp;/g, "&")}
+                                                    </span>
+                                                  </Link>
+                                                ))}
+                                              </div>
+                                            )}
+                                          </div>
+                                        ))}
                                     </div>
                                   </div>
                                 ))}
@@ -557,14 +544,16 @@ export function Header() {
                             activeData.slug === "premium-gifts"
                               ? PremiumBg
                               : activeData.slug === "delicacies"
-                              ? DelicaciesBanner
-                              : CATEGORIES.find(
-                                  (c) =>
-                                    c.slug.toLowerCase().replace(/\s+/g, "") ===
-                                      activeData.slug.toLowerCase().replace(/\s+/g, "") ||
-                                    c.slug.toLowerCase() ===
-                                      (activeData.slug === "customizedgifts" ? "customization" : ""),
-                                )?.image
+                                ? DelicaciesBanner
+                                : CATEGORIES.find(
+                                    (c) =>
+                                      c.slug.toLowerCase().replace(/\s+/g, "") ===
+                                        activeData.slug.toLowerCase().replace(/\s+/g, "") ||
+                                      c.slug.toLowerCase() ===
+                                        (activeData.slug === "customizedgifts"
+                                          ? "customization"
+                                          : ""),
+                                  )?.image
                           }
                           alt={activeData.name.replace(/&amp;/g, "&")}
                           className="w-full h-full object-cover grayscale-[0.2]"
@@ -668,11 +657,23 @@ export function Header() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ type: "tween", duration: 0.3 }}
             exit={{ opacity: 0, x: "-100%" }}
-            className="fixed inset-0 z-[9999] bg-[#FAF7F2] lg:hidden flex flex-col shadow-2xl h-screen w-screen"
+            className="fixed inset-0 z-[9999] bg-[#FAF7F2] lg:hidden flex flex-col shadow-2xl h-screen w-screen "
+            data-lenis-prevent="true"
           >
             <div className="flex items-center justify-between px-4 py-2 border-b border-destructive/20 bg-white min-h-[64px]">
-              <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center outline-none">
-                <img src={MainLogo} alt="Main Logo" className="w-16 h-16 object-contain" />
+              <Link
+                to="/"
+                className="flex items-center shrink-0 outline-none"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <div className="relative">
+                  <span className="text-2xl md:text-3xl font-serif font-bold text-[#D4AF37]">
+                    Shika
+                  </span>
+                  <span className="absolute -bottom-2 -right-3 text-[9px] uppercase tracking-[0.3em] font-semibold text-[#7A1F3D]">
+                    Arts
+                  </span>
+                </div>
               </Link>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
@@ -695,7 +696,7 @@ export function Header() {
                   to="/products"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={({ isActive }) =>
-                    `text-[16px] uppercase tracking-wider font-semibold transition-colors outline-none ${isActive ? "text-destructive" : "text-[#0f1716] hover:text-destructive"}`
+                    `text-[14px] uppercase tracking-wider font-semibold transition-colors outline-none ${isActive ? "text-destructive" : "text-[#0f1716] hover:text-destructive"}`
                   }
                 >
                   All Gifts
@@ -705,7 +706,7 @@ export function Header() {
                   to="/about-us"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={({ isActive }) =>
-                    `text-[16px] uppercase tracking-wider font-semibold transition-colors outline-none ${isActive ? "text-destructive" : "text-[#0f1716] hover:text-destructive"}`
+                    `text-[14px] uppercase tracking-wider font-semibold transition-colors outline-none ${isActive ? "text-destructive" : "text-[#0f1716] hover:text-destructive"}`
                   }
                 >
                   About Us
@@ -722,7 +723,7 @@ export function Header() {
                           to={`/category/${c.slug}`}
                           onClick={() => setIsMobileMenuOpen(false)}
                           className={({ isActive }) =>
-                            `text-[16px] uppercase tracking-wider font-semibold transition-colors outline-none ${isActive ? "text-destructive" : "text-[#0f1716] hover:text-destructive"}`
+                            `text-[14px] uppercase tracking-wider font-semibold transition-colors outline-none ${isActive ? "text-destructive" : "text-[#0f1716] hover:text-destructive"}`
                           }
                         >
                           {c.name.replace(/&amp;/g, "&")}
@@ -746,7 +747,7 @@ export function Header() {
                           initial={false}
                           animate={{ height: isExpanded ? "auto" : 0, opacity: isExpanded ? 1 : 0 }}
                           transition={{ duration: 0.25, ease: "easeInOut" }}
-                          className="overflow-hidden flex flex-col gap-4 pl-4 border-l border-destructive/20"
+                          className="overflow-hidden flex flex-col gap-4 pl-4 "
                         >
                           {c.slug === "premium-gifts" ? (
                             <div className="flex flex-col gap-4 mt-2">
@@ -756,7 +757,9 @@ export function Header() {
                                 </span>
                                 <div className="flex flex-row flex-wrap gap-4 pl-2">
                                   {c.children
-                                    .filter((item) => (item.slug || "").toLowerCase() !== "handmade")
+                                    .filter(
+                                      (item) => (item.slug || "").toLowerCase() !== "handmade",
+                                    )
                                     .map((item, i) => (
                                       <div key={i} className="flex flex-col gap-2">
                                         <Link
@@ -767,7 +770,7 @@ export function Header() {
                                           {item.name.replace(/&amp;/g, "&")}
                                         </Link>
                                         {item.children && item.children.length > 0 && (
-                                          <div className="flex flex-col gap-2 pl-3 border-l border-destructive/20">
+                                          <div className="flex flex-col gap-2 pl-3 ">
                                             {item.children.map((child, j) => (
                                               <div key={j} className="flex flex-col gap-2">
                                                 <Link
@@ -778,7 +781,7 @@ export function Header() {
                                                   {child.name.replace(/&amp;/g, "&")}
                                                 </Link>
                                                 {child.children && child.children.length > 0 && (
-                                                  <div className="flex flex-col gap-2 pl-3 border-l border-destructive/20">
+                                                  <div className="flex flex-col gap-2 pl-3 ">
                                                     {child.children.map((grandchild, k) => (
                                                       <Link
                                                         key={k}
@@ -813,31 +816,32 @@ export function Header() {
                                         </Link>
                                       </span>
                                       <div className="flex flex-col gap-3 pl-2">
-                                        {handmadeItem.children && handmadeItem.children.map((sub, i) => (
-                                          <div key={i} className="flex flex-col gap-2">
-                                            <Link
-                                              to={`/category/${c.slug}?tag=${sub.slug}`}
-                                              onClick={() => setIsMobileMenuOpen(false)}
-                                              className="text-[14px] font-bold uppercase tracking-wider text-[#0f1716]/90 hover:text-destructive py-1 transition-colors"
-                                            >
-                                              {sub.name.replace(/&amp;/g, "&")}
-                                            </Link>
-                                            {sub.children && sub.children.length > 0 && (
-                                              <div className="flex flex-col gap-2 pl-3 border-l border-destructive/20">
-                                                {sub.children.map((child, j) => (
-                                                  <Link
-                                                    key={j}
-                                                    to={`/category/${c.slug}?tag=${child.slug}`}
-                                                    onClick={() => setIsMobileMenuOpen(false)}
-                                                    className="text-[13px] uppercase tracking-wider text-[#0f1716]/70 hover:text-destructive py-1 transition-colors"
-                                                  >
-                                                    {child.name.replace(/&amp;/g, "&")}
-                                                  </Link>
-                                                ))}
-                                              </div>
-                                            )}
-                                          </div>
-                                        ))}
+                                        {handmadeItem.children &&
+                                          handmadeItem.children.map((sub, i) => (
+                                            <div key={i} className="flex flex-col gap-2">
+                                              <Link
+                                                to={`/category/${c.slug}?tag=${sub.slug}`}
+                                                onClick={() => setIsMobileMenuOpen(false)}
+                                                className="text-[14px] font-bold uppercase tracking-wider text-[#0f1716]/90 hover:text-destructive py-1 transition-colors"
+                                              >
+                                                {sub.name.replace(/&amp;/g, "&")}
+                                              </Link>
+                                              {sub.children && sub.children.length > 0 && (
+                                                <div className="flex flex-col gap-2 pl-3 ">
+                                                  {sub.children.map((child, j) => (
+                                                    <Link
+                                                      key={j}
+                                                      to={`/category/${c.slug}?tag=${child.slug}`}
+                                                      onClick={() => setIsMobileMenuOpen(false)}
+                                                      className="text-[13px] uppercase tracking-wider text-[#0f1716]/70 hover:text-destructive py-1 transition-colors"
+                                                    >
+                                                      {child.name.replace(/&amp;/g, "&")}
+                                                    </Link>
+                                                  ))}
+                                                </div>
+                                              )}
+                                            </div>
+                                          ))}
                                       </div>
                                     </div>
                                   ))}

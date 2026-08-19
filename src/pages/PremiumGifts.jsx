@@ -27,7 +27,7 @@ export default function PremiumGifts() {
     }
   }, [navbarMenus]);
 
-  // Deep recursive search: finds a category node by slug at any nesting level
+
   const findCategoryBySlug = (nodes, slug) => {
     if (!nodes) return null;
     for (const node of nodes) {
@@ -293,7 +293,7 @@ export default function PremiumGifts() {
                                     )}
                                   </label>
                                   {sub.children && sub.children.length > 0 && (
-                                    <div className="flex flex-col gap-1 pl-4 mt-1 border-l border-destructive/10 ml-2">
+                                    <div className="flex flex-col gap-1 pl-4 mt-1  ml-2">
                                       {sub.children.map((child) => {
                                         const isChildActive = activeTag === child.slug;
                                         return (
@@ -393,7 +393,7 @@ export default function PremiumGifts() {
                                   )}
                                 </label>
                                 {sub.children && sub.children.length > 0 && (
-                                  <div className="flex flex-col gap-1 pl-4 mt-1 border-l border-destructive/10 ml-2">
+                                  <div className="flex flex-col gap-1 pl-4 mt-1  ml-2">
                                     {sub.children.map((child) => {
                                       const isChildActive = activeTag === child.slug;
                                       return (
