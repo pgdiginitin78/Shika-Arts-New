@@ -1,21 +1,19 @@
-import { CATEGORIES } from "@/lib/categories";
+import { useAuth } from "@/context/AuthContext";
+import { searchProducts } from "@/services/orderService";
 import { useCartStore } from "@/stores/cartStore";
 import { useWishlistStore } from "@/stores/wishlistStore";
-import { useAuth } from "@/context/AuthContext";
-import { clearTokens } from "@/services/http-common";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Heart, Loader2, Menu, Search, ShoppingCart, User, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import MainLogo from "../assets/mainLogos/shikaArtsLogo.webp";
 import { useNavbarMenus } from "../context/NavbarContext";
 import { LocationSelector } from "./LocationSelector";
 import { LoginModal } from "./LoginModal";
-import { UserMenu, UserMenuInline } from "./UserMenu";
-import { searchProducts } from "@/services/orderService";
-import PremiumBg from "../assets/premiumGift/Premium_Gifts.png";
-import DelicaciesBanner from "../assets/Delicacies/DelicaciesBanner.png";
+import { UserMenu } from "./UserMenu";
+import { CATEGORIES } from "@/lib/categories";
+import PremiumBg from "../assets/premiumGift/Premium_Gifts.webp";
+import DelicaciesBanner from "../assets/Delicacies/DelicaciesBanner.webp";
 
 export function Header() {
   const setOpen = useCartStore((s) => s.setOpen);
@@ -28,6 +26,8 @@ export function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState({});
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+
   const navbarMenus = useNavbarMenus();
 
   const [searchResults, setSearchResults] = useState([]);
@@ -131,7 +131,6 @@ export function Header() {
     closeSearch();
   };
 
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
 
   const handleLoginClick = () => {
     setIsLoginOpen(true);
@@ -141,6 +140,20 @@ export function Header() {
     <>
       <header className="sticky top-0 z-50 glass" data-lenis-prevent="true">
         <div className="mx-auto flex w-full items-center gap-2 md:gap-4 px-3 md:px-6 h-[58px] md:h-[70px] py-2">
+          <Link
+            to="/"
+            className="flex items-center shrink-0 outline-none"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <div className="relative">
+              <span className="text-2xl md:text-3xl font-serif font-bold text-[#D4AF37]">
+                Shika
+              </span>
+              <span className="absolute -bottom-2 -right-3 text-[9px] uppercase tracking-[0.3em] font-semibold text-[#7A1F3D]">
+                Arts
+              </span>
+            </div>
+          </Link>
           <div className="hidden md:flex items-center border-l border-border/60 pl-3 ml-1 shrink-0">
             <LocationSelector />
           </div>

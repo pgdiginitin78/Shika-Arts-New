@@ -1,7 +1,7 @@
 // Categories shown in nav + grid.
 import CorporateImage from "../assets/homePage/CorporateGifts.webp";
 import CustomizedGifts from "../assets/homePage/CustomizedGifts.webp";
-import HampersImage from "../assets/categories/Hampers.webp";
+import HampersImage from "../assets/corporate/PackagingStudio.png";
 import OccasionsImage from "../assets/homePage/OccasionGift.webp";
 import WeddingGift from "../assets/homePage/Wedding.webp";
 

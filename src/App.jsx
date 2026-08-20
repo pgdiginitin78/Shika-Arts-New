@@ -11,35 +11,36 @@ import { CartAnimationProvider } from "./context/CartAnimationContext";
 import { useCartSync } from "./hooks/useCartSync";
 import { useWishlistSync } from "./hooks/useWishlistSync";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import { useState, useEffect } from "react";
-import { ResetPasswordModal } from "./components/ResetPasswordModal";
-
-import AdminDashboard from "./pages/AdminDashboard";
-import BrochureDownloads from "./pages/BrochureDownloads";
-import EnquiriesAdminPage from "./pages/EnquiriesAdminPage";
-
-import Category from "./pages/Category";
-import CheckoutPage from "./pages/CheckoutPage";
-import Corporate from "./pages/Corporate";
-import CustomizedGifts from "./pages/CustomizedGifts";
+import { useState, useEffect, lazy, Suspense } from "react";
 import Home from "./pages/Home";
-import MyOrdersPage from "./pages/MyOrdersPage";
-import Occasions from "./pages/Occasions";
-import OrderSuccessPage from "./pages/OrderSuccessPage";
-import PackagingStudio from "./pages/PackagingStudio";
-import Product from "./pages/ProductDetailPage";
-import Products from "./pages/AllProducts";
-import ProfilePage from "./pages/ProfilePage";
-import Wedding from "./pages/Wedding";
-import EarthWorth from "./pages/EarthWorth";
-import PremiumGifts from "./pages/PremiumGifts";
-import GoogleAuthCallback from "./pages/GoogleAuthCallback";
-import AboutUs from "./pages/AboutUs";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsAndConditions from "./pages/TermsAndConditions";
-import ShippingPolicy from "./pages/ShippingPolicy";
+
+// Route-level code-splitting for non-home pages
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const BrochureDownloads = lazy(() => import("./pages/BrochureDownloads"));
+const EnquiriesAdminPage = lazy(() => import("./pages/EnquiriesAdminPage"));
+
+const Category = lazy(() => import("./pages/Category"));
+const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
+const Corporate = lazy(() => import("./pages/Corporate"));
+const CustomizedGifts = lazy(() => import("./pages/CustomizedGifts"));
+const MyOrdersPage = lazy(() => import("./pages/MyOrdersPage"));
+const Occasions = lazy(() => import("./pages/Occasions"));
+const OrderSuccessPage = lazy(() => import("./pages/OrderSuccessPage"));
+const PackagingStudio = lazy(() => import("./pages/PackagingStudio"));
+const Product = lazy(() => import("./pages/ProductDetailPage"));
+const Products = lazy(() => import("./pages/AllProducts"));
+const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const Wedding = lazy(() => import("./pages/Wedding"));
+const EarthWorth = lazy(() => import("./pages/EarthWorth"));
+const PremiumGifts = lazy(() => import("./pages/PremiumGifts"));
+const GoogleAuthCallback = lazy(() => import("./pages/GoogleAuthCallback"));
+const AboutUs = lazy(() => import("./pages/AboutUs"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsAndConditions = lazy(() => import("./pages/TermsAndConditions"));
+const ShippingPolicy = lazy(() => import("./pages/ShippingPolicy"));
+const Delicacies = lazy(() => import("./pages/Delicacies"));
+import { ResetPasswordModal } from "./components/ResetPasswordModal";
 import { startTokenAutoRefresh } from "./services/http-common";
-import Delicacies from "./pages/Delicacies";
 const queryClient = new QueryClient();
 
 function getResetParams() {
@@ -74,38 +75,40 @@ function AppContent() {
             <ScrollToTop />
             <Header />
             <main className="">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/category/Occasions" element={<Occasions />} />
-                <Route path="/category/Corporate" element={<Corporate />} />
-                <Route path="/category/Wedding" element={<Wedding />} />
-                <Route path="/category/premium-gifts" element={<PremiumGifts />} />
-                <Route path="/category/customizedgifts" element={<CustomizedGifts />} />
-                <Route path="/category/customization" element={<CustomizedGifts />} />
-                <Route path="/category/packaging-studio" element={<PackagingStudio />} />
-                <Route path="/category/packagingstudio" element={<PackagingStudio />} />
-                <Route path="/category/earthworth" element={<EarthWorth />} />
-                <Route path="/category/:slug" element={<Category />} />
-                <Route path="/product/:handle" element={<Product />} />
-                <Route path="/products" element={<Products />} />
-                <Route path="/category/delicacies" element={<Delicacies />} />
-                <Route path="/checkout" element={<CheckoutPage />} />
-                <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
-                <Route path="/my-orders" element={<MyOrdersPage />} />
-                {isSuperAdmin && <Route path="/admin" element={<AdminDashboard />} />}
-                {isSuperAdmin && (
-                  <Route path="/admin/brochure-downloads" element={<BrochureDownloads />} />
-                )}
-                {isSuperAdmin && (
-                  <Route path="/admin/enquiries" element={<EnquiriesAdminPage />} />
-                )}
-                <Route path="/profilePage" element={<ProfilePage />} />
-                <Route path="/auth/callback" element={<GoogleAuthCallback />} />
-                <Route path="/about-us" element={<AboutUs />} />
-                <Route path="/privacy" element={<PrivacyPolicy />} />
-                <Route path="/terms" element={<TermsAndConditions />} />
-                <Route path="/shipping-policy" element={<ShippingPolicy />} />
-              </Routes>
+              <Suspense fallback={<div className="min-h-[60vh]" />}>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/category/Occasions" element={<Occasions />} />
+                  <Route path="/category/Corporate" element={<Corporate />} />
+                  <Route path="/category/Wedding" element={<Wedding />} />
+                  <Route path="/category/premium-gifts" element={<PremiumGifts />} />
+                  <Route path="/category/customizedgifts" element={<CustomizedGifts />} />
+                  <Route path="/category/customization" element={<CustomizedGifts />} />
+                  <Route path="/category/packaging-studio" element={<PackagingStudio />} />
+                  <Route path="/category/packagingstudio" element={<PackagingStudio />} />
+                  <Route path="/category/earthworth" element={<EarthWorth />} />
+                  <Route path="/category/:slug" element={<Category />} />
+                  <Route path="/product/:handle" element={<Product />} />
+                  <Route path="/products" element={<Products />} />
+                  <Route path="/category/delicacies" element={<Delicacies />} />
+                  <Route path="/checkout" element={<CheckoutPage />} />
+                  <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
+                  <Route path="/my-orders" element={<MyOrdersPage />} />
+                  {isSuperAdmin && <Route path="/admin" element={<AdminDashboard />} />}
+                  {isSuperAdmin && (
+                    <Route path="/admin/brochure-downloads" element={<BrochureDownloads />} />
+                  )}
+                  {isSuperAdmin && (
+                    <Route path="/admin/enquiries" element={<EnquiriesAdminPage />} />
+                  )}
+                  <Route path="/profilePage" element={<ProfilePage />} />
+                  <Route path="/auth/callback" element={<GoogleAuthCallback />} />
+                  <Route path="/about-us" element={<AboutUs />} />
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
+                  <Route path="/terms" element={<TermsAndConditions />} />
+                  <Route path="/shipping-policy" element={<ShippingPolicy />} />
+                </Routes>
+              </Suspense>
             </main>
             <Footer />
             <CartDrawer />

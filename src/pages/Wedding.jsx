@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import WeddingBg from "../assets/corporate/WeddingHerobg.webp";
-import WeddingBgMobile from "../assets/corporate/WeddingHerobgMobile.png";
+import WeddingBgMobile from "../assets/corporate/WeddingHerobgMobile.webp";
 import { useNavbarMenus } from "../context/NavbarContext";
 import { useInfiniteProducts } from "../hooks/useInfiniteProducts";
 

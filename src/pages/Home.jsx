@@ -3,24 +3,14 @@ import { HomeCarousel } from "@/components/HomeCarousel";
 import { ProductCard, ProductSkeleton } from "@/components/ProductCard";
 import { ArrowRight, Star, Truck, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
 import PersonalizedImage from "../assets/homePage/Personalized Gift.webp";
 import CorporateImage from "../assets/homePage/CorporateImage.webp";
 import CustomizedGifts from "../assets/homePage/CustomizedGiftImage.webp";
 import OccasionsImage from "../assets/homePage/OccasionImage.webp";
 import WeddingGift from "../assets/homePage/WeddingGiftImage.webp";
 import { getHomeProducts } from "@/services/orderService";
-
-let homeProductsPromise = null;
-
-function fetchHomeProductsOnce() {
-  if (homeProductsPromise) return homeProductsPromise;
-  homeProductsPromise = getHomeProducts().then((data) => {
-    homeProductsPromise = null;
-    return data;
-  });
-  return homeProductsPromise;
-}
 
 const CATEGORIES = [
   {
@@ -58,30 +48,19 @@ const CATEGORIES = [
 ];
 
 function HomePage() {
-  const [homeProducts, setHomeProducts] = useState(null);
-  const [loading, setLoading] = useState(true);
-
   const containerRef = useRef(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
   });
 
-  useEffect(() => {
-    setLoading(true);
-    fetchHomeProductsOnce()
-      .then((res) => {
-        setHomeProducts(res);
-      })
-      .catch((err) => {
-        console.error("Error fetching home products:", err);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, []);
+  const { data: homeProducts, isLoading: queryLoading } = useQuery({
+    queryKey: ["home-products"],
+    queryFn: getHomeProducts,
+    staleTime: 10 * 60 * 1000,
+  });
 
-  const isLoading = loading || !homeProducts;
+  const isLoading = queryLoading || !homeProducts;
 
   return (
     <div ref={containerRef} className="bg-background text-foreground overflow-x-hidden">

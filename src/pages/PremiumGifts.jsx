@@ -4,10 +4,114 @@ import { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useNavbarMenus } from "../context/NavbarContext";
 import { useInfiniteProducts } from "../hooks/useInfiniteProducts";
-import PremiumBg from "../assets/premiumGift/Premium_Gifts.png";
-import PremiumGiftsMobile from "../assets/premiumGift/Premium_Gifts-Mobile.png";
-import React from "react";
-import { Grip, Hexagon, Sparkles, Box, Leaf, CircleDot } from "lucide-react";
+import PremiumBg from "../assets/premiumGift/Premium_Gifts.webp";
+import PremiumGiftsMobile from "../assets/premiumGift/Premium_Gifts-Mobile.webp";
+import { Grip, Hexagon, Box, Leaf, CircleDot } from "lucide-react";
+
+const HandmadeIcon = ({ size = 15, className = "" }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.4}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <circle cx="12" cy="6.2" r="2.4" />
+    <path d="M9 10.2c-1.6.9-2.7 2.3-3.2 4" />
+    <path d="M15 10.2c1.6.9 2.7 2.3 3.2 4" />
+    <path d="M9 10.2c1 1.6 1.4 3.2 1.1 4.8" />
+    <path d="M15 10.2c-1 1.6-1.4 3.2-1.1 4.8" />
+    <path d="M4.8 15.5h14.4" />
+    <path d="M6.5 15.5v2.6c0 .4.3.7.7.7h9.6c.4 0 .7-.3.7-.7v-2.6" />
+    <path d="M9.6 12.6c.9-.5 1.9-.5 2.4 0 .5-.5 1.5-.5 2.4 0" strokeWidth="1.1" />
+  </svg>
+);
+
+const decodeHtml = (text) => {
+  const txt = document.createElement("textarea");
+  txt.innerHTML = text;
+  return txt.value;
+};
+
+const getCategoryIcon = (name, active = false, depth = 0) => {
+  const n = (name || "").toLowerCase();
+  const cls = `${active ? "text-[#C5A26F]" : "opacity-70 text-[#1e2321]"}`;
+  if (depth > 0) {
+    return <CircleDot size={depth > 1 ? 10 : 12} strokeWidth={1.5} className={cls} />;
+  }
+  if (n.includes("all")) return <Grip size={15} strokeWidth={1.5} className={cls} />;
+  if (n.includes("cane")) return <Leaf size={15} strokeWidth={1.5} className={cls} />;
+  if (n.includes("cork")) return <CircleDot size={15} strokeWidth={1.5} className={cls} />;
+  if (n.includes("hand-made") || n.includes("handmade"))
+    return <HandmadeIcon size={15} className={cls} />;
+  if (n.includes("marble")) return <Hexagon size={15} strokeWidth={1.5} className={cls} />;
+  if (n.includes("metal")) return <Box size={15} strokeWidth={1.5} className={cls} />;
+  return <CircleDot size={15} strokeWidth={1.5} className={cls} />;
+};
+
+const findCategoryBySlug = (nodes, slug) => {
+  if (!nodes) return null;
+  for (const node of nodes) {
+    if (node.slug === slug) return node;
+    const found = findCategoryBySlug(node.children, slug);
+    if (found) return found;
+  }
+  return null;
+};
+
+function CategoryTree({ node, depth, activeTag, onSelect }) {
+  const isActive = activeTag === node.slug;
+  const hasChildren = node.children && node.children.length > 0;
+
+  return (
+    <div className="flex flex-col gap-1 w-full">
+      <label
+        className={`flex items-center gap-3 cursor-pointer group px-3 rounded-[4px] transition-all shrink-0 whitespace-nowrap lg:whitespace-normal lg:shrink ${
+          depth > 1 ? "py-1.5" : "py-2"
+        } ${
+          isActive
+            ? "bg-[#F5EFE6] border-l-[3px] border-[#C5A26F]"
+            : "border-l-[3px] border-transparent hover:bg-gray-50"
+        }`}
+        style={{ marginLeft: depth > 0 ? depth * 16 : 0 }}
+        onClick={() => onSelect(node)}
+      >
+        <div
+          className={`flex items-center justify-center ${
+            depth > 1 ? "w-3 h-3" : "w-5 h-5"
+          }`}
+        >
+          {getCategoryIcon(node.name, isActive, depth)}
+        </div>
+        <span
+          className={`transition-colors flex-1 ${depth > 1 ? "text-[12px]" : "text-[13px]"} ${
+            isActive ? "text-[#1e2321] font-semibold" : "text-gray-500 group-hover:text-[#1e2321]"
+          }`}
+        >
+          {decodeHtml(node.name)}
+        </span>
+        {isActive && <span className="text-[10px] font-bold text-[#C5A26F]">✓</span>}
+      </label>
+      {hasChildren && (
+        <div className="flex flex-col gap-1">
+          {node.children.map((child) => (
+            <CategoryTree
+              key={child.id}
+              node={child}
+              depth={depth + 1}
+              activeTag={activeTag}
+              onSelect={onSelect}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function PremiumGifts() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -27,17 +131,6 @@ export default function PremiumGifts() {
     }
   }, [navbarMenus]);
 
-
-  const findCategoryBySlug = (nodes, slug) => {
-    if (!nodes) return null;
-    for (const node of nodes) {
-      if (node.slug === slug) return node;
-      const found = findCategoryBySlug(node.children, slug);
-      if (found) return found;
-    }
-    return null;
-  };
-
   useEffect(() => {
     if (tagParam && premiumCat) {
       setActiveTag(tagParam);
@@ -47,7 +140,6 @@ export default function PremiumGifts() {
         setSelectedId(matched.id);
         setFilterMode("exact");
       } else {
-        // Tag not found in tree — reset to parent so stale data is not shown
         setSelectedSlug("premium-gifts");
         setSelectedId(null);
         setFilterMode("parent");
@@ -89,23 +181,25 @@ export default function PremiumGifts() {
 
   const subCategoriesToShow = premiumCat?.children || [];
 
-  const decodeHtml = (text) => {
-    const txt = document.createElement("textarea");
-    txt.innerHTML = text;
-    return txt.value;
+  const clearFilters = () => {
+    setActiveTag("");
+    setSelectedSlug("premium-gifts");
+    setSelectedId(null);
+    setFilterMode("parent");
+    setSearchParams({});
   };
 
-  const getCategoryIcon = (name, active = false) => {
-    const n = (name || "").toLowerCase();
-    const cls = `${active ? "text-[#C5A26F]" : "opacity-70 text-[#1e2321]"}`;
-    if (n.includes("all")) return <Grip size={15} strokeWidth={1.5} className={cls} />;
-    if (n.includes("cane")) return <Leaf size={15} strokeWidth={1.5} className={cls} />;
-    if (n.includes("cork")) return <CircleDot size={15} strokeWidth={1.5} className={cls} />;
-    if (n.includes("hand-made") || n.includes("handmade"))
-      return <Sparkles size={15} strokeWidth={1.5} className={cls} />;
-    if (n.includes("marble")) return <Hexagon size={15} strokeWidth={1.5} className={cls} />;
-    if (n.includes("metal")) return <Box size={15} strokeWidth={1.5} className={cls} />;
-    return <CircleDot size={15} strokeWidth={1.5} className={cls} />;
+  const selectCategory = (node) => {
+    setActiveTag(node.slug);
+    setSelectedId(node.id);
+    setSelectedSlug(node.slug);
+    setFilterMode("exact");
+    setSearchParams({ tag: node.slug });
+  };
+
+  const findActiveCategoryLabel = () => {
+    const match = findCategoryBySlug(subCategoriesToShow, activeTag);
+    return match ? decodeHtml(match.name) : activeTag;
   };
 
   return (
@@ -187,13 +281,7 @@ export default function PremiumGifts() {
                         ? "bg-[#F5EFE6] border-l-[3px] border-[#C5A26F]"
                         : "border-l-[3px] border-transparent hover:bg-gray-50"
                     }`}
-                    onClick={() => {
-                      setActiveTag("");
-                      setSelectedSlug("premium-gifts");
-                      setSelectedId(null);
-                      setFilterMode("parent");
-                      setSearchParams({});
-                    }}
+                    onClick={clearFilters}
                   >
                     <div className="flex items-center justify-center w-5 h-5">
                       {getCategoryIcon("All", activeTag === "")}
@@ -211,245 +299,21 @@ export default function PremiumGifts() {
                       <span className="text-[10px] font-bold text-[#C5A26F]">✓</span>
                     )}
                   </label>
-                  {subCategoriesToShow
-                    .filter((item) => (item.slug || "").toLowerCase() !== "handmade")
-                    .map((item) => {
-                      const isActive = activeTag === item.slug;
-                      return (
-                        <React.Fragment key={item.id}>
-                          <label
-                            className={`flex items-center gap-3 cursor-pointer group px-3 py-2 rounded-[4px] transition-all shrink-0 whitespace-nowrap lg:whitespace-normal lg:shrink ${
-                              isActive
-                                ? "bg-[#F5EFE6] border-l-[3px] border-[#C5A26F]"
-                                : "border-l-[3px] border-transparent hover:bg-gray-50"
-                            }`}
-                            onClick={() => {
-                              setActiveTag(item.slug);
-                              setSelectedId(item.id);
-                              setSelectedSlug(item.slug);
-                              setFilterMode("exact");
-                              setSearchParams({ tag: item.slug });
-                            }}
-                          >
-                            <div className="flex items-center justify-center w-5 h-5">
-                              {getCategoryIcon(item.name, isActive)}
-                            </div>
-                            <span
-                              className={`text-[13px] transition-colors flex-1 ${
-                                isActive
-                                  ? "text-[#1e2321] font-semibold"
-                                  : "text-gray-500 group-hover:text-[#1e2321]"
-                              }`}
-                            >
-                              {decodeHtml(item.name)}
-                            </span>
-                            {isActive && (
-                              <span className="text-[10px] font-bold text-[#C5A26F]">✓</span>
-                            )}
-                          </label>
-                          {item.children &&
-                            item.children.map((sub) => {
-                              const isSubActive = activeTag === sub.slug;
-                              return (
-                                <div key={sub.id} className="flex flex-col gap-1 w-full">
-                                  <label
-                                    className={`flex items-center gap-3 cursor-pointer group px-3 py-2 rounded-[4px] transition-all shrink-0 whitespace-nowrap lg:whitespace-normal lg:shrink ${
-                                      isSubActive
-                                        ? "bg-[#F5EFE6] border-l-[3px] border-[#C5A26F]"
-                                        : "border-l-[3px] border-transparent hover:bg-gray-50"
-                                    }`}
-                                    onClick={() => {
-                                      setActiveTag(sub.slug);
-                                      setSelectedId(sub.id);
-                                      setSelectedSlug(sub.slug);
-                                      setFilterMode("exact");
-                                      setSearchParams({ tag: sub.slug });
-                                    }}
-                                  >
-                                    <div className="flex items-center justify-center w-5 h-5">
-                                      <CircleDot
-                                        size={12}
-                                        strokeWidth={1.5}
-                                        className={
-                                          isSubActive
-                                            ? "text-[#C5A26F]"
-                                            : "opacity-70 text-[#1e2321]"
-                                        }
-                                      />
-                                    </div>
-                                    <span
-                                      className={`text-[13px] transition-colors flex-1 ${
-                                        isSubActive
-                                          ? "text-[#1e2321] font-semibold"
-                                          : "text-gray-500 group-hover:text-[#1e2321]"
-                                      }`}
-                                    >
-                                      {decodeHtml(sub.name)}
-                                    </span>
-                                    {isSubActive && (
-                                      <span className="text-[10px] font-bold text-[#C5A26F]">
-                                        ✓
-                                      </span>
-                                    )}
-                                  </label>
-                                  {sub.children && sub.children.length > 0 && (
-                                    <div className="flex flex-col gap-1 pl-4 mt-1  ml-2">
-                                      {sub.children.map((child) => {
-                                        const isChildActive = activeTag === child.slug;
-                                        return (
-                                          <label
-                                            key={child.id}
-                                            className={`flex items-center gap-3 cursor-pointer group px-3 py-1.5 rounded-[4px] transition-all shrink-0 whitespace-nowrap lg:whitespace-normal lg:shrink ${
-                                              isChildActive
-                                                ? "bg-[#F5EFE6] border-l-[3px] border-[#C5A26F]"
-                                                : "border-l-[3px] border-transparent hover:bg-gray-50"
-                                            }`}
-                                            onClick={() => {
-                                              setActiveTag(child.slug);
-                                              setSelectedId(child.id);
-                                              setSelectedSlug(child.slug);
-                                              setFilterMode("exact");
-                                              setSearchParams({ tag: child.slug });
-                                            }}
-                                          >
-                                            <div className="flex items-center justify-center w-3 h-3">
-                                              {isChildActive && (
-                                                <span className="text-[8px] font-bold text-[#C5A26F]">
-                                                  ✓
-                                                </span>
-                                              )}
-                                            </div>
-                                            <span
-                                              className={`text-[12px] transition-colors flex-1 ${
-                                                isChildActive
-                                                  ? "text-[#1e2321] font-semibold"
-                                                  : "text-gray-500 group-hover:text-[#1e2321]"
-                                              }`}
-                                            >
-                                              {decodeHtml(child.name)}
-                                            </span>
-                                          </label>
-                                        );
-                                      })}
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            })}
-                        </React.Fragment>
-                      );
-                    })}
-                </div>
-              </div>
-
-              <div className="mb-8">
-                {subCategoriesToShow
-                  .filter((item) => (item.slug || "").toLowerCase() === "handmade")
-                  .map((item) => (
-                    <div key={item.id} className="mb-6">
-                      <h4 className="text-[10px] uppercase text-gray-500 font-semibold tracking-wider mb-4">
-                        {decodeHtml(item.name)}
-                      </h4>
-                      <div className="flex flex-row gap-2 overflow-x-auto pb-2 -mx-4 px-4 lg:mx-0 lg:px-0 lg:pb-0 lg:flex-col lg:overflow-visible lg:gap-0 lg:space-y-1">
-                        {item.children &&
-                          item.children.map((sub) => {
-                            const isActive = activeTag === sub.slug;
-                            return (
-                              <div key={sub.id} className="flex flex-col gap-1 w-full">
-                                <label
-                                  className={`flex items-center gap-3 cursor-pointer group px-3 py-2 rounded-[4px] transition-all shrink-0 whitespace-nowrap lg:whitespace-normal lg:shrink ${
-                                    isActive
-                                      ? "bg-[#F5EFE6] border-l-[3px] border-[#C5A26F]"
-                                      : "border-l-[3px] border-transparent hover:bg-gray-50"
-                                  }`}
-                                  onClick={() => {
-                                    setActiveTag(sub.slug);
-                                    setSelectedId(sub.id);
-                                    setSelectedSlug(sub.slug);
-                                    setFilterMode("exact");
-                                    setSearchParams({ tag: sub.slug });
-                                  }}
-                                >
-                                  <div className="flex items-center justify-center w-5 h-5">
-                                    <CircleDot
-                                      size={12}
-                                      strokeWidth={1.5}
-                                      className={
-                                        isActive ? "text-[#C5A26F]" : "opacity-70 text-[#1e2321]"
-                                      }
-                                    />
-                                  </div>
-                                  <span
-                                    className={`text-[13px] transition-colors flex-1 ${
-                                      isActive
-                                        ? "text-[#1e2321] font-semibold"
-                                        : "text-gray-500 group-hover:text-[#1e2321]"
-                                    }`}
-                                  >
-                                    {decodeHtml(sub.name)}
-                                  </span>
-                                  {isActive && (
-                                    <span className="text-[10px] font-bold text-[#C5A26F]">✓</span>
-                                  )}
-                                </label>
-                                {sub.children && sub.children.length > 0 && (
-                                  <div className="flex flex-col gap-1 pl-4 mt-1  ml-2">
-                                    {sub.children.map((child) => {
-                                      const isChildActive = activeTag === child.slug;
-                                      return (
-                                        <label
-                                          key={child.id}
-                                          className={`flex items-center gap-3 cursor-pointer group px-3 py-1.5 rounded-[4px] transition-all shrink-0 whitespace-nowrap lg:whitespace-normal lg:shrink ${
-                                            isChildActive
-                                              ? "bg-[#F5EFE6] border-l-[3px] border-[#C5A26F]"
-                                              : "border-l-[3px] border-transparent hover:bg-gray-50"
-                                          }`}
-                                          onClick={() => {
-                                            setActiveTag(child.slug);
-                                            setSelectedId(child.id);
-                                            setSelectedSlug(child.slug);
-                                            setFilterMode("exact");
-                                            setSearchParams({ tag: child.slug });
-                                          }}
-                                        >
-                                          <div className="flex items-center justify-center w-3 h-3">
-                                            {isChildActive && (
-                                              <span className="text-[8px] font-bold text-[#C5A26F]">
-                                                ✓
-                                              </span>
-                                            )}
-                                          </div>
-                                          <span
-                                            className={`text-[12px] transition-colors flex-1 ${
-                                              isChildActive
-                                                ? "text-[#1e2321] font-semibold"
-                                                : "text-gray-500 group-hover:text-[#1e2321]"
-                                            }`}
-                                          >
-                                            {decodeHtml(child.name)}
-                                          </span>
-                                        </label>
-                                      );
-                                    })}
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                      </div>
-                    </div>
+                  {subCategoriesToShow.map((item) => (
+                    <CategoryTree
+                      key={item.id}
+                      node={item}
+                      depth={0}
+                      activeTag={activeTag}
+                      onSelect={selectCategory}
+                    />
                   ))}
+                </div>
               </div>
 
               <button
                 className="w-full py-3 border border-gray-200 text-[11px] font-semibold tracking-widest text-gray-600 uppercase hover:bg-gray-50 transition-colors"
-                onClick={() => {
-                  setActiveTag("");
-                  setSelectedSlug("premium-gifts");
-                  setSelectedId(null);
-                  setFilterMode("parent");
-                  setSearchParams({});
-                }}
+                onClick={clearFilters}
               >
                 CLEAR ALL FILTERS
               </button>
@@ -463,25 +327,8 @@ export default function PremiumGifts() {
               <div className="flex flex-wrap space-x-2 items-center">
                 {activeTag && (
                   <div className="flex items-center gap-2 px-3 py-1.5 bg-destructive text-white rounded-full text-xs font-medium">
-                    {subCategoriesToShow.find((s) => s.slug === activeTag)?.name ||
-                      subCategoriesToShow
-                        .flatMap((s) => s.children || [])
-                        .find((s) => s.slug === activeTag)?.name ||
-                      subCategoriesToShow
-                        .flatMap((s) => s.children || [])
-                        .flatMap((s) => s.children || [])
-                        .find((s) => s.slug === activeTag)?.name ||
-                      activeTag}
-                    <button
-                      onClick={() => {
-                        setActiveTag("");
-                        setSelectedId(null);
-                        setFilterMode("parent");
-                        setSelectedSlug("premium-gifts");
-                        setSearchParams({});
-                      }}
-                      className="hover:text-gray-200 cursor-pointer"
-                    >
+                    {findActiveCategoryLabel()}
+                    <button onClick={clearFilters} className="hover:text-gray-200 cursor-pointer">
                       <svg
                         className="w-3 h-3"
                         fill="none"
@@ -500,13 +347,7 @@ export default function PremiumGifts() {
                 )}
                 {activeTag && (
                   <button
-                    onClick={() => {
-                      setActiveTag("");
-                      setSelectedSlug("premium-gifts");
-                      setSelectedId(null);
-                      setFilterMode("parent");
-                      setSearchParams({});
-                    }}
+                    onClick={clearFilters}
                     className="text-[13px] cursor-pointer text-destructive underline underline-offset-4 ml-2 hover:text-midnight transition-colors"
                   >
                     Clear All

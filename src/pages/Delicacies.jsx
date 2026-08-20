@@ -4,8 +4,8 @@ import { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useNavbarMenus } from "../context/NavbarContext";
 import { useInfiniteProducts } from "../hooks/useInfiniteProducts";
-import DelicaciesBg from "../assets/Delicacies/DelicaciesBanner.png";
-import DelicaciesMobileBg from "../assets/Delicacies/DelicaciesMobileBanner.png";
+import DelicaciesBg from "../assets/Delicacies/DelicaciesBanner.webp";
+import DelicaciesMobileBg from "../assets/Delicacies/DelicaciesMobileBanner.webp";
 
 export default function Delicacies() {
   const [searchParams, setSearchParams] = useSearchParams();

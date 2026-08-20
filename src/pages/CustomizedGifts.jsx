@@ -5,7 +5,7 @@ import { useSearchParams } from "react-router-dom";
 import { useNavbarMenus } from "../context/NavbarContext";
 import { useInfiniteProducts } from "../hooks/useInfiniteProducts";
 import CustomizedGiftsBg from "../assets/corporate/CustomizedGiftBg.webp";
-import CustomizedGiftsBgMobile from "../assets/corporate/CustomizedGiftBgMobile.png";
+import CustomizedGiftsBgMobile from "../assets/corporate/CustomizedGiftBgMobile.webp";
 import {
   Grip,
   CircleDot,

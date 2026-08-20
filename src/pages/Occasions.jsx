@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import GanpatiImage from "../assets/categories/ganpati.webp";
 import OccasionHero from "../assets/corporate/OccasionHeroBg.webp";
-import OccasionHeroMobile from "../assets/corporate/OccasionHeroBgMobile.png";
+import OccasionHeroMobile from "../assets/corporate/OccasionHeroBgMobile.webp";
 import { useNavbarMenus } from "../context/NavbarContext";
 import { useInfiniteProducts } from "../hooks/useInfiniteProducts";
 

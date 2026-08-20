@@ -21,8 +21,8 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import ItemOrderdSvgIocn from "../assets/ItemOrderdIcon.svg";
-import mandalaBg from "../assets/mandalaBg.png";
-import RazorpayIcon from "../assets/razorpay-icon.png";
+import mandalaBg from "../assets/mandalaBg.webp";
+import RazorpayIcon from "../assets/razorpay-icon.webp";
 import ShopingSvgIocn from "../assets/ShopingSvgIcon.svg";
 
 import { motion } from "framer-motion";

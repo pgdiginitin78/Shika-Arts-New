@@ -2,10 +2,10 @@ import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import OccasionGift from "../assets/homePage/OccasionGift.webp";
-import CorporateGifts from "../assets/homePage/CorporateGifts.webp";
-import CustomizedGifts from "../assets/homePage/CustomizedGifts.webp";
-import WeddingGift from "../assets/homePage/Wedding.webp";
+import OccasionGift from "../assets/homePage/OccasionGift.png";
+import CorporateGifts from "../assets/homePage/CorporateGifts.png";
+import CustomizedGifts from "../assets/homePage/CustomizedGifts.png";
+import WeddingGift from "../assets/homePage/Wedding.png";
 
 const CARDS = [
   {
@@ -47,15 +47,18 @@ const variants = {
   }),
 };
 
-function CarouselCard({ card }) {
+function CarouselCard({ card, isPriority = false }) {
   return (
     <div className="relative h-full w-full overflow-hidden bg-primary">
       <div className="relative w-full h-full overflow-hidden">
         <motion.img
           src={card.image}
-          alt={card.title}
+          alt={card.title || "Shika Arts Collection"}
           draggable={false}
-          className="absolute inset-0 w-full  object-cover object-center"
+          className="absolute inset-0 w-full h-full object-cover "
+          loading={isPriority ? "eager" : "lazy"}
+          fetchPriority={isPriority ? "high" : "auto"}
+          decoding="async"
           transition={{ duration: 0.3 }}
         />
       </div>
@@ -136,7 +139,7 @@ export function HomeCarousel() {
             }}
             className="absolute inset-0 cursor-grab active:cursor-grabbing touch-pan-y"
           >
-            <CarouselCard card={CARDS[index]} />
+            <CarouselCard card={CARDS[index]} isPriority={index === 0} />
           </motion.div>
         </AnimatePresence>
 

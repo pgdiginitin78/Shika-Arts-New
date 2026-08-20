@@ -1,7 +1,14 @@
 import { useState } from "react";
-import { Facebook, Instagram, LinkedIn } from "@mui/icons-material";
-import { Modal, Box, TextField, CircularProgress, IconButton } from "@mui/material";
-import { Close, Download } from "@mui/icons-material";
+import Facebook from "@mui/icons-material/Facebook";
+import Instagram from "@mui/icons-material/Instagram";
+import LinkedIn from "@mui/icons-material/LinkedIn";
+import Close from "@mui/icons-material/Close";
+import Download from "@mui/icons-material/Download";
+import Modal from "@mui/material/Modal";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import CircularProgress from "@mui/material/CircularProgress";
+import IconButton from "@mui/material/IconButton";
 import { Mail, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";

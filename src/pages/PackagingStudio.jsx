@@ -24,7 +24,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import PackagingStudioBg from "../assets/corporate/PackagingStudioBg.webp";
-import PackagingStudioBgMobile from "../assets/corporate/PackagingStudioBgMobile.png";
+import PackagingStudioBgMobile from "../assets/corporate/PackagingStudioBgMobile.webp";
 import { useNavbarMenus } from "../context/NavbarContext";
 import { getProductsByCategory, getProductsByParentCategory } from "../services/LoginServices";
 

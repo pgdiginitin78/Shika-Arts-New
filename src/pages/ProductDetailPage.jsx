@@ -29,6 +29,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -312,49 +313,31 @@ function ProductDetailPage() {
   const [selectedPack, setSelectedPack] = useState(null);
   const [isWishlisting, setIsWishlisting] = useState(false);
 
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [fetchError, setFetchError] = useState(null);
+  const {
+    data,
+    isLoading: loading,
+    error: fetchError,
+  } = useQuery({
+    queryKey: ["product", handle],
+    queryFn: async () => {
+      if (!handle) return null;
+      const p = await getProductBySlug(handle);
+      if (!p) return null;
+      const node = productToNode(p);
+      return { node, raw: p };
+    },
+    staleTime: 5 * 60 * 1000,
+    enabled: !!handle,
+  });
 
   const [showEnquiryModal, setShowEnquiryModal] = useState(false);
   const [submittingEnquiry, setSubmittingEnquiry] = useState(false);
   const [enquirySuccessMessage, setEnquirySuccessMessage] = useState("");
 
   useEffect(() => {
-    let cancelled = false;
-
-    async function loadProduct() {
-      setLoading(true);
-      setFetchError(null);
-      try {
-        const p = await getProductBySlug(handle);
-        if (cancelled) return;
-
-        if (!p) {
-          setData(null);
-          return;
-        }
-
-        const node = productToNode(p);
-        setData({ node, raw: p });
-      } catch (err) {
-        if (!cancelled) {
-          setFetchError(err);
-          setData(null);
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
     setSelectedPack(null);
     setActiveImg(0);
     setQty(1);
-
-    loadProduct();
-
-    return () => {
-      cancelled = true;
-    };
   }, [handle]);
 
   useEffect(() => {

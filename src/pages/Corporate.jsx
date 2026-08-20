@@ -5,7 +5,7 @@ import { useSearchParams } from "react-router-dom";
 import { useNavbarMenus } from "../context/NavbarContext";
 import { useInfiniteProducts } from "../hooks/useInfiniteProducts";
 import CorporateBg from "../assets/corporate/CorporateBg.webp";
-import CorporateBgMobile from "../assets/corporate/CorporateBgMobile.png";
+import CorporateBgMobile from "../assets/corporate/CorporateBgMobile.webp";
 
 import {
   Grip,

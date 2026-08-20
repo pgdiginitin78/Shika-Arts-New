@@ -8,7 +8,7 @@ import { useWishlistStore } from "@/stores/wishlistStore";
 import { useCartAnimation } from "@/context/CartAnimationContext";
 import { motion } from "framer-motion";
 import { Heart, Loader2, Plus } from "lucide-react";
-import { useRef, useState } from "react";
+import { memo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -90,7 +90,7 @@ function useIsLoggedIn() {
   return false;
 }
 
-export function ProductCard({ product, lightMode = true }) {
+export const ProductCard = memo(function ProductCard({ product, lightMode = true }) {
   const addItem = useCartStore((s) => s.addItem);
   const setOpen = useCartStore((s) => s.setOpen);
   const [isAdding, setIsAdding] = useState(false);
@@ -277,6 +277,7 @@ export function ProductCard({ product, lightMode = true }) {
             alt={product?.name || image?.altText || node.title}
             className="h-full w-full object-cover rounded grayscale-[0.1] group-hover:grayscale-0 transition-all duration-700"
             loading="lazy"
+            decoding="async"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-muted/20">
@@ -373,12 +374,12 @@ export function ProductCard({ product, lightMode = true }) {
       </div>
     </Link>
   );
-}
+});
 
 export function ProductSkeleton() {
   return (
     <div className="group block relative w-full border rounded">
-      <div className="relative h-[370px] flex-shrink-0 overflow-hidden bg-secondary">
+      <div className="relative h-[230px] md:h-[300px] flex-shrink-0 overflow-hidden bg-secondary">
         <Skeleton className="h-full w-full rounded" />
       </div>
       <div className="mt-2 flex flex-col items-start gap-2 px-2 pb-2">
