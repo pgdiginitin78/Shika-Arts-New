@@ -491,6 +491,16 @@ export default function Occasions() {
     return null;
   };
 
+  const findParentCategoryName = (nodes, slug) => {
+    if (!nodes) return "All";
+    for (const topNode of nodes) {
+      if (topNode.slug === slug || findCategoryBySlug(topNode.children, slug)) {
+        return topNode.name;
+      }
+    }
+    return "All";
+  };
+
   useEffect(() => {
     if (tagParam && occasionCat) {
       setActiveTag(tagParam);
@@ -499,6 +509,7 @@ export default function Occasions() {
         setSelectedSlug(matched.slug);
         setSelectedId(matched.id);
         setFilterMode("exact");
+        setActiveCategory(findParentCategoryName(occasionCat?.children, tagParam));
       } else {
         setSelectedSlug("occasions");
         setSelectedId(null);
@@ -538,8 +549,9 @@ export default function Occasions() {
   const { products, total, isLoading, isFetchingNextPage, hasNextPage, sentinelRef } =
     useInfiniteProducts(filterMode, selectedSlug, selectedId);
 
-  const subCategoriesToShow =
-    occasionCat?.children?.flatMap((category) => category.children || []) || [];
+  const subCategoriesToShow = activeCategory === "All"
+    ? occasionCat?.children?.flatMap((category) => category.children || []) || []
+    : occasionCat?.children?.find((category) => category.name === activeCategory)?.children || [];
 
   const decodeHtml = (text) => {
     const txt = document.createElement("textarea");

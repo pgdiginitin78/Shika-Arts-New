@@ -528,7 +528,13 @@ export function Header() {
                         activeData.children.map((section, idx) => (
                           <div key={idx} className="flex flex-col gap-4">
                             <h4 className="text-[16px] 2xl:text-[18px] font-semibold  font-serif italic  text-destructive mb-1">
-                              {section.name.replace(/&amp;/g, "&")}
+                              <Link
+                                to={`/category/${activeData.slug}?tag=${section.slug}`}
+                                onClick={() => setActiveMenu(null)}
+                                className="hover:underline"
+                              >
+                                {section.name.replace(/&amp;/g, "&")}
+                              </Link>
                             </h4>
                             <div className="flex flex-col gap-3">
                               {section.children &&
@@ -864,7 +870,13 @@ export function Header() {
                             c.children.map((section, idx) => (
                               <div key={idx} className="flex flex-col gap-2 mt-2">
                                 <span className="text-[12px] font-bold uppercase tracking-wider text-destructive">
-                                  {section.name.replace(/&amp;/g, "&")}
+                                  <Link
+                                    to={`/category/${c.slug}?tag=${section.slug}`}
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="hover:underline"
+                                  >
+                                    {section.name.replace(/&amp;/g, "&")}
+                                  </Link>
                                 </span>
                                 <div className="flex flex-col gap-2 pl-2">
                                   {section.children &&

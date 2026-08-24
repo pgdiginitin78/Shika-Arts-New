@@ -56,6 +56,16 @@ export default function Corporate() {
     return null;
   };
 
+  const findParentCategoryName = (nodes, slug) => {
+    if (!nodes) return "All";
+    for (const topNode of nodes) {
+      if (topNode.slug === slug || findCategoryBySlug(topNode.children, slug)) {
+        return topNode.name;
+      }
+    }
+    return "All";
+  };
+
   useEffect(() => {
     if (tagParam && corporateCat) {
       setActiveTag(tagParam);
@@ -64,6 +74,7 @@ export default function Corporate() {
         setSelectedSlug(matched.slug);
         setSelectedId(matched.id);
         setFilterMode("exact");
+        setActiveCategory(findParentCategoryName(corporateCat?.children, tagParam));
       } else {
         // Tag not found in tree — reset to parent so stale data is not shown
         setSelectedSlug("corporate");
@@ -106,8 +117,9 @@ export default function Corporate() {
   const { products, total, isLoading, isFetchingNextPage, hasNextPage, sentinelRef } =
     useInfiniteProducts(filterMode, selectedSlug, selectedId);
 
-  const subCategoriesToShow =
-    corporateCat?.children?.flatMap((category) => category.children || []) || [];
+  const subCategoriesToShow = activeCategory === "All"
+    ? corporateCat?.children?.flatMap((category) => category.children || []) || []
+    : corporateCat?.children?.find((category) => category.name === activeCategory)?.children || [];
 
   const decodeHtml = (text) => {
     const txt = document.createElement("textarea");

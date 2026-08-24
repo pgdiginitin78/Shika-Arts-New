@@ -20,7 +20,7 @@ function CategoryPage() {
   const [filterMode, setFilterMode] = useState("parent");
 
   const activeCategory = navbarMenus.find(
-    (c) => c.slug === slug || c.slug.toLowerCase() === slug.toLowerCase(),
+    (c) => c.slug === slug || c.slug?.toLowerCase() === slug?.toLowerCase(),
   );
   const menuData = activeCategory?.children?.length ? activeCategory.children : null;
 

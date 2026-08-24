@@ -128,12 +128,14 @@ export function OtpVerificationModal({ isOpen, onClose, email, onSuccess }) {
       maxWidth="xs"
       fullWidth
       keepMounted
-      PaperProps={{
-        sx: {
-          borderRadius: fullScreen ? 0 : 5,
-          overflow: "hidden",
-          backgroundColor: "#F7F8F9",
-        },
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: fullScreen ? 0 : 5,
+            overflow: "hidden",
+            backgroundColor: "#F7F8F9",
+          },
+        }
       }}
     >
       <DialogContent sx={{ p: 0 }}>

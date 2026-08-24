@@ -63,6 +63,16 @@ export default function Wedding() {
     return null;
   };
 
+  const findParentCategoryName = (nodes, slug) => {
+    if (!nodes) return "All";
+    for (const topNode of nodes) {
+      if (topNode.slug === slug || findCategoryBySlug(topNode.children, slug)) {
+        return topNode.name;
+      }
+    }
+    return "All";
+  };
+
   useEffect(() => {
     if (tagParam && weddingCat) {
       setActiveTag(tagParam);
@@ -71,6 +81,7 @@ export default function Wedding() {
         setSelectedSlug(matched.slug);
         setSelectedId(matched.id);
         setFilterMode("exact");
+        setActiveCategory(findParentCategoryName(weddingCat?.children, tagParam));
       } else {
         // Tag not found in tree — reset to parent so stale data is not shown
         setSelectedSlug("wedding");
@@ -111,8 +122,9 @@ export default function Wedding() {
   const { products, total, isLoading, isFetchingNextPage, hasNextPage, sentinelRef } =
     useInfiniteProducts(filterMode, selectedSlug, selectedId);
 
-  const subCategoriesToShow =
-    weddingCat?.children?.flatMap((category) => category.children || []) || [];
+  const subCategoriesToShow = activeCategory === "All"
+    ? weddingCat?.children?.flatMap((category) => category.children || []) || []
+    : weddingCat?.children?.find((category) => category.name === activeCategory)?.children || [];
 
   const decodeHtml = (text) => {
     const txt = document.createElement("textarea");
@@ -162,6 +174,12 @@ export default function Wedding() {
     if (n.includes("gift")) return <Gift size={15} strokeWidth={1.5} className={cls} />;
     if (n.includes("premium") || n.includes("luxury") || n.includes("collection"))
       return <Gem size={15} strokeWidth={1.5} className={cls} />;
+      
+    if (n.includes("personal"))
+      return <Sparkles size={15} strokeWidth={1.5} className={cls} />;
+      
+    if (n.includes("station"))
+      return <BookHeart size={15} strokeWidth={1.5} className={cls} />;
 
     return <CircleDot size={15} strokeWidth={1.5} className={cls} />;
   };

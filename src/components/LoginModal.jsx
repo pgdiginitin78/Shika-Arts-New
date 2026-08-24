@@ -216,8 +216,8 @@ export function LoginModal({ isOpen, onClose }) {
         maxWidth="xs"
         fullWidth
         keepMounted
-        PaperProps={{
-          sx: { borderRadius: fullScreen ? 0 : 2, overflow: "hidden" },
+        slotProps={{
+          paper: { sx: { borderRadius: fullScreen ? 0 : 2, overflow: "hidden" } }
         }}
       >
         <DialogContent sx={{ p: 0 }}>

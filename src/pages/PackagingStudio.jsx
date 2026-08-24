@@ -68,6 +68,16 @@ export default function PackagingStudio() {
     return null;
   };
 
+  const findParentCategoryName = (nodes, slug) => {
+    if (!nodes) return "All";
+    for (const topNode of nodes) {
+      if (topNode.slug === slug || findCategoryBySlug(topNode.children, slug)) {
+        return topNode.name;
+      }
+    }
+    return "All";
+  };
+
   useEffect(() => {
     if (tagParam && packagingCat) {
       setActiveTag(tagParam);
@@ -76,6 +86,7 @@ export default function PackagingStudio() {
         setSelectedSlug(matched.slug);
         setSelectedId(matched.id);
         setFilterMode("exact");
+        setActiveCategory(findParentCategoryName(packagingCat?.children, tagParam));
       } else {
         // Tag not found in tree — reset to parent so stale data is not shown
         setSelectedSlug(packagingCat?.slug || "packagingstudio");

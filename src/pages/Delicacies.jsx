@@ -30,19 +30,24 @@ export default function Delicacies() {
     if (tagParam && delicaciesCat) {
       setActiveTag(tagParam);
       let matched = null;
+      let matchedParent = "All";
       delicaciesCat?.children?.forEach((menu) => {
         if (menu.slug === tagParam) {
           matched = menu;
-        }
-        const found = menu.children?.find((s) => s.slug === tagParam);
-        if (found) {
-          matched = found;
+          matchedParent = menu.name;
+        } else {
+          const found = menu.children?.find((s) => s.slug === tagParam);
+          if (found) {
+            matched = found;
+            matchedParent = menu.name;
+          }
         }
       });
       if (matched) {
         setSelectedSlug(matched.slug);
         setSelectedId(matched.id);
         setFilterMode("exact");
+        setActiveCategory(matchedParent);
       }
     } else {
       setActiveTag("");
@@ -80,8 +85,9 @@ export default function Delicacies() {
   const { products, total, isLoading, isFetchingNextPage, hasNextPage, sentinelRef } =
     useInfiniteProducts(filterMode, selectedSlug, selectedId);
 
-  const subCategoriesToShow =
-    delicaciesCat?.children?.flatMap((category) => category.children || []) || [];
+  const subCategoriesToShow = activeCategory === "All"
+    ? delicaciesCat?.children?.flatMap((category) => category.children || []) || []
+    : delicaciesCat?.children?.find((category) => category.name === activeCategory)?.children || [];
 
   const categoryTabs =
     delicaciesCat?.children && delicaciesCat.children.length > 0

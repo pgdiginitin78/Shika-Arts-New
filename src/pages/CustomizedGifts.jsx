@@ -62,16 +62,24 @@ export default function CustomizedGifts() {
     if (tagParam && customizedCat) {
       setActiveTag(tagParam);
       let matched = null;
+      let matchedParent = "All";
       customizedCat?.children?.forEach((menu) => {
-        const found = menu.children?.find((s) => s.slug === tagParam);
-        if (found) {
-          matched = found;
+        if (menu.slug === tagParam) {
+           matched = menu;
+           matchedParent = menu.name;
+        } else {
+           const found = menu.children?.find((s) => s.slug === tagParam);
+           if (found) {
+             matched = found;
+             matchedParent = menu.name;
+           }
         }
       });
       if (matched) {
         setSelectedSlug(matched.slug);
         setSelectedId(matched.id);
         setFilterMode("exact");
+        setActiveCategory(matchedParent);
       }
     } else {
       setActiveTag("");

@@ -125,16 +125,18 @@ export function UserMenu() {
         onClose={() => setAnchorEl(null)}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
-        PaperProps={{
-          sx: {
-            mt: 1.25,
-            minWidth: 250,
-            borderRadius: 2.5,
-            overflow: "hidden",
-            border: "1px solid",
-            borderColor: "rgba(0,0,0,0.06)",
-            boxShadow: "0 12px 32px rgba(15, 23, 22, 0.14)",
-          },
+        slotProps={{
+          paper: {
+            sx: {
+              mt: 1.25,
+              minWidth: 250,
+              borderRadius: 2.5,
+              overflow: "hidden",
+              border: "1px solid",
+              borderColor: "rgba(0,0,0,0.06)",
+              boxShadow: "0 12px 32px rgba(15, 23, 22, 0.14)",
+            },
+          }
         }}
         MenuListProps={{ sx: { pt: "0px !important", pb: "0px !important" } }}
       >
