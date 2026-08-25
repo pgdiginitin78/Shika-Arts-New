@@ -29,7 +29,7 @@ import {
   registerCustomer,
   resendOtp,
 } from "../services/LoginServices";
-import { startTokenAutoRefresh } from "../services/http-common";
+import { startTokenAutoRefresh, saveTokens } from "../services/http-common";
 import { toast } from "sonner";
 import { ForgotPasswordModal } from "./ForgotPasswordModal";
 import { notifyUserChanged } from "./UserMenu";
@@ -191,9 +191,7 @@ export function LoginModal({ isOpen, onClose }) {
       if (!response.ok || !data.token) {
         throw new Error(data.message || "Google login failed.");
       }
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("refresh_token", data.refresh_token);
-      localStorage.setItem("token_expires_at", Date.now() + data.access_token_expires_in * 1000);
+      saveTokens(data);
       login(data.token, data.user);
       startTokenAutoRefresh();
       toast.success("Login successful!");

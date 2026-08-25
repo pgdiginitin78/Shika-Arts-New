@@ -38,10 +38,8 @@ export const logoutApi = async () => {
   clearTokens();
 };
 
-export const getCurrentUser = async (token) => {
-  const { data } = await api.get("/wp-json/custom/v1/user-profile", {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+export const getCurrentUser = async () => {
+  const { data } = await api.get("/wp-json/custom/v1/user-profile");
   return data;
 };
 
@@ -221,9 +219,6 @@ export const getProductBySlug = async (slug) => {
 };
 
 export async function updateAddress(payload) {
-  const token = localStorage.getItem("token");
-  const { data } = await api.post("/wp-json/custom/v1/update-address", payload, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
+  const { data } = await api.post("/wp-json/custom/v1/update-address", payload);
   return data;
 }

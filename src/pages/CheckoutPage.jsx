@@ -270,7 +270,7 @@ export default function CheckoutPage() {
             );
             await clearWooCart();
             resetCart();
-            localStorage.removeItem("token");
+            localStorage.removeItem("cart_token");
             localStorage.removeItem("wc_token");
 
             if (authToken) {

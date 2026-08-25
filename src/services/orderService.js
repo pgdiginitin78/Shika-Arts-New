@@ -114,11 +114,6 @@ export async function getOrderDetails(orderId) {
 }
 
 export async function addToWishlistApi(item) {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    window.dispatchEvent(new Event("auth-failed"));
-    return { success: false, message: "Not logged in" };
-  }
   const payload = {
     product_id: item.id,
     variation_id: item.variationId ?? item.variation_id ?? 0,
@@ -133,57 +128,37 @@ export async function addToWishlistApi(item) {
     quantity_limits: item.quantity_limits,
   };
 
-  const { data } = await api.post("/wp-json/custom/v1/wishlist", payload, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const { data } = await api.post("/wp-json/custom/v1/wishlist", payload);
   return data;
 }
 
 export async function removeFromWishlistApi(productId, variationId = 0) {
-  const token = localStorage.getItem("token");
-  if (!token) return { success: false, message: "Not logged in" };
   const { data } = await api.delete(`/wp-json/custom/v1/wishlist/${productId}`, {
-    params: { variation_id: variationId, _t: Date.now() },
-    headers: { Authorization: `Bearer ${token}` },
+    params: { variation_id: variationId },
   });
   return data;
 }
 
 export async function getWishlistItems() {
-  const token = localStorage.getItem("token");
-  if (!token) return [];
-  const { data } = await api.get("/wp-json/custom/v1/wishlist", {
-    params: { _t: Date.now() },
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const { data } = await api.get("/wp-json/custom/v1/wishlist");
   return data;
 }
 
 export async function getAdminOrders(filters = {}) {
-  const token = localStorage.getItem("token");
-  if (!token) return { success: false, message: "Not logged in" };
   const { data } = await api.get("/wp-json/custom/v1/admin/orders", {
     params: filters,
-    headers: { Authorization: `Bearer ${token}` },
   });
   return data;
 }
 
 export async function getAdminOrderDetail(orderId) {
-  const token = localStorage.getItem("token");
-  if (!token) return { success: false, message: "Not logged in" };
-  const { data } = await api.get(`/wp-json/custom/v1/admin/orders/${orderId}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const { data } = await api.get(`/wp-json/custom/v1/admin/orders/${orderId}`);
   return data;
 }
 
 export async function getAdminOrdersSummary(filters = {}) {
-  const token = localStorage.getItem("token");
-  if (!token) return { success: false, message: "Not logged in" };
   const { data } = await api.get("/wp-json/custom/v1/admin/orders/summary", {
     params: filters,
-    headers: { Authorization: `Bearer ${token}` },
   });
   return data;
 }
@@ -201,11 +176,7 @@ export async function searchProducts(name, page = 1, perPage = 20) {
 }
 
 export async function getUserProfile() {
-  const token = localStorage.getItem("token");
-  if (!token) return { success: false, message: "Not logged in" };
-  const { data } = await api.get("/wp-json/custom/v1/user-profile", {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const { data } = await api.get("/wp-json/custom/v1/user-profile");
   return data;
 }
 

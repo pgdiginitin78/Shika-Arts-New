@@ -20,6 +20,35 @@ const api = axios.create({
 let refreshPromise = null;
 let scheduledTimer = null;
 
+export function parseJwtPayload(token) {
+  if (!token || typeof token !== "string") return null;
+  const parts = token.split(".");
+  if (parts.length !== 3) return null;
+  try {
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join(""),
+    );
+    return JSON.parse(jsonPayload);
+  } catch {
+    return null;
+  }
+}
+
+export function isValidAppToken(token) {
+  if (!token || typeof token !== "string") return false;
+  const payload = parseJwtPayload(token);
+  if (!payload) return false;
+  if (payload.iss === "store-api") return false;
+  const exp = Number(payload.exp);
+  if (!Number.isFinite(exp)) return false;
+  return true;
+}
+
 export function saveTokens(data) {
   if (!data?.token || !data?.refresh_token) {
     throw new Error("Invalid token response");
@@ -50,8 +79,6 @@ export function clearTokens() {
   localStorage.removeItem("user");
   localStorage.removeItem("customerData");
   localStorage.removeItem("shika-customer-auth");
-  localStorage.removeItem("shika-wishlist");
-  localStorage.removeItem("shika_cart_items");
 
   if (scheduledTimer) {
     clearTimeout(scheduledTimer);
@@ -63,7 +90,7 @@ export function clearCartToken() {
   localStorage.removeItem("cart_token");
 }
 
-function refreshAccessToken() {
+export function refreshAccessToken() {
   if (refreshPromise) {
     return refreshPromise;
   }
@@ -72,10 +99,12 @@ function refreshAccessToken() {
 
   if (!refreshToken) {
     clearTokens();
-
     window.dispatchEvent(new Event("auth-failed"));
-
     return Promise.reject(new Error("No refresh token available"));
+  }
+
+  if (import.meta.env.DEV) {
+    console.log("[AUTH] Refresh started");
   }
 
   refreshPromise = axios
@@ -87,30 +116,34 @@ function refreshAccessToken() {
       {
         withCredentials: true,
         timeout: 15000,
+        headers: { "Content-Type": "application/json" },
       },
     )
     .then(({ data }) => {
       saveTokens(data);
+      if (import.meta.env.DEV) {
+        console.log("[AUTH] Refresh completed successfully");
+      }
       return data.token;
     })
     .catch((error) => {
       const code = error.response?.data?.code;
+      if (import.meta.env.DEV) {
+        console.warn("[AUTH] Refresh failed with code:", code || error.message);
+      }
 
       if (code === "refresh_token_in_use") {
         const latestToken = localStorage.getItem("token");
         const latestExpiresAt = Number(localStorage.getItem("token_expires_at") || 0);
 
-        if (latestToken && latestExpiresAt > Date.now()) {
+        if (latestToken && latestExpiresAt > Date.now() && isValidAppToken(latestToken)) {
           scheduleAutoRefresh(latestExpiresAt);
-
           return latestToken;
         }
       }
 
       clearTokens();
-
       window.dispatchEvent(new Event("auth-failed"));
-
       throw error;
     })
     .finally(() => {
@@ -127,9 +160,17 @@ function isTokenExpiringSoon() {
     return true;
   }
 
+  if (!isValidAppToken(token)) {
+    return true;
+  }
+
   const expiresAt = Number(localStorage.getItem("token_expires_at") || 0);
 
   if (!expiresAt) {
+    const payload = parseJwtPayload(token);
+    if (payload?.exp) {
+      return payload.exp * 1000 - Date.now() <= REFRESH_BUFFER_MS;
+    }
     return true;
   }
 
@@ -144,7 +185,17 @@ async function ensureValidAccessToken() {
   }
 
   if (isTokenExpiringSoon()) {
-    return refreshAccessToken();
+    const refreshToken = localStorage.getItem("refresh_token");
+    if (refreshToken) {
+      try {
+        return await refreshAccessToken();
+      } catch {
+        return null;
+      }
+    } else {
+      clearTokens();
+      return null;
+    }
   }
 
   return token;
@@ -157,12 +208,10 @@ function scheduleAutoRefresh(expiresAt) {
   }
 
   const refreshAt = Number(expiresAt) - REFRESH_BUFFER_MS;
-
   const delay = Math.max(refreshAt - Date.now(), 5000);
 
   scheduledTimer = setTimeout(() => {
     scheduledTimer = null;
-
     refreshAccessToken().catch(() => {});
   }, delay);
 }
@@ -170,7 +219,7 @@ function scheduleAutoRefresh(expiresAt) {
 export function startTokenAutoRefresh() {
   const token = localStorage.getItem("token");
 
-  if (!token) {
+  if (!token || !isValidAppToken(token)) {
     return;
   }
 
@@ -196,7 +245,28 @@ api.interceptors.request.use(
     if (!isWcStoreRoute) {
       const token = await ensureValidAccessToken();
       if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+        config.headers = config.headers || {};
+        config.headers.Authorization = `Bearer ${token.trim()}`;
+        config.headers["Cache-Control"] = "no-cache";
+        config.headers["Pragma"] = "no-cache";
+
+        if (import.meta.env.DEV) {
+          const payload = parseJwtPayload(token);
+          console.log("[AUTH] Request:", {
+            url: config.url,
+            method: config.method?.toUpperCase(),
+            tokenPresent: true,
+            tokenLength: token.length,
+            exp: payload?.exp,
+            iat: payload?.iat,
+            iss: payload?.iss,
+            userId: payload?.data?.user?.id || payload?.user_id,
+          });
+        }
+      } else {
+        if (config.headers?.Authorization) {
+          delete config.headers.Authorization;
+        }
       }
     }
 
@@ -245,37 +315,42 @@ api.interceptors.response.use(
 
     if (originalRequest.url?.includes("/refresh-token")) {
       clearTokens();
-
       window.dispatchEvent(new Event("auth-failed"));
-
       return Promise.reject(error);
     }
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
+    const status = error.response?.status;
+    const code = error.response?.data?.code;
+    const hadToken = !!originalRequest.headers?.Authorization;
 
-      try {
-        const newToken = await refreshAccessToken();
+    const isAuthError =
+      status === 401 ||
+      (status === 403 &&
+        (code === "jwt_auth_invalid_token" ||
+          code === "jwt_auth_bad_auth_header" ||
+          (code === "rest_forbidden" && hadToken)));
 
-        originalRequest.headers = originalRequest.headers || {};
+    if (isAuthError && !originalRequest._retry) {
+      const refreshToken = localStorage.getItem("refresh_token");
 
-        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+      if (refreshToken) {
+        originalRequest._retry = true;
 
-        return api(originalRequest);
-      } catch (refreshError) {
-        return Promise.reject(refreshError);
-      }
-    }
+        if (import.meta.env.DEV) {
+          console.log(
+            `[AUTH] Auth error (${code || status}), attempting token refresh and retry`,
+          );
+        }
 
-    if (error.response?.status === 403) {
-      const code = error.response?.data?.code;
-      const hadToken = !!originalRequest.headers?.Authorization;
-
-      if (
-        code === "jwt_auth_invalid_token" ||
-        code === "jwt_auth_bad_auth_header" ||
-        (code === "rest_forbidden" && hadToken)
-      ) {
+        try {
+          const newToken = await refreshAccessToken();
+          originalRequest.headers = originalRequest.headers || {};
+          originalRequest.headers.Authorization = `Bearer ${newToken.trim()}`;
+          return api(originalRequest);
+        } catch (refreshError) {
+          return Promise.reject(refreshError);
+        }
+      } else {
         clearTokens();
         window.dispatchEvent(new Event("auth-failed"));
       }

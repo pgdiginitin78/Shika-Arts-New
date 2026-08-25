@@ -13,9 +13,10 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const initAuth = async () => {
-      if (token) {
+      const storedToken = localStorage.getItem("token");
+      if (storedToken) {
         try {
-          const profile = await getCurrentUser(token);
+          const profile = await getCurrentUser();
           const customerData = profile.account || profile;
           setUser(customerData);
         } catch (error) {
@@ -44,14 +45,12 @@ export const AuthProvider = ({ children }) => {
   const login = (newToken, userData) => {
     setToken(newToken);
     setUser(userData);
-    localStorage.setItem("token", newToken);
   };
 
   const logout = () => {
     setUser(null);
     setToken(null);
     clearTokens();
-    localStorage.clear();
     useCartStore.getState().resetCart();
     useWishlistStore.getState().clearWishlist();
   };
