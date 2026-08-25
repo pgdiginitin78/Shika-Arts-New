@@ -127,7 +127,7 @@ export const getCart = async () => {
   const response = await api.get("/wp-json/wc/store/v1/cart");
   const incomingToken = response.headers["cart-token"];
   if (incomingToken) {
-    localStorage.setItem("token", incomingToken);
+    localStorage.setItem("cart_token", incomingToken);
   }
   return response.data;
 };
@@ -145,7 +145,7 @@ export const addToCart = async (
   const response = await api.post("/wp-json/wc/store/v1/cart/add-item", body);
   const cartToken = response.headers["cart-token"];
   if (cartToken) {
-    localStorage.setItem("token", cartToken);
+    localStorage.setItem("cart_token", cartToken);
   }
   return response.data;
 };
@@ -157,7 +157,7 @@ export const updateCartItem = async (cartItemKey, quantity) => {
   });
   const cartToken = response.headers["cart-token"];
   if (cartToken) {
-    localStorage.setItem("token", cartToken);
+    localStorage.setItem("cart_token", cartToken);
   }
   return response.data;
 };
@@ -168,7 +168,7 @@ export const removeCartItem = async (cartItemKey) => {
   });
   const cartToken = response.headers["cart-token"];
   if (cartToken) {
-    localStorage.setItem("token", cartToken);
+    localStorage.setItem("cart_token", cartToken);
   }
   return response.data;
 };

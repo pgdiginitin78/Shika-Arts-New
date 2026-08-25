@@ -7,7 +7,7 @@ import { CircularProgress, Modal } from "@mui/material";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import api from "../services/http-common";
+import { publicApi } from "../services/http-common";
 
 export function ResetPasswordModal({ isOpen, resetKey, loginName, onClose }) {
   const [showNew, setShowNew] = useState(false);
@@ -41,7 +41,7 @@ export function ResetPasswordModal({ isOpen, resetKey, loginName, onClose }) {
   const onSubmit = async ({ newPassword: password }) => {
     setLoading(true);
     try {
-      await api.post("/wp-json/custom/v1/reset-password", {
+      await publicApi.post("/wp-json/custom/v1/reset-password", {
         key: resetKey,
         login: loginName,
         password,

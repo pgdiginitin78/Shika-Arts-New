@@ -5,7 +5,7 @@ import { CircularProgress, Modal } from "@mui/material";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import api from "../services/http-common";
+import { publicApi } from "../services/http-common";
 
 export function ForgotPasswordModal({ isOpen, onClose }) {
   const [loading, setLoading] = useState(false);
@@ -29,7 +29,7 @@ export function ForgotPasswordModal({ isOpen, onClose }) {
   const onSubmit = async ({ email }) => {
     setLoading(true);
     try {
-      await api.post("/wp-json/custom/v1/forgot-password", { email });
+      await publicApi.post("/wp-json/custom/v1/forgot-password", { email });
       setSentEmail(email);
       setSent(true);
     } catch (err) {

@@ -191,10 +191,13 @@ export function startTokenAutoRefresh() {
 
 api.interceptors.request.use(
   async (config) => {
-    const token = await ensureValidAccessToken();
+    const isWcStoreRoute = config.url?.includes("/wc/store/");
 
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    if (!isWcStoreRoute) {
+      const token = await ensureValidAccessToken();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
 
     const cartToken = localStorage.getItem("cart_token");
