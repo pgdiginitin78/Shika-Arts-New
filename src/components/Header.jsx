@@ -1,4 +1,5 @@
 import { useAuth } from "@/context/AuthContext";
+import { clearTokens } from "@/services/http-common";
 import { searchProducts } from "@/services/orderService";
 import { useCartStore } from "@/stores/cartStore";
 import { useWishlistStore } from "@/stores/wishlistStore";
@@ -81,6 +82,8 @@ export function Header() {
   useEffect(() => {
     const handleAuthFailed = () => {
       clearTokens();
+      useCartStore.getState().resetCart();
+      useWishlistStore.getState().clearWishlist();
       authLogout();
       setIsLoginOpen(true);
     };
