@@ -267,6 +267,20 @@ api.interceptors.response.use(
       }
     }
 
+    if (error.response?.status === 403) {
+      const code = error.response?.data?.code;
+      const hadToken = !!originalRequest.headers?.Authorization;
+
+      if (
+        code === "jwt_auth_invalid_token" ||
+        code === "jwt_auth_bad_auth_header" ||
+        (code === "rest_forbidden" && hadToken)
+      ) {
+        clearTokens();
+        window.dispatchEvent(new Event("auth-failed"));
+      }
+    }
+
     return Promise.reject(error);
   },
 );
