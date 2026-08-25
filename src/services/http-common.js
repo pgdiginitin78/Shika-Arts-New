@@ -215,7 +215,7 @@ api.interceptors.response.use(
   (response) => {
     const incomingCartToken = response.headers?.["cart-token"] || response.headers?.["Cart-Token"];
 
-    if (incomingCartToken) {
+    if (incomingCartToken && localStorage.getItem("token")) {
       localStorage.setItem("cart_token", incomingCartToken);
     }
 
@@ -225,7 +225,7 @@ api.interceptors.response.use(
     const incomingCartToken =
       error.response?.headers?.["cart-token"] || error.response?.headers?.["Cart-Token"];
 
-    if (incomingCartToken) {
+    if (incomingCartToken && localStorage.getItem("token")) {
       localStorage.setItem("cart_token", incomingCartToken);
     }
 
