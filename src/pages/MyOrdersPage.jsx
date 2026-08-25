@@ -1,13 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/woocommerce";
 import { getMyOrders } from "@/services/orderService";
-import {
-  AlertCircle,
-  ChevronRight,
-  Clock,
-  Package,
-  ShoppingBag
-} from "lucide-react";
+import { AlertCircle, ChevronRight, Clock, Package, ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -22,9 +16,14 @@ function StatusBadge({ status }) {
     refunded: { label: "Refunded", cls: "bg-gray-100 text-gray-700" },
     "on-hold": { label: "On Hold", cls: "bg-orange-100 text-orange-800" },
   };
-  const { label, cls } = map[status] ?? { label: status || "Unknown", cls: "bg-gray-100 text-gray-600" };
+  const { label, cls } = map[status] ?? {
+    label: status || "Unknown",
+    cls: "bg-gray-100 text-gray-600",
+  };
   return (
-    <span className={`inline-block px-3 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${cls}`}>
+    <span
+      className={`inline-block px-3 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${cls}`}
+    >
       {label}
     </span>
   );
@@ -45,7 +44,6 @@ function SkeletonRow() {
     </div>
   );
 }
-
 
 export default function MyOrdersPage() {
   const navigate = useNavigate();
@@ -84,7 +82,9 @@ export default function MyOrdersPage() {
         <div className="max-w-3xl mx-auto">
           <div className="h-8 w-36 bg-gray-100 rounded animate-pulse mb-8" />
           <div className="space-y-4">
-            {[1, 2, 3].map((i) => <SkeletonRow key={i} />)}
+            {[1, 2, 3].map((i) => (
+              <SkeletonRow key={i} />
+            ))}
           </div>
         </div>
       </div>
@@ -98,7 +98,10 @@ export default function MyOrdersPage() {
           <AlertCircle className="mx-auto text-red-400" size={52} />
           <h2 className="text-xl font-serif text-[#1e2321]">Something went wrong</h2>
           <p className="text-gray-500 text-sm">{error}</p>
-          <Button onClick={() => navigate("/")} className="bg-[#1e2321] text-white hover:bg-[#2d3532]">
+          <Button
+            onClick={() => navigate("/")}
+            className="bg-[#1e2321] text-white hover:bg-[#2d3532]"
+          >
             Return Home
           </Button>
         </div>
@@ -114,8 +117,13 @@ export default function MyOrdersPage() {
             <ShoppingBag className="text-gray-300" size={38} />
           </div>
           <h2 className="text-2xl font-serif text-[#1e2321]">No orders yet</h2>
-          <p className="text-gray-400 text-sm">Your past orders will appear here after you make a purchase.</p>
-          <Button onClick={() => navigate("/")} className="bg-[#1e2321] text-white hover:bg-[#2d3532]">
+          <p className="text-gray-400 text-sm">
+            Your past orders will appear here after you make a purchase.
+          </p>
+          <Button
+            onClick={() => navigate("/")}
+            className="bg-[#1e2321] text-white hover:bg-[#2d3532]"
+          >
             Start Shopping
           </Button>
         </div>
@@ -123,15 +131,15 @@ export default function MyOrdersPage() {
     );
   }
 
-
   return (
     <div className="min-h-screen bg-[#FAFAF8] py-8 px-4 sm:py-12">
       <div className="max-w-3xl mx-auto space-y-6">
-
         <div className="flex flex-wrap items-center gap-3 mb-2">
           <Package className="text-[#1e2321]" size={24} />
           <h1 className="text-2xl font-serif text-[#1e2321]">My Orders</h1>
-          <span className="ml-auto text-sm text-gray-400">{orders.length} order{orders.length !== 1 ? "s" : ""}</span>
+          <span className="ml-auto text-sm text-gray-400">
+            {orders.length} order{orders.length !== 1 ? "s" : ""}
+          </span>
         </div>
 
         <div className="space-y-4">
@@ -141,8 +149,10 @@ export default function MyOrdersPage() {
             const items = order?.items ?? [];
             const date = order?.date_created
               ? new Date(order.date_created.replace(" ", "T")).toLocaleDateString("en-IN", {
-                day: "numeric", month: "short", year: "numeric",
-              })
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })
               : null;
 
             return (
@@ -154,7 +164,9 @@ export default function MyOrdersPage() {
                   <div className="flex items-center gap-3 flex-wrap sm:gap-4">
                     <div>
                       <p className="text-xs text-gray-400 uppercase tracking-wider">Order</p>
-                      <p className="font-semibold text-[#1e2321] text-sm">#{order.order_number ?? order.order_id}</p>
+                      <p className="font-semibold text-[#1e2321] text-sm">
+                        #{order.order_number ?? order.order_id}
+                      </p>
                     </div>
                     {date && (
                       <div className="flex items-center gap-1 text-xs text-gray-400">
@@ -170,11 +182,20 @@ export default function MyOrdersPage() {
                 <div className="px-4 py-4 sm:px-5 flex flex-col gap-3 sm:flex-row sm:items-center">
                   <div className="flex gap-2 flex-wrap flex-1 min-w-0">
                     {items.slice(0, 4).map((item, i) => (
-                      <div key={i} className="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
+                      <div
+                        key={i}
+                        className="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-50 border border-gray-100 shrink-0"
+                      >
                         {item?.image ? (
-                          <img src={item.image} alt={item.name || "Product"} className="w-full h-full object-cover" />
+                          <img
+                            src={item.image}
+                            alt={item.name || "Product"}
+                            className="w-full h-full object-cover"
+                          />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-200 text-lg">✦</div>
+                          <div className="w-full h-full flex items-center justify-center text-gray-200 text-lg">
+                            ✦
+                          </div>
                         )}
                       </div>
                     ))}
@@ -185,16 +206,19 @@ export default function MyOrdersPage() {
                     )}
                     <div className="flex-1 min-w-[140px] pl-0 sm:pl-1">
                       <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">
-                        {items.map((i) => i.name).filter(Boolean).join(", ")}
+                        {items
+                          .map((i) => i.name)
+                          .filter(Boolean)
+                          .join(", ")}
                       </p>
-                      <p className="text-xs text-gray-400 mt-0.5">{items.length} item{items.length !== 1 ? "s" : ""}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {items.length} item{items.length !== 1 ? "s" : ""}
+                      </p>
                     </div>
                   </div>
 
                   <button
-                    onClick={() =>
-                      navigate(`/order-success/${order.order_id}`)
-                    }
+                    onClick={() => navigate(`/order-success/${order.order_id}`)}
                     className="w-full sm:w-auto shrink-0 flex items-center justify-center gap-1 rounded-lg border border-gray-200 sm:border-none px-4 py-2 sm:px-0 sm:py-0 text-xs font-semibold text-[#1e2321] hover:text-[#7A1F3D] hover:bg-gray-50 sm:hover:bg-transparent transition-colors cursor-pointer"
                   >
                     View Order Details

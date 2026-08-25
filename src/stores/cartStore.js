@@ -12,7 +12,6 @@ import { productToNode } from "@/lib/woocommerce";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-
 const toNumber = (value) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
@@ -27,8 +26,6 @@ const getTitle = (item) =>
   "";
 
 const isUserLoggedIn = () => !!localStorage.getItem("token");
-
-
 
 const resolveWooProductId = async (item) => {
   const directId = toNumber(item?.productId ?? item?.product?.id ?? item?.id);
@@ -96,7 +93,7 @@ export const useCartStore = create((set, get) => ({
     } catch (error) {
       console.log("[Cart] syncCart error:", error);
       // On error, fall back to localStorage
-      
+
       return null;
     } finally {
       set({ isSyncing: false });

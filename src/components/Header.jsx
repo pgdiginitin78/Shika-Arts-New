@@ -134,7 +134,6 @@ export function Header() {
     closeSearch();
   };
 
-
   const handleLoginClick = () => {
     setIsLoginOpen(true);
   };

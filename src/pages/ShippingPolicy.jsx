@@ -9,25 +9,24 @@ export default function ShippingPolicy() {
 
         <Section title="1. Processing Time">
           All orders are processed within 2–3 business days. Orders placed on weekends or public
-          holidays will be processed on the next working day. You will receive a confirmation
-          email once your order has been dispatched.
+          holidays will be processed on the next working day. You will receive a confirmation email
+          once your order has been dispatched.
         </Section>
 
         <Section title="2. Delivery Time">
-          Standard delivery takes 5–7 business days from the date of dispatch. Express delivery
-          (2–3 business days) is available at checkout for an additional charge. Delivery times
-          may vary during peak seasons, festivals, or due to unforeseen circumstances.
+          Standard delivery takes 5–7 business days from the date of dispatch. Express delivery (2–3
+          business days) is available at checkout for an additional charge. Delivery times may vary
+          during peak seasons, festivals, or due to unforeseen circumstances.
         </Section>
 
         <Section title="3. Shipping Charges">
-          We offer free standard shipping on all orders above ₹999. For orders below ₹999, a
-          flat shipping fee of ₹99 applies. Express shipping charges vary based on the delivery
-          location and will be displayed at checkout.
+          We offer free standard shipping on all orders above ₹999. For orders below ₹999, a flat
+          shipping fee of ₹99 applies. Express shipping charges vary based on the delivery location
+          and will be displayed at checkout.
         </Section>
 
         <Section title="4. Delivery Locations">
-          We currently ship across India. For international shipping enquiries, please contact us
-          at{" "}
+          We currently ship across India. For international shipping enquiries, please contact us at{" "}
           <a href="mailto:info@shikaarts.com" className="underline text-gray-700">
             info@shikaarts.com
           </a>
@@ -35,8 +34,8 @@ export default function ShippingPolicy() {
         </Section>
 
         <Section title="5. Tracking Your Order">
-          Once your order is dispatched, you will receive a tracking number via email and SMS.
-          You can use this to track your shipment through our courier partner's website.
+          Once your order is dispatched, you will receive a tracking number via email and SMS. You
+          can use this to track your shipment through our courier partner's website.
         </Section>
 
         <Section title="6. Damaged or Lost Shipments">

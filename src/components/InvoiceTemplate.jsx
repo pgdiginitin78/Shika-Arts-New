@@ -82,11 +82,33 @@ const InvoiceTemplate = forwardRef(function InvoiceTemplate({ order }, ref) {
         flexDirection: "column",
       }}
     >
-      <div style={{ height: "6px", background: `linear-gradient(90deg, ${RED}, ${GOLD})`, flexShrink: 0 }} />
+      <div
+        style={{
+          height: "6px",
+          background: `linear-gradient(90deg, ${RED}, ${GOLD})`,
+          flexShrink: 0,
+        }}
+      />
 
-      <div style={{ padding: "34px 40px 24px", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+      <div
+        style={{
+          padding: "34px 40px 24px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+        }}
+      >
         <div>
-          <p style={{ fontSize: "28px", fontWeight: "800", color: RED, margin: "0 0 4px", fontFamily: "Georgia, serif", letterSpacing: "0.03em" }}>
+          <p
+            style={{
+              fontSize: "28px",
+              fontWeight: "800",
+              color: RED,
+              margin: "0 0 4px",
+              fontFamily: "Georgia, serif",
+              letterSpacing: "0.03em",
+            }}
+          >
             SHIKA ARTS
           </p>
           <p style={{ fontSize: "11px", color: MUTED, margin: 0, letterSpacing: "0.03em" }}>
@@ -94,7 +116,15 @@ const InvoiceTemplate = forwardRef(function InvoiceTemplate({ order }, ref) {
           </p>
         </div>
         <div style={{ textAlign: "right" }}>
-          <p style={{ fontSize: "26px", fontWeight: "800", color: INK, margin: "0 0 6px", letterSpacing: "0.08em" }}>
+          <p
+            style={{
+              fontSize: "26px",
+              fontWeight: "800",
+              color: INK,
+              margin: "0 0 6px",
+              letterSpacing: "0.08em",
+            }}
+          >
             INVOICE
           </p>
           <p style={{ fontSize: "12.5px", fontWeight: "700", color: RED, margin: "0 0 2px" }}>
@@ -106,7 +136,14 @@ const InvoiceTemplate = forwardRef(function InvoiceTemplate({ order }, ref) {
         </div>
       </div>
 
-      <div style={{ padding: "0 40px 20px", display: "flex", justifyContent: "space-between", gap: "24px" }}>
+      <div
+        style={{
+          padding: "0 40px 20px",
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "24px",
+        }}
+      >
         <div style={{ flex: 1.2 }}>
           <p style={{ fontWeight: "700", fontSize: "12.5px", margin: "0 0 6px", color: INK }}>
             Shika Arts
@@ -216,7 +253,15 @@ const InvoiceTemplate = forwardRef(function InvoiceTemplate({ order }, ref) {
         <div style={{ width: "190px" }}>
           <div style={{ border: `1px solid ${BORDER}`, borderRadius: "6px", overflow: "hidden" }}>
             <div style={{ background: RED, padding: "10px 14px" }}>
-              <p style={{ color: "#fff", fontSize: "11.5px", fontWeight: "700", margin: 0, letterSpacing: "0.03em" }}>
+              <p
+                style={{
+                  color: "#fff",
+                  fontSize: "11.5px",
+                  fontWeight: "700",
+                  margin: 0,
+                  letterSpacing: "0.03em",
+                }}
+              >
                 ORDER SUMMARY
               </p>
             </div>
@@ -298,7 +343,10 @@ const InvoiceTemplate = forwardRef(function InvoiceTemplate({ order }, ref) {
               const sku = attrs || `SKU-${String(item?.product_id ?? i + 1).padStart(3, "0")}`;
 
               return (
-                <tr key={item?.product_id ?? i} style={{ background: i % 2 === 0 ? PAPER : SOFT_BG }}>
+                <tr
+                  key={item?.product_id ?? i}
+                  style={{ background: i % 2 === 0 ? PAPER : SOFT_BG }}
+                >
                   <td style={{ ...tdBase, textAlign: "center", color: "#999", fontSize: "11px" }}>
                     {i + 1}
                   </td>
@@ -322,7 +370,9 @@ const InvoiceTemplate = forwardRef(function InvoiceTemplate({ order }, ref) {
         </table>
       </div>
 
-      <div style={{ padding: "0 40px 28px", display: "flex", gap: "24px", alignItems: "flex-start" }}>
+      <div
+        style={{ padding: "0 40px 28px", display: "flex", gap: "24px", alignItems: "flex-start" }}
+      >
         <div style={{ flex: 1 }}>
           <p style={sectionLabel}>Notes</p>
           <p style={{ fontSize: "11px", color: MUTED, margin: "0 0 4px", lineHeight: "1.6" }}>
@@ -384,7 +434,14 @@ const InvoiceTemplate = forwardRef(function InvoiceTemplate({ order }, ref) {
               borderRadius: "6px",
             }}
           >
-            <span style={{ fontSize: "12.5px", fontWeight: "800", color: "#fff", letterSpacing: "0.06em" }}>
+            <span
+              style={{
+                fontSize: "12.5px",
+                fontWeight: "800",
+                color: "#fff",
+                letterSpacing: "0.06em",
+              }}
+            >
               GRAND TOTAL
             </span>
             <span style={{ fontSize: "15px", fontWeight: "800", color: "#fff" }}>

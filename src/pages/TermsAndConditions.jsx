@@ -8,35 +8,33 @@ export default function TermsAndConditions() {
         </p>
 
         <Section title="1. Acceptance of Terms">
-          By accessing or using the Shika Arts website and placing an order, you agree to be
-          bound by these Terms &amp; Conditions. If you do not agree, please do not use our
-          site or services.
+          By accessing or using the Shika Arts website and placing an order, you agree to be bound
+          by these Terms &amp; Conditions. If you do not agree, please do not use our site or
+          services.
         </Section>
 
         <Section title="2. Products & Orders">
-          All products listed on our site are subject to availability. We reserve the right to
-          limit quantities or discontinue any product at any time. Once an order is placed, you
-          will receive a confirmation email. We reserve the right to cancel any order due to
-          pricing errors, stock issues, or suspected fraud.
+          All products listed on our site are subject to availability. We reserve the right to limit
+          quantities or discontinue any product at any time. Once an order is placed, you will
+          receive a confirmation email. We reserve the right to cancel any order due to pricing
+          errors, stock issues, or suspected fraud.
         </Section>
 
         <Section title="3. Pricing & Payment">
-          All prices are listed in Indian Rupees (INR) and are inclusive of applicable taxes
-          unless otherwise stated. We accept all major credit/debit cards and UPI. Payment is
-          processed securely through our payment gateway.
+          All prices are listed in Indian Rupees (INR) and are inclusive of applicable taxes unless
+          otherwise stated. We accept all major credit/debit cards and UPI. Payment is processed
+          securely through our payment gateway.
         </Section>
 
         <Section title="4. Shipping & Delivery">
-          We aim to dispatch orders within 2–3 business days. Estimated delivery times are
-          7 business days for standard shipping. Shika Arts is not liable for delays caused by
-          courier partners, weather events, or customs. Risk of loss passes to you upon
-          delivery.
+          We aim to dispatch orders within 2–3 business days. Estimated delivery times are 7
+          business days for standard shipping. Shika Arts is not liable for delays caused by courier
+          partners, weather events, or customs. Risk of loss passes to you upon delivery.
         </Section>
 
         <Section title="5. Returns & Refunds">
-          Due to the handcrafted and perishable nature of our products, we do not accept
-          returns. If you receive a damaged or incorrect item, please contact us within 48 hours
-          of delivery at{" "}
+          Due to the handcrafted and perishable nature of our products, we do not accept returns. If
+          you receive a damaged or incorrect item, please contact us within 48 hours of delivery at{" "}
           <a href="mailto:hello@shikaarts.com" className="underline text-gray-700">
             hello@shikaarts.com
           </a>{" "}
@@ -44,9 +42,9 @@ export default function TermsAndConditions() {
         </Section>
 
         <Section title="6. Intellectual Property">
-          All content on this website — including text, images, logos, and product designs — is
-          the exclusive property of Shika Arts and may not be reproduced, distributed, or used
-          without prior written consent.
+          All content on this website — including text, images, logos, and product designs — is the
+          exclusive property of Shika Arts and may not be reproduced, distributed, or used without
+          prior written consent.
         </Section>
 
         <Section title="7. Limitation of Liability">
@@ -63,7 +61,7 @@ export default function TermsAndConditions() {
         <Section title="9. Contact Us">
           For any questions regarding these terms, please contact us at{" "}
           <a href="mailto:hello@shikaarts.com" className="underline text-gray-700">
-           info@shikaarts.com
+            info@shikaarts.com
           </a>
           .
         </Section>

@@ -6,7 +6,7 @@ const files = [
   { path: "src/pages/Occasions.jsx", var: "occasionCat" },
   { path: "src/pages/PackagingStudio.jsx", var: "packagingCat" },
   { path: "src/pages/CustomizedGifts.jsx", var: "customizedCat" },
-  { path: "src/pages/Delicacies.jsx", var: "delicaciesCat" }
+  { path: "src/pages/Delicacies.jsx", var: "delicaciesCat" },
 ];
 
 for (const { path, var: catVar } of files) {
@@ -31,15 +31,21 @@ for (const { path, var: catVar } of files) {
   }
 
   // Update the matched block
-  const exactMatchRegex = new RegExp(`(if \\(matched\\) \\{\\s*setSelectedSlug\\(matched\\.slug\\);\\s*setSelectedId\\(matched\\.id\\);\\s*setFilterMode\\("exact"\\);\\s*}) else \\{`, "g");
-  
+  const exactMatchRegex = new RegExp(
+    `(if \\(matched\\) \\{\\s*setSelectedSlug\\(matched\\.slug\\);\\s*setSelectedId\\(matched\\.id\\);\\s*setFilterMode\\("exact"\\);\\s*}) else \\{`,
+    "g",
+  );
+
   if (exactMatchRegex.test(content)) {
-    content = content.replace(exactMatchRegex, `if (matched) {
+    content = content.replace(
+      exactMatchRegex,
+      `if (matched) {
         setSelectedSlug(matched.slug);
         setSelectedId(matched.id);
         setFilterMode("exact");
         setActiveCategory(findParentCategoryName(${catVar}?.children, tagParam));
-      } else {`);
+      } else {`,
+    );
   } else {
     // If it was already replaced, don't worry.
     console.log("No match found or already patched for", path);

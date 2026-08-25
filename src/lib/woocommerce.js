@@ -50,7 +50,9 @@ export function normalizeProduct(p) {
           id: vd.id,
           attributes: vd.attributes || [],
           price: Number.isFinite(priceMinor) ? priceMinor / 10 ** minorUnit : 0,
-          regularPrice: Number.isFinite(regularPriceMinor) ? regularPriceMinor / 10 ** minorUnit : 0,
+          regularPrice: Number.isFinite(regularPriceMinor)
+            ? regularPriceMinor / 10 ** minorUnit
+            : 0,
           currencyCode: vd?.prices?.currency_code || "INR",
           inStock: vd?.is_in_stock ?? true,
         };
@@ -77,7 +79,7 @@ export function normalizeProduct(p) {
               availableForSale: isCustomApiFormat
                 ? true
                 : (p?.is_in_stock ?? p?.stock_status !== "outofstock"),
-              regularPrice:regularPrice,
+              regularPrice: regularPrice,
               price: {
                 amount: String(price),
                 currencyCode: isCustomApiFormat ? "INR" : p?.prices?.currency_code || "INR",

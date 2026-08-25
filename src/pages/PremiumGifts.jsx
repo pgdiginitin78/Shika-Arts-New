@@ -32,14 +32,34 @@ const HandmadeIcon = ({ size = 15, className = "" }) => (
 );
 
 const EnvelopeIcon = ({ size = 15, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.4}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <rect x="3" y="6" width="18" height="12" rx="2" ry="2" />
     <path d="M3 6l9 6 9-6" />
   </svg>
 );
 
 const KittyIcon = ({ size = 15, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.4}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <path d="M12 5c.67 0 1.35.09 2 .26 1.78-2 5.03-2.84 6.42-2.26 1.4.58-.42 7 .18 11.53 1 7.5-6 12.5-8.6 12.5-2.6 0-9.6-5-8.6-12.5.6-4.53-1.22-10.95.18-11.53C4.97.42 8.22 1.26 10 3.26c.65-.17 1.33-.26 2-.26z" />
     <circle cx="9" cy="13" r="1.5" fill="currentColor" stroke="none" />
     <circle cx="15" cy="13" r="1.5" fill="currentColor" stroke="none" />
@@ -48,7 +68,17 @@ const KittyIcon = ({ size = 15, className = "" }) => (
 );
 
 const MoneyIcon = ({ size = 15, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.4}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <rect x="2" y="6" width="20" height="12" rx="2" />
     <circle cx="12" cy="12" r="2" />
     <path d="M6 12h.01M18 12h.01" />
@@ -56,14 +86,34 @@ const MoneyIcon = ({ size = 15, className = "" }) => (
 );
 
 const OffsetIcon = ({ size = 15, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.4}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <rect x="4" y="4" width="12" height="12" rx="2" />
     <rect x="8" y="8" width="12" height="12" rx="2" />
   </svg>
 );
 
 const PaperIcon = ({ size = 15, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.4}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
     <polyline points="14 2 14 8 20 8" />
     <line x1="16" y1="13" x2="8" y2="13" />
@@ -73,14 +123,34 @@ const PaperIcon = ({ size = 15, className = "" }) => (
 );
 
 const PocketIcon = ({ size = 15, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.4}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <path d="M4 3h16v11a8 8 0 0 1-8 8v0a8 8 0 0 1-8-8V3z" />
     <polyline points="4 3 12 10 20 3" />
   </svg>
 );
 
 const VariousIcon = ({ size = 15, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.4}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <path d="M12 3l9 15H3z" />
     <circle cx="16" cy="18" r="4" />
     <rect x="4" y="14" width="8" height="8" rx="1" />
@@ -88,7 +158,17 @@ const VariousIcon = ({ size = 15, className = "" }) => (
 );
 
 const PaperBagIcon = ({ size = 15, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.4}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
     <line x1="3" y1="6" x2="21" y2="6" />
     <path d="M16 10a4 4 0 0 1-8 0" />
@@ -96,7 +176,17 @@ const PaperBagIcon = ({ size = 15, className = "" }) => (
 );
 
 const WineIcon = ({ size = 15, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.4}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <path d="M8 22h8" />
     <path d="M7 10h10" />
     <path d="M12 15v7" />
@@ -113,14 +203,15 @@ const decodeHtml = (text) => {
 const getCategoryIcon = (name, active = false, depth = 0) => {
   const n = (name || "").toLowerCase();
   const cls = `${active ? "text-[#C5A26F]" : "opacity-70 text-[#1e2321]"}`;
-  
+
   const iconSize = depth > 1 ? 12 : 15;
-  
+
   if (n.includes("envelopes")) return <EnvelopeIcon size={iconSize} className={cls} />;
   if (n.includes("kitty")) return <KittyIcon size={iconSize} className={cls} />;
   if (n.includes("money")) return <MoneyIcon size={iconSize} className={cls} />;
   if (n.includes("offset")) return <OffsetIcon size={iconSize} className={cls} />;
-  if (n.includes("paper-bags") || n.includes("paper bag")) return <PaperBagIcon size={iconSize} className={cls} />;
+  if (n.includes("paper-bags") || n.includes("paper bag"))
+    return <PaperBagIcon size={iconSize} className={cls} />;
   if (n.includes("paper")) return <PaperIcon size={iconSize} className={cls} />;
   if (n.includes("pocket")) return <PocketIcon size={iconSize} className={cls} />;
   if (n.includes("various")) return <VariousIcon size={iconSize} className={cls} />;
@@ -132,7 +223,7 @@ const getCategoryIcon = (name, active = false, depth = 0) => {
     return <HandmadeIcon size={15} className={cls} />;
   if (n.includes("marble")) return <Hexagon size={15} strokeWidth={1.5} className={cls} />;
   if (n.includes("metal")) return <Box size={15} strokeWidth={1.5} className={cls} />;
-  
+
   if (depth > 0) {
     return <CircleDot size={depth > 1 ? 10 : 12} strokeWidth={1.5} className={cls} />;
   }
@@ -166,11 +257,7 @@ function CategoryTree({ node, depth, activeTag, onSelect }) {
         style={{ marginLeft: depth > 0 ? depth * 16 : 0 }}
         onClick={() => onSelect(node)}
       >
-        <div
-          className={`flex items-center justify-center ${
-            depth > 1 ? "w-3 h-3" : "w-5 h-5"
-          }`}
-        >
+        <div className={`flex items-center justify-center ${depth > 1 ? "w-3 h-3" : "w-5 h-5"}`}>
           {getCategoryIcon(node.name, isActive, depth)}
         </div>
         <span

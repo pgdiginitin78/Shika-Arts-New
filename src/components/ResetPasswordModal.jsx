@@ -251,7 +251,8 @@ export function ResetPasswordModal({ isOpen, resetKey, loginName, onClose }) {
                 Password Reset!
               </h2>
               <p className="text-xs sm:text-sm text-[#717171] max-w-xs leading-relaxed mb-6">
-                Your password has been updated successfully. You can now sign in with your new password.
+                Your password has been updated successfully. You can now sign in with your new
+                password.
               </p>
               <button
                 onClick={handleClose}

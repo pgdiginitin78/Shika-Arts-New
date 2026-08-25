@@ -85,9 +85,11 @@ export default function Delicacies() {
   const { products, total, isLoading, isFetchingNextPage, hasNextPage, sentinelRef } =
     useInfiniteProducts(filterMode, selectedSlug, selectedId);
 
-  const subCategoriesToShow = activeCategory === "All"
-    ? delicaciesCat?.children?.flatMap((category) => category.children || []) || []
-    : delicaciesCat?.children?.find((category) => category.name === activeCategory)?.children || [];
+  const subCategoriesToShow =
+    activeCategory === "All"
+      ? delicaciesCat?.children?.flatMap((category) => category.children || []) || []
+      : delicaciesCat?.children?.find((category) => category.name === activeCategory)?.children ||
+        [];
 
   const categoryTabs =
     delicaciesCat?.children && delicaciesCat.children.length > 0

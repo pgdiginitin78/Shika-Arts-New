@@ -1830,61 +1830,67 @@ export default function AdminOrdersDashboard() {
 
   const requestId = useRef(0);
 
-  const loadOrders = useCallback((force = false) => {
-    const id = ++requestId.current;
+  const loadOrders = useCallback(
+    (force = false) => {
+      const id = ++requestId.current;
 
-    if (!force && window.__adminOrdersInFlight) return;
-    window.__adminOrdersInFlight = true;
+      if (!force && window.__adminOrdersInFlight) return;
+      window.__adminOrdersInFlight = true;
 
-    setLoading(true);
-    setError("");
+      setLoading(true);
+      setError("");
 
-    getAdminOrders({
-      page,
-      per_page: perPage,
-      status: filters.status.join(","),
-      search: filters.search,
-      date_from: filters.date_from,
-      date_to: filters.date_to,
-      min_amount: filters.min_amount,
-      max_amount: filters.max_amount,
-      payment_method: filters.payment_method,
-      orderby: filters.orderby,
-      order: filters.order,
-    })
-      .then((data) => {
-        if (id !== requestId.current) return;
-        setOrders(data.orders || []);
-        setTotal(data.total || 0);
-        setTotalPages(data.total_pages || 1);
+      getAdminOrders({
+        page,
+        per_page: perPage,
+        status: filters.status.join(","),
+        search: filters.search,
+        date_from: filters.date_from,
+        date_to: filters.date_to,
+        min_amount: filters.min_amount,
+        max_amount: filters.max_amount,
+        payment_method: filters.payment_method,
+        orderby: filters.orderby,
+        order: filters.order,
       })
-      .catch(() => {
-        if (id !== requestId.current) return;
-        setError("Couldn't load orders. Check your connection and try again.");
+        .then((data) => {
+          if (id !== requestId.current) return;
+          setOrders(data.orders || []);
+          setTotal(data.total || 0);
+          setTotalPages(data.total_pages || 1);
+        })
+        .catch(() => {
+          if (id !== requestId.current) return;
+          setError("Couldn't load orders. Check your connection and try again.");
+        })
+        .finally(() => {
+          window.__adminOrdersInFlight = false;
+          if (id !== requestId.current) return;
+          setLoading(false);
+        });
+    },
+    [page, perPage, filters],
+  );
+
+  const loadSummary = useCallback(
+    (force = false) => {
+      if (!force && window.__adminSummaryInFlight) return;
+      window.__adminSummaryInFlight = true;
+
+      setSummaryLoading(true);
+      getAdminOrdersSummary({
+        date_from: filters.date_from,
+        date_to: filters.date_to,
       })
-      .finally(() => {
-        window.__adminOrdersInFlight = false;
-        if (id !== requestId.current) return;
-        setLoading(false);
-      });
-  }, [page, perPage, filters]);
-
-  const loadSummary = useCallback((force = false) => {
-    if (!force && window.__adminSummaryInFlight) return;
-    window.__adminSummaryInFlight = true;
-
-    setSummaryLoading(true);
-    getAdminOrdersSummary({
-      date_from: filters.date_from,
-      date_to: filters.date_to,
-    })
-      .then((data) => setSummary(data.summary))
-      .catch(() => {})
-      .finally(() => {
-        window.__adminSummaryInFlight = false;
-        setSummaryLoading(false);
-      });
-  }, [filters.date_from, filters.date_to]);
+        .then((data) => setSummary(data.summary))
+        .catch(() => {})
+        .finally(() => {
+          window.__adminSummaryInFlight = false;
+          setSummaryLoading(false);
+        });
+    },
+    [filters.date_from, filters.date_to],
+  );
 
   useEffect(() => {
     loadOrders();

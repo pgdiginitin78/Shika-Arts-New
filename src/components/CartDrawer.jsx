@@ -18,12 +18,11 @@ import {
   Plus,
   ShieldCheck,
   ShoppingBag,
-  Trash2
+  Trash2,
 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-
 
 export function CartDrawer() {
   const { items, isOpen, setOpen, isLoading, isSyncing, updateQuantity, removeItem, clearCart } =
@@ -35,20 +34,20 @@ export function CartDrawer() {
 
   console.log("CartDrawer items:", safeItems);
 
-const moveToWishlist = async (item) => {
-  try {
-    await addToWishlistApi({
-      ...item,
-      quantity: item.quantity, 
-    });
-    await useWishlistStore.getState().fetchWishlist();
-    await removeItem(item.key);
-    toast.success("Moved to wishlist");
-  } catch (error) {
-    console.error("Failed to move item to wishlist:", error);
-    toast.error("Couldn't move item to wishlist. Please try again.");
-  }
-};
+  const moveToWishlist = async (item) => {
+    try {
+      await addToWishlistApi({
+        ...item,
+        quantity: item.quantity,
+      });
+      await useWishlistStore.getState().fetchWishlist();
+      await removeItem(item.key);
+      toast.success("Moved to wishlist");
+    } catch (error) {
+      console.error("Failed to move item to wishlist:", error);
+      toast.error("Couldn't move item to wishlist. Please try again.");
+    }
+  };
 
   const totalItems = safeItems.reduce((sum, item) => sum + Number(item?.quantity || 0), 0);
 
@@ -156,7 +155,10 @@ const moveToWishlist = async (item) => {
                               {getVariationLabel(item) ? `Qty  ${getVariationLabel(item)}` : ""}
                             </p>
                             <p className="mt-1 font-semibold">
-                              {formatPrice(getUnitPrice(item), item?.prices?.currency_code || "INR")}
+                              {formatPrice(
+                                getUnitPrice(item),
+                                item?.prices?.currency_code || "INR",
+                              )}
                             </p>
                           </div>
                         </div>

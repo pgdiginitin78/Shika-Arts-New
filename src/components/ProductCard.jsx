@@ -80,7 +80,6 @@ const buildWishlistPayload = (node, variant, image, product, quantity = 1, produ
   };
 };
 
-
 function useIsLoggedIn() {
   const { token } = useAuth();
   if (token) return true;
@@ -302,9 +301,7 @@ export const ProductCard = memo(function ProductCard({ product, lightMode = true
               )}
             </button>
           ) : (
-            <span
-              className="w-full bg-primary text-primary-foreground py-3 rounded flex items-center justify-center gap-2 text-[10px] uppercase tracking-ultra hover:bg-accent hover:text-primary transition-colors text-center"
-            >
+            <span className="w-full bg-primary text-primary-foreground py-3 rounded flex items-center justify-center gap-2 text-[10px] uppercase tracking-ultra hover:bg-accent hover:text-primary transition-colors text-center">
               Contact Us
             </span>
           )}

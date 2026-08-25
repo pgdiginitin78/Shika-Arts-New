@@ -247,8 +247,6 @@ api.interceptors.request.use(
       if (token) {
         config.headers = config.headers || {};
         config.headers.Authorization = `Bearer ${token.trim()}`;
-        config.headers["Cache-Control"] = "no-cache";
-        config.headers["Pragma"] = "no-cache";
 
         if (import.meta.env.DEV) {
           const payload = parseJwtPayload(token);
@@ -299,6 +297,16 @@ api.interceptors.response.use(
       localStorage.setItem("cart_token", incomingCartToken);
     }
 
+    const status = error.response?.status;
+    const isWcStoreRoute = error.config?.url?.includes("/wc/store/");
+
+    if (isWcStoreRoute && (status === 400 || status === 404 || status === 500)) {
+      if (import.meta.env.DEV) {
+        console.warn("[Cart] Cart request failed with status:", status, "clearing cart token");
+      }
+      localStorage.removeItem("cart_token");
+    }
+
     return Promise.reject(error);
   },
 );
@@ -337,9 +345,7 @@ api.interceptors.response.use(
         originalRequest._retry = true;
 
         if (import.meta.env.DEV) {
-          console.log(
-            `[AUTH] Auth error (${code || status}), attempting token refresh and retry`,
-          );
+          console.log(`[AUTH] Auth error (${code || status}), attempting token refresh and retry`);
         }
 
         try {

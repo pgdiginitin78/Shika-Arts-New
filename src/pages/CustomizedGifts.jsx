@@ -65,14 +65,14 @@ export default function CustomizedGifts() {
       let matchedParent = "All";
       customizedCat?.children?.forEach((menu) => {
         if (menu.slug === tagParam) {
-           matched = menu;
-           matchedParent = menu.name;
+          matched = menu;
+          matchedParent = menu.name;
         } else {
-           const found = menu.children?.find((s) => s.slug === tagParam);
-           if (found) {
-             matched = found;
-             matchedParent = menu.name;
-           }
+          const found = menu.children?.find((s) => s.slug === tagParam);
+          if (found) {
+            matched = found;
+            matchedParent = menu.name;
+          }
         }
       });
       if (matched) {

@@ -549,9 +549,10 @@ export default function Occasions() {
   const { products, total, isLoading, isFetchingNextPage, hasNextPage, sentinelRef } =
     useInfiniteProducts(filterMode, selectedSlug, selectedId);
 
-  const subCategoriesToShow = activeCategory === "All"
-    ? occasionCat?.children?.flatMap((category) => category.children || []) || []
-    : occasionCat?.children?.find((category) => category.name === activeCategory)?.children || [];
+  const subCategoriesToShow =
+    activeCategory === "All"
+      ? occasionCat?.children?.flatMap((category) => category.children || []) || []
+      : occasionCat?.children?.find((category) => category.name === activeCategory)?.children || [];
 
   const decodeHtml = (text) => {
     const txt = document.createElement("textarea");

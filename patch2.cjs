@@ -4,7 +4,7 @@ const files = [
   "src/pages/Corporate.jsx",
   "src/pages/Wedding.jsx",
   "src/pages/Occasions.jsx",
-  "src/pages/PackagingStudio.jsx"
+  "src/pages/PackagingStudio.jsx",
 ];
 
 const parentFunc = `

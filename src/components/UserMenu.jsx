@@ -70,10 +70,14 @@ export function UserMenu() {
   const email = accountInfo?.email || accountInfo?.user_email || "";
   const firstName = accountInfo?.first_name || "";
   const lastName = accountInfo?.last_name || "";
-  
-  const displayName = (firstName || lastName)
-    ? `${firstName} ${lastName}`.trim()
-    : (accountInfo?.display_name || accountInfo?.user_display_name || accountInfo?.user_nicename || "");
+
+  const displayName =
+    firstName || lastName
+      ? `${firstName} ${lastName}`.trim()
+      : accountInfo?.display_name ||
+        accountInfo?.user_display_name ||
+        accountInfo?.user_nicename ||
+        "";
 
   const initials = (firstName?.[0] || displayName?.[0] || email?.[0] || "U").toUpperCase();
   const avatarUrl = customer?.imageUrl || undefined;
@@ -136,7 +140,7 @@ export function UserMenu() {
               borderColor: "rgba(0,0,0,0.06)",
               boxShadow: "0 12px 32px rgba(15, 23, 22, 0.14)",
             },
-          }
+          },
         }}
         MenuListProps={{ sx: { pt: "0px !important", pb: "0px !important" } }}
       >
@@ -292,10 +296,15 @@ export function UserMenuInline({ onAfter }) {
   const email = accountInfo?.email || accountInfo?.user_email || "";
   const firstName = accountInfo?.first_name || "";
   const lastName = accountInfo?.last_name || "";
-  
-  const displayName = (firstName || lastName)
-    ? `${firstName} ${lastName}`.trim()
-    : (accountInfo?.display_name || accountInfo?.user_display_name || accountInfo?.user_nicename || email || "Account");
+
+  const displayName =
+    firstName || lastName
+      ? `${firstName} ${lastName}`.trim()
+      : accountInfo?.display_name ||
+        accountInfo?.user_display_name ||
+        accountInfo?.user_nicename ||
+        email ||
+        "Account";
 
   const initials = (firstName?.[0] || displayName?.[0] || email?.[0] || "U").toUpperCase();
   const avatarUrl = customer?.imageUrl || undefined;

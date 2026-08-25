@@ -135,7 +135,7 @@ export function OtpVerificationModal({ isOpen, onClose, email, onSuccess }) {
             overflow: "hidden",
             backgroundColor: "#F7F8F9",
           },
-        }
+        },
       }}
     >
       <DialogContent sx={{ p: 0 }}>

@@ -74,7 +74,6 @@ export function WishlistDrawer() {
       fetchWishlist();
     }
   }, [isOpen, fetchWishlist]);
-  
 
   const handleAddToCart = async (product) => {
     const node = productToNode(product);
@@ -186,18 +185,14 @@ export function WishlistDrawer() {
 
                       <div className="flex-1 min-w-0 flex flex-col justify-between">
                         <div>
-                          <h4 className="truncate font-serif text-base font-semibold">
-                            {title}
-                          </h4>
+                          <h4 className="truncate font-serif text-base font-semibold">{title}</h4>
                           {productType && (
                             <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
                               {productType}
                             </p>
                           )}
                           {variationLabel && (
-                            <p className="text-xs text-muted-foreground">
-                              {variationLabel}
-                            </p>
+                            <p className="text-xs text-muted-foreground">{variationLabel}</p>
                           )}
                           <p className="font-semibold text-sm">{price}</p>
                         </div>
@@ -216,16 +211,18 @@ export function WishlistDrawer() {
                             )}
                             Add to Cart
                           </Button>
-                          
+
                           {handle && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-8 px-2"
-                              asChild
-                            >
-                              <Link to={`/product/${handle}`} onClick={() => setOpen(false)} title="View Details">
-                                <Eye size={14} className="text-muted-foreground hover:text-foreground" />
+                            <Button variant="outline" size="sm" className="h-8 px-2" asChild>
+                              <Link
+                                to={`/product/${handle}`}
+                                onClick={() => setOpen(false)}
+                                title="View Details"
+                              >
+                                <Eye
+                                  size={14}
+                                  className="text-muted-foreground hover:text-foreground"
+                                />
                               </Link>
                             </Button>
                           )}

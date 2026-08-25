@@ -200,7 +200,7 @@ export default function ProfilePage() {
   useEffect(() => {
     if (window.__profileInFlight) return;
     window.__profileInFlight = true;
-    
+
     getUserProfile()
       .then((data) => {
         if (data && data.success) {
@@ -496,7 +496,9 @@ export default function ProfilePage() {
                     <div className="flex flex-col gap-5">
                       <div className="flex items-center justify-between border-b border-[#E7D9B8] pb-3">
                         <p className="text-sm font-medium text-[#8A7A63]">
-                          Showing <span className="font-semibold text-[#2B211B]">{orders.length}</span> order{orders.length !== 1 ? "s" : ""}
+                          Showing{" "}
+                          <span className="font-semibold text-[#2B211B]">{orders.length}</span>{" "}
+                          order{orders.length !== 1 ? "s" : ""}
                         </p>
                       </div>
 

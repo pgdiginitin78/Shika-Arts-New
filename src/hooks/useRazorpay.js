@@ -14,8 +14,7 @@ function loadRazorpayScript() {
 
     if (existing) {
       existing.onload = () => resolve(true);
-      existing.onerror = () =>
-        reject(new Error("Failed to load Razorpay SDK"));
+      existing.onerror = () => reject(new Error("Failed to load Razorpay SDK"));
       return;
     }
 
@@ -26,8 +25,7 @@ function loadRazorpayScript() {
 
     script.onload = () => resolve(true);
 
-    script.onerror = () =>
-      reject(new Error("Failed to load Razorpay SDK"));
+    script.onerror = () => reject(new Error("Failed to load Razorpay SDK"));
 
     document.body.appendChild(script);
   });
@@ -100,14 +98,11 @@ export function useRazorpay() {
             onSuccess?.({
               receiptId,
 
-              razorpayPaymentId:
-                response.razorpay_payment_id,
+              razorpayPaymentId: response.razorpay_payment_id,
 
-              razorpayOrderId:
-                response.razorpay_order_id,
+              razorpayOrderId: response.razorpay_order_id,
 
-              razorpaySignature:
-                response.razorpay_signature,
+              razorpaySignature: response.razorpay_signature,
             });
           },
         };
@@ -126,7 +121,7 @@ export function useRazorpay() {
         onFailure?.(err);
       }
     },
-    []
+    [],
   );
 
   return {

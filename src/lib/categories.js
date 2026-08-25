@@ -5,7 +5,6 @@ import HampersImage from "../assets/corporate/PackagingStudio.png";
 import OccasionsImage from "../assets/homePage/OccasionGift.webp";
 import WeddingGift from "../assets/homePage/Wedding.webp";
 
-
 export const CATEGORIES = [
   {
     slug: "Corporate",

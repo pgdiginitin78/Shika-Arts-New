@@ -54,7 +54,6 @@ export const getProductsPage = async ({ page = 1, per_page = 50 } = {}) => {
   const { data } = await publicApi.get("/wp-json/custom/v1/all-products", {
     params: { page, per_page },
   });
-  // data = { total, pages, products }
   return data;
 };
 
@@ -66,7 +65,9 @@ export const searchProducts = async (search) => {
 };
 
 export const getCategories = async () => {
-  const { data } = await publicApi.get("https://api.shikaarts.com/wp-json/custom/v1/all-categories");
+  const { data } = await publicApi.get(
+    "https://api.shikaarts.com/wp-json/custom/v1/all-categories",
+  );
   return data;
 };
 

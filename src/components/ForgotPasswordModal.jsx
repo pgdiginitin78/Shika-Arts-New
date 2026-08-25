@@ -45,7 +45,12 @@ export function ForgotPasswordModal({ isOpen, onClose }) {
       open={isOpen}
       onClose={handleClose}
       aria-labelledby="forgot-password-title"
-      sx={{ display: "flex", alignItems: { xs: "flex-end", sm: "center" }, justifyContent: "center", p: { xs: 0, sm: 2 } }}
+      sx={{
+        display: "flex",
+        alignItems: { xs: "flex-end", sm: "center" },
+        justifyContent: "center",
+        p: { xs: 0, sm: 2 },
+      }}
     >
       <div className="relative w-full sm:max-w-md bg-white outline-none rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden animate-fadeIn">
         <div
@@ -79,7 +84,8 @@ export function ForgotPasswordModal({ isOpen, onClose }) {
                   Forgot Password?
                 </h2>
                 <p className="text-xs sm:text-sm mt-1.5 text-[#717171] max-w-xs leading-relaxed">
-                  Enter your registered email address and we'll send you a link to reset your password.
+                  Enter your registered email address and we'll send you a link to reset your
+                  password.
                 </p>
               </div>
 
@@ -177,7 +183,8 @@ export function ForgotPasswordModal({ isOpen, onClose }) {
               </p>
               <p className="text-sm font-semibold text-[#0f1716] mb-4 break-all">{sentEmail}</p>
               <p className="text-xs text-[#a1a1aa] leading-relaxed max-w-xs mb-6">
-                Click the link in the email to reset your password. If you don't see it, check your spam folder.
+                Click the link in the email to reset your password. If you don't see it, check your
+                spam folder.
               </p>
               <button
                 onClick={handleClose}
