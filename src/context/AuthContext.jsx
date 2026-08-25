@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { getCurrentUser } from "@/services/LoginServices";
+import { clearTokens } from "@/services/http-common";
 import { useCartStore } from "@/stores/cartStore";
 import { useWishlistStore } from "@/stores/wishlistStore";
 
@@ -49,6 +50,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     setToken(null);
+    clearTokens();
     localStorage.clear();
     useCartStore.getState().resetCart();
     useWishlistStore.getState().clearWishlist();
