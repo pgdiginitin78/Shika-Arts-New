@@ -39,6 +39,10 @@ export const logoutApi = async () => {
 };
 
 export const getCurrentUser = async () => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    return null;
+  }
   const { data } = await api.get("/wp-json/custom/v1/user-profile");
   return data;
 };

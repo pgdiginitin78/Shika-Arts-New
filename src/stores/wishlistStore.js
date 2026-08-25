@@ -65,6 +65,10 @@ export const useWishlistStore = create((set, get) => ({
       const data = await getWishlistItems();
       const fetchedItems = Array.isArray(data?.items) ? data.items : [];
 
+      if (import.meta.env.DEV) {
+        console.log("[Wishlist] API returned items:", fetchedItems);
+      }
+
       // Deduplicate items based on getProductKey to show exact count
       const uniqueItemsMap = new Map();
       fetchedItems.forEach((item) => {

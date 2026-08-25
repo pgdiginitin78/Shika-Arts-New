@@ -140,6 +140,10 @@ export async function removeFromWishlistApi(productId, variationId = 0) {
 }
 
 export async function getWishlistItems() {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    return { success: false, items: [] };
+  }
   const { data } = await api.get("/wp-json/custom/v1/wishlist");
   return data;
 }
