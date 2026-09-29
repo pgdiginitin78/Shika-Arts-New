@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { CartDrawer } from "./components/CartDrawer";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
@@ -55,6 +56,56 @@ function getResetParams() {
   return null;
 }
 
+function AnimatedRoutes({ isSuperAdmin }) {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={location.pathname}
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -12 }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        className="w-full"
+      >
+        <Routes location={location}>
+          <Route path="/" element={<Home />} />
+          <Route path="/category/Occasions" element={<Occasions />} />
+          <Route path="/category/Corporate" element={<Corporate />} />
+          <Route path="/category/Wedding" element={<Wedding />} />
+          <Route path="/category/premium-gifts" element={<PremiumGifts />} />
+          <Route path="/category/customizedgifts" element={<CustomizedGifts />} />
+          <Route path="/category/customization" element={<CustomizedGifts />} />
+          <Route path="/category/packaging-studio" element={<PackagingStudio />} />
+          <Route path="/category/packagingstudio" element={<PackagingStudio />} />
+          <Route path="/category/earthworth" element={<EarthWorth />} />
+          <Route path="/category/:slug" element={<Category />} />
+          <Route path="/product/:handle" element={<Product />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/category/delicacies" element={<Delicacies />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
+          <Route path="/my-orders" element={<MyOrdersPage />} />
+          {isSuperAdmin && <Route path="/admin" element={<AdminDashboard />} />}
+          {isSuperAdmin && (
+            <Route path="/admin/brochure-downloads" element={<BrochureDownloads />} />
+          )}
+          {isSuperAdmin && (
+            <Route path="/admin/enquiries" element={<EnquiriesAdminPage />} />
+          )}
+          <Route path="/profilePage" element={<ProfilePage />} />
+          <Route path="/auth/callback" element={<GoogleAuthCallback />} />
+          <Route path="/about-us" element={<AboutUs />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsAndConditions />} />
+          <Route path="/shipping-policy" element={<ShippingPolicy />} />
+        </Routes>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
 function AppContent() {
   useCartSync();
   useWishlistSync();
@@ -77,6 +128,8 @@ function AppContent() {
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
+      wheelMultiplier: 1,
+      touchMultiplier: 2,
     });
 
     window.__lenis = lenis;
@@ -104,40 +157,15 @@ function AppContent() {
           <BrowserRouter>
             <ScrollToTop />
             <Header />
-            <main className="">
-              <Suspense fallback={<div className="min-h-[60vh]" />}>
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/category/Occasions" element={<Occasions />} />
-                  <Route path="/category/Corporate" element={<Corporate />} />
-                  <Route path="/category/Wedding" element={<Wedding />} />
-                  <Route path="/category/premium-gifts" element={<PremiumGifts />} />
-                  <Route path="/category/customizedgifts" element={<CustomizedGifts />} />
-                  <Route path="/category/customization" element={<CustomizedGifts />} />
-                  <Route path="/category/packaging-studio" element={<PackagingStudio />} />
-                  <Route path="/category/packagingstudio" element={<PackagingStudio />} />
-                  <Route path="/category/earthworth" element={<EarthWorth />} />
-                  <Route path="/category/:slug" element={<Category />} />
-                  <Route path="/product/:handle" element={<Product />} />
-                  <Route path="/products" element={<Products />} />
-                  <Route path="/category/delicacies" element={<Delicacies />} />
-                  <Route path="/checkout" element={<CheckoutPage />} />
-                  <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
-                  <Route path="/my-orders" element={<MyOrdersPage />} />
-                  {isSuperAdmin && <Route path="/admin" element={<AdminDashboard />} />}
-                  {isSuperAdmin && (
-                    <Route path="/admin/brochure-downloads" element={<BrochureDownloads />} />
-                  )}
-                  {isSuperAdmin && (
-                    <Route path="/admin/enquiries" element={<EnquiriesAdminPage />} />
-                  )}
-                  <Route path="/profilePage" element={<ProfilePage />} />
-                  <Route path="/auth/callback" element={<GoogleAuthCallback />} />
-                  <Route path="/about-us" element={<AboutUs />} />
-                  <Route path="/privacy" element={<PrivacyPolicy />} />
-                  <Route path="/terms" element={<TermsAndConditions />} />
-                  <Route path="/shipping-policy" element={<ShippingPolicy />} />
-                </Routes>
+            <main className="w-full">
+              <Suspense
+                fallback={
+                  <div className="min-h-[70vh] w-full flex items-center justify-center">
+                    <div className="w-9 h-9 rounded-full border-2 border-[#D4AF37] border-t-transparent animate-spin" />
+                  </div>
+                }
+              >
+                <AnimatedRoutes isSuperAdmin={isSuperAdmin} />
               </Suspense>
             </main>
             <Footer />
