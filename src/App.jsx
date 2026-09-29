@@ -69,11 +69,18 @@ function AppContent() {
   }, []);
 
   useEffect(() => {
+    if (typeof window !== "undefined" && "scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
     });
+
+    window.__lenis = lenis;
+    lenis.scrollTo(0, { immediate: true });
 
     let rafId;
     function raf(time) {
@@ -86,6 +93,7 @@ function AppContent() {
     return () => {
       cancelAnimationFrame(rafId);
       lenis.destroy();
+      window.__lenis = null;
     };
   }, []);
 
