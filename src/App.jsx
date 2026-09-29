@@ -13,8 +13,9 @@ import { useWishlistSync } from "./hooks/useWishlistSync";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { useState, useEffect, lazy, Suspense } from "react";
 import Home from "./pages/Home";
+import Lenis from "lenis";
+import "lenis/dist/lenis.css";
 
-// Route-level code-splitting for non-home pages
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const BrochureDownloads = lazy(() => import("./pages/BrochureDownloads"));
 const EnquiriesAdminPage = lazy(() => import("./pages/EnquiriesAdminPage"));
@@ -65,6 +66,27 @@ function AppContent() {
 
   useEffect(() => {
     startTokenAutoRefresh();
+  }, []);
+
+  useEffect(() => {
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    });
+
+    let rafId;
+    function raf(time) {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    }
+
+    rafId = requestAnimationFrame(raf);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      lenis.destroy();
+    };
   }, []);
 
   return (

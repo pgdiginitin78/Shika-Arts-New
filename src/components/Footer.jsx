@@ -276,7 +276,7 @@ export function Footer() {
   return (
     <>
       <footer className="bg-primary text-primary-foreground pt-24 pb-12">
-        <div className="mx-auto max-w-screen-2xl px-4 lg:px-12 2xl:px-0">
+        <div className="mx-auto max-w-screen-2xl px-4 lg:px-12 2xl:px-6">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-16 items-start">
             <div className="md:col-span-7">
               <h3 className="font-serif text-4xl mb-6">Shika Arts</h3>
@@ -362,6 +362,12 @@ export function Footer() {
               © {new Date().getFullYear()} Shika Arts — All rights reserved.
             </p>
             <div className="flex gap-8">
+              <Link
+                to="/about-us"
+                className="text-[9px] uppercase tracking-ultra opacity-40 hover:opacity-100 transition-opacity"
+              >
+                About Us
+              </Link>
               <Link
                 to="/privacy"
                 className="text-[9px] uppercase tracking-ultra opacity-40 hover:opacity-100 transition-opacity"

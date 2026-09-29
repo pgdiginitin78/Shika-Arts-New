@@ -156,11 +156,11 @@ export function Header() {
               </span>
             </div>
           </Link>
-          <div className="hidden md:flex items-center border-l border-border/60 pl-3 ml-1 shrink-0">
+          <div className="hidden md:flex items-center border-l border-border/60 pl-3 ml-1 shrink-0 xl:w-full xl:max-w-sm">
             <LocationSelector />
           </div>
 
-          <div ref={searchBarRef} className="relative flex-1 max-w-3xl mx-auto hidden md:block">
+          <div ref={searchBarRef} className="relative flex-1 max-w-5xl mx-auto hidden md:block">
             <form
               onSubmit={handleSearch}
               className="flex items-stretch h-10 2xl:h-12 rounded-md overflow-hidden bg-white border border-border shadow-sm focus-within:border-destructive transition-colors"
