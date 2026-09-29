@@ -155,6 +155,8 @@ const personalizedData = [
 ];
 
 function AboutUs() {
+  const marqueeRef = React.useRef(null);
+
   return (
     <div className="w-full bg-[#faf5ed] text-[#4a1525]">
       <motion.div
@@ -478,18 +480,19 @@ function AboutUs() {
 
         <div className="w-full space-y-4 sm:space-y-6">
           <marquee
+            ref={marqueeRef}
             behavior="scroll"
             direction="left"
             scrollamount="7"
-            onMouseEnter={(e) => e.currentTarget.stop()}
-            onMouseLeave={(e) => e.currentTarget.start()}
-            className="w-full py-1 cursor-pointer"
+            className="w-full py-1"
           >
             <div className="inline-flex items-center gap-4 sm:gap-6 px-4">
               {clientLogos.map((client, idx) => (
                 <div
                   key={`${client.name}-${idx}`}
-                  className="w-44 sm:w-52 lg:w-60 h-24 sm:h-28 lg:h-32 bg-white rounded-xl border border-[#e8ddd0]/80 p-3 sm:p-5 flex items-center justify-center shadow-[0_2px_10px_rgba(74,21,37,0.04)] hover:shadow-[0_4px_20px_rgba(74,21,37,0.12)] hover:border-[#c5a059] transition-all duration-300 shrink-0 group"
+                  onMouseEnter={() => marqueeRef.current?.stop()}
+                  onMouseLeave={() => marqueeRef.current?.start()}
+                  className="w-44 sm:w-52 lg:w-60 h-24 sm:h-28 lg:h-32 bg-white rounded-xl border border-[#e8ddd0]/80 p-3 sm:p-5 flex items-center justify-center shadow-[0_2px_10px_rgba(74,21,37,0.04)] hover:shadow-[0_4px_20px_rgba(74,21,37,0.12)] hover:border-[#c5a059] transition-all duration-300 shrink-0 group cursor-pointer"
                 >
                   <img
                     src={client.src}
