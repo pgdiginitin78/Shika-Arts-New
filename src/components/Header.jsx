@@ -159,6 +159,7 @@ export function Header() {
           <div className="hidden md:flex items-center border-l border-border/60 pl-3 ml-1 shrink-0 xl:w-full xl:max-w-sm">
             <LocationSelector />
           </div>
+          
 
           <div ref={searchBarRef} className="relative flex-1 max-w-5xl mx-auto hidden md:block">
             <form
