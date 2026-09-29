@@ -1,6 +1,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { ReactLenis } from "lenis/react";
+import "lenis/dist/lenis.css";
 import { CartDrawer } from "./components/CartDrawer";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
@@ -14,8 +16,6 @@ import { useWishlistSync } from "./hooks/useWishlistSync";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { useState, useEffect, lazy, Suspense } from "react";
 import Home from "./pages/Home";
-import Lenis from "lenis";
-import "lenis/dist/lenis.css";
 
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const BrochureDownloads = lazy(() => import("./pages/BrochureDownloads"));
@@ -63,10 +63,10 @@ function AnimatedRoutes({ isSuperAdmin }) {
     <AnimatePresence mode="wait">
       <motion.div
         key={location.pathname}
-        initial={{ opacity: 0, y: 12 }}
+        initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -12 }}
-        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        exit={{ opacity: 0, y: -14 }}
+        transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
         className="w-full"
       >
         <Routes location={location}>
@@ -119,37 +119,6 @@ function AppContent() {
     startTokenAutoRefresh();
   }, []);
 
-  useEffect(() => {
-    if (typeof window !== "undefined" && "scrollRestoration" in window.history) {
-      window.history.scrollRestoration = "manual";
-    }
-
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: 2,
-    });
-
-    window.__lenis = lenis;
-    lenis.scrollTo(0, { immediate: true });
-
-    let rafId;
-    function raf(time) {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
-    }
-
-    rafId = requestAnimationFrame(raf);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      lenis.destroy();
-      window.__lenis = null;
-    };
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <CartAnimationProvider>
@@ -189,9 +158,11 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ReactLenis root options={{ lerp: 0.08, duration: 1.2, smoothWheel: true }}>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </ReactLenis>
   );
 }
 
